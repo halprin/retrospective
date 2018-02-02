@@ -6,7 +6,7 @@ def generate_token():
 
 
 def get_token_from_request(request):
-    return request.META['HTTP_AUTHORIZATION'][len('Bearer '):]
+    return request.META.get('HTTP_AUTHORIZATION', '')[len('Bearer '):]
 
 
 def token_is_valid(token, retro):

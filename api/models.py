@@ -1,4 +1,3 @@
-from django.db import models
 from pynamodb.models import Model
 from pynamodb.attributes import UnicodeAttribute, ListAttribute, MapAttribute, BooleanAttribute, UnicodeSetAttribute
 from enum import Enum
