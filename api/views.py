@@ -67,11 +67,11 @@ class RetroView(View):
 
         user_token = token.get_token_from_request(request)
         if not token.token_is_valid(user_token, retro):
-            return HttpResponse(status=401)
+            return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
 
         response_body = service.sanitize_retro_for_user_and_step(retro, user_token)
 
-        return JsonResponse(response_body, status=200)
+        return JsonResponse(response_body, status=200, charset=charset_utf8)
 
 
 class RetroUserView(View):

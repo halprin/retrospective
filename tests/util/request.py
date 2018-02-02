@@ -2,10 +2,12 @@ from unittest.mock import MagicMock
 import json
 
 
-def create_mock_request(request_body, token=None):
+def create_mock_request(request_body=None, token=None):
     request = MagicMock()
 
-    if isinstance(request_body, dict):
+    if request_body is None:
+        request.body = ''
+    elif isinstance(request_body, dict):
         request.body = json.dumps(request_body)
     elif isinstance(request_body, str):
         request.body = request_body
