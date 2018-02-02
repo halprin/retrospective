@@ -11,7 +11,7 @@ def test_generate_token():
 
 def test_get_token_from_request():
     test_token = 'asdf-jkl'
-    test_request = request.create_mock_request(test_token)
+    test_request = request.create_mock_request('', token=test_token)
 
     returned_token = token.get_token_from_request(test_request)
 

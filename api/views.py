@@ -1,9 +1,15 @@
-from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 import json
 from api import service, token
 from api.models import Retrospective, RetroStep
+
+
+charset_utf8 = 'UTF-8'
+content_type_text_plain = 'text/plain'
+retro_not_found = 'Retro {} not found'
+user_not_admin = 'User is not valid or not an admin'
+user_not_valid = 'User is not valid'
 
 
 class RetroView(View):
@@ -19,7 +25,7 @@ class RetroView(View):
             'token': new_retro.participants[0].token
         }
 
-        return JsonResponse(response_body, status=201)
+        return JsonResponse(response_body, status=201, charset=charset_utf8)
 
     def put(self, request, retro_id=None, *args, **kwargs):
         retro_id_str = str(retro_id)
@@ -28,10 +34,11 @@ class RetroView(View):
         try:
             retro = service.get_retro(retro_id_str)
         except Retrospective.DoesNotExist:
-            return HttpResponse(status=404)
+            return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
+                                charset=charset_utf8)
 
         if not token.token_is_admin(token.get_token_from_request(request), retro):
-            return HttpResponse(status=401)
+            return HttpResponse(user_not_admin, status=401, content_type=content_type_text_plain, charset=charset_utf8)
 
         request_body = json.loads(request.body)
         direction = request_body['direction']
@@ -40,13 +47,13 @@ class RetroView(View):
         try:
             new_step = service.move_retro(retro, direction)
         except ValueError as exception:
-            return HttpResponse(str(exception), status=422)
+            return HttpResponse(str(exception), status=422, content_type=content_type_text_plain, charset=charset_utf8)
 
         response_body = {
             'newStep': new_step
         }
 
-        return JsonResponse(response_body, status=200)
+        return JsonResponse(response_body, status=200, charset=charset_utf8)
 
     def get(self, request, retro_id=None, *args, **kwargs):
         retro_id_str = str(retro_id)
@@ -55,15 +62,16 @@ class RetroView(View):
         try:
             retro = service.get_retro(retro_id_str)
         except Retrospective.DoesNotExist:
-            return HttpResponse(status=404)
+            return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
+                                charset=charset_utf8)
 
         user_token = token.get_token_from_request(request)
         if not token.token_is_valid(user_token, retro):
-            return HttpResponse(status=401)
+            return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
 
         response_body = service.sanitize_retro_for_user_and_step(retro, user_token)
 
-        return JsonResponse(response_body, status=200)
+        return JsonResponse(response_body, status=200, charset=charset_utf8)
 
 
 class RetroUserView(View):
@@ -74,7 +82,8 @@ class RetroUserView(View):
         try:
             retro = service.get_retro(retro_id_str)
         except Retrospective.DoesNotExist:
-            return HttpResponse(status=404)
+            return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
+                                charset=charset_utf8)
 
         request_body = json.loads(request.body)
         participant_name = request_body['name']
@@ -94,7 +103,8 @@ class RetroUserView(View):
         try:
             retro = service.get_retro(retro_id_str)
         except Retrospective.DoesNotExist:
-            return HttpResponse(status=404)
+            return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
+                                charset=charset_utf8)
 
         user_token = token.get_token_from_request(request)
         if not token.token_is_valid(user_token, retro):
@@ -116,7 +126,8 @@ class RetroIssueView(View):
         try:
             retro = service.get_retro(retro_id_str)
         except Retrospective.DoesNotExist:
-            return HttpResponse(status=404)
+            return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
+                                charset=charset_utf8)
 
         user_token = token.get_token_from_request(request)
         if not token.token_is_valid(user_token, retro):
