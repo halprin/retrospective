@@ -94,7 +94,7 @@ class RetroUserView(View):
             'token': participant_token
         }
 
-        return JsonResponse(response_body, status=201)
+        return JsonResponse(response_body, status=201, charset=charset_utf8)
 
     def put(self, request, retro_id=None, *args, **kwargs):
         retro_id_str = str(retro_id)
@@ -108,14 +108,14 @@ class RetroUserView(View):
 
         user_token = token.get_token_from_request(request)
         if not token.token_is_valid(user_token, retro):
-            return HttpResponse(status=401)
+            return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
 
         request_body = json.loads(request.body)
         is_ready = request_body['ready']
 
         service.mark_user_as_ready(user_token, is_ready, retro)
 
-        return HttpResponse('', status=200)
+        return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
 
 
 class RetroIssueView(View):
