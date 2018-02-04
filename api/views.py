@@ -10,6 +10,7 @@ content_type_text_plain = 'text/plain'
 retro_not_found = 'Retro {} not found'
 user_not_admin = 'User is not valid or not an admin'
 user_not_valid = 'User is not valid'
+retro_on_wrong_step = 'Cannot create an issue because the retrospective is on step {}'
 
 
 class RetroView(View):
@@ -131,10 +132,12 @@ class RetroIssueView(View):
 
         user_token = token.get_token_from_request(request)
         if not token.token_is_valid(user_token, retro):
-            return HttpResponse(status=401)
+            return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
 
         if RetroStep(retro.current_step) != RetroStep.ADDING_ISSUES:
-            return HttpResponse('Cannot create an issue since the retrospective is on step {}'.format(retro.current_step), status=422)
+            return HttpResponse(
+                retro_on_wrong_step.format(retro.current_step), status=422, content_type=content_type_text_plain,
+                charset=charset_utf8)
 
         request_body = json.loads(request.body)
         issue_title = request_body['title']
@@ -146,7 +149,7 @@ class RetroIssueView(View):
             'id': new_issue_id
         }
 
-        return JsonResponse(response_body, status=201)
+        return JsonResponse(response_body, status=201, charset=charset_utf8)
 
     def put(self, request, retro_id=None, issue_id=None, *args, **kwargs):
         return HttpResponse('Hello World', status=200)
