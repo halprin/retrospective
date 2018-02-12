@@ -115,9 +115,9 @@ def test__sanitize_participant_list_when_admin():
 def test__sanitize_issue_list_shows_all_votes_during_results():
     your_token = 'a-token'
     your_issue = retro.create_mock_issue(section='your_section', creator_token=your_token,
-                                         votes=['another-different-token'])
+                                         votes={'another-different-token'})
     another_issue = retro.create_mock_issue(section='special_section', creator_token='a-different-token',
-                                            votes=[your_token, 'another-different-token'])
+                                            votes={your_token, 'another-different-token'})
     a_retro = retro.create_mock_retro(current_step=RetroStep.RESULTS, issues=[your_issue, another_issue])
 
     sanitized_issues = service._sanitize_issue_list(a_retro, your_token)
@@ -138,9 +138,9 @@ def test__sanitize_issue_list_shows_all_votes_during_results():
 def test__sanitize_issue_list_shows_your_votes_during_voting():
     your_token = 'a-token'
     your_issue = retro.create_mock_issue(section='your_section', creator_token=your_token,
-                                         votes=['another-different-token'])
+                                         votes={'another-different-token'})
     another_issue = retro.create_mock_issue(section='special_section', creator_token='a-different-token',
-                                            votes=[your_token, 'another-different-token'])
+                                            votes={your_token, 'another-different-token'})
     a_retro = retro.create_mock_retro(current_step=RetroStep.VOTING, issues=[your_issue, another_issue])
 
     sanitized_issues = service._sanitize_issue_list(a_retro, your_token)
@@ -160,7 +160,7 @@ def test__sanitize_issue_list_shows_your_votes_during_voting():
 
 def test__sanitize_issue_list_shows_all_issues_during_grouping():
     user_token = 'a-token'
-    your_issue = retro.create_mock_issue(section='your_section', creator_token=user_token, votes=[user_token])
+    your_issue = retro.create_mock_issue(section='your_section', creator_token=user_token, votes={user_token})
     another_issue = retro.create_mock_issue(section='special_section', creator_token='a-different-token')
     a_retro = retro.create_mock_retro(current_step=RetroStep.GROUPING, issues=[your_issue, another_issue])
 
@@ -183,7 +183,7 @@ def test__sanitize_issue_list_shows_all_issues_during_grouping():
 
 def test__sanitize_issue_list_shows_all_issues_during_adding_issues():
     user_token = 'a-token'
-    your_issue = retro.create_mock_issue(section='your_section', creator_token=user_token, votes=[user_token])
+    your_issue = retro.create_mock_issue(section='your_section', creator_token=user_token, votes={user_token})
     another_issue = retro.create_mock_issue(section='special_section', creator_token='a-different-token')
     a_retro = retro.create_mock_retro(current_step=RetroStep.ADDING_ISSUES, issues=[your_issue, another_issue])
 
@@ -271,6 +271,7 @@ def test__create_issue():
     assert actual.title == title
     assert actual.section == section
     assert actual.creator_token == creator_token
+    assert actual.votes is None
     assert actual.id is not None
 
 
@@ -287,3 +288,38 @@ def test_add_new_issue():
     assert actual_id is not None
     assert actual_id == a_retro.issues[len(a_retro.issues) - 1].id
     a_retro.save.assert_called_with()
+
+
+def test_vote_for_issue():
+    issue_id_str = 'issue_id'
+    user_token_str = 'voter_token'
+    first_issue = retro.create_mock_issue(id='not_right_issue')
+    a_issue = retro.create_mock_issue(id=issue_id_str)
+    third_issue = retro.create_mock_issue(id='not_correct_issue')
+    a_retro = retro.create_mock_retro(issues=[first_issue, a_issue, third_issue])
+
+    service.vote_for_issue(issue_id_str, user_token_str, a_retro)
+
+    for issue in a_retro.issues:
+        if issue.id == issue_id_str:
+            assert len(issue.votes) == 1
+            assert user_token_str in issue.votes
+        else:
+            assert issue.votes is None
+
+
+def test_vote_for_issue_twice_results_in_one_vote():
+    issue_id_str = 'issue_id'
+    user_token_str = 'voter_token'
+    first_issue = retro.create_mock_issue(id='not_right_issue')
+    a_issue = retro.create_mock_issue(id=issue_id_str)
+    third_issue = retro.create_mock_issue(id='not_correct_issue')
+    a_retro = retro.create_mock_retro(issues=[first_issue, a_issue, third_issue])
+
+    service.vote_for_issue(issue_id_str, user_token_str, a_retro)
+    service.vote_for_issue(issue_id_str, user_token_str, a_retro)
+
+    for issue in a_retro.issues:
+        if issue.id == issue_id_str:
+            assert len(issue.votes) == 1
+            assert user_token_str in issue.votes

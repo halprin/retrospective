@@ -202,7 +202,7 @@ class TestRetroUserView:
         assert response.status_code == 200
         assert response[content_type] == views.content_type_text_plain
         assert response.charset == views.charset_utf8
-        assert response.content == b''
+        assert response.content.decode() == ''
 
 
 @patch('api.views.token', autospec=True)
@@ -237,7 +237,7 @@ class TestRetroIssueView:
         assert response.status_code == 422
         assert response[content_type] == views.content_type_text_plain
         assert response.charset == views.charset_utf8
-        assert response.content.decode() == views.retro_on_wrong_step.format(retro_step)
+        assert response.content.decode() == views.no_create_issue_retro_wrong_step.format(retro_step)
 
     def test_post_new_issue_success(self, mock_service, mock_token):
         request_body = {
@@ -256,3 +256,46 @@ class TestRetroIssueView:
         assert response[content_type] == content_type_application_json
         assert response.charset == views.charset_utf8
         assert json.loads(response.content) == {'id': mock_issue_id}
+
+    def test_put_retro_not_found(self, mock_service, mock_token):
+        mock_service.get_retro.side_effect = Retrospective.DoesNotExist
+
+        object_under_test = RetroIssueView()
+        retro_id = 'non-existent_retro_id'
+        response = object_under_test.put(request.create_mock_request(), retro_id=retro_id, issue_id='some_issue_id')
+
+        assert_retro_not_found(response, retro_id)
+
+    def test_put_user_not_valid(self, mock_service, mock_token):
+        mock_service.get_retro.return_value = retro.create_mock_retro()
+        mock_token.token_is_valid.return_value = False
+
+        object_under_test = RetroIssueView()
+        response = object_under_test.put(request.create_mock_request(), retro_id='whatever', issue_id='some_issue_id')
+
+        assert_user_not_valid(response)
+
+    def test_put_retro_not_voting_step(self, mock_service, mock_token):
+        incorrect_retro_step = RetroStep.ADDING_ISSUES.value
+        mock_service.get_retro.return_value = retro.create_mock_retro(current_step=incorrect_retro_step)
+        mock_token.token_is_valid.return_value = True
+
+        object_under_test = RetroIssueView()
+        response = object_under_test.put(request.create_mock_request(), retro_id='whatever', issue_id='some_issue_id')
+
+        assert response.status_code == 422
+        assert response[content_type] == views.content_type_text_plain
+        assert response.charset == views.charset_utf8
+        assert response.content.decode() == views.no_vote_issue_retro_wrong_step.format(incorrect_retro_step)
+
+    def test_put_retro_success(self, mock_service, mock_token):
+        mock_service.get_retro.return_value = retro.create_mock_retro(current_step=RetroStep.VOTING.value)
+        mock_token.token_is_valid.return_value = True
+
+        object_under_test = RetroIssueView()
+        response = object_under_test.put(request.create_mock_request(), retro_id='whatever', issue_id='some_issue_id')
+
+        assert response.status_code == 200
+        assert response[content_type] == views.content_type_text_plain
+        assert response.charset == views.charset_utf8
+        assert response.content.decode() == ''

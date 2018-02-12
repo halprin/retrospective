@@ -15,7 +15,8 @@ def create_mock_retro(id='retro_id', name='retro_name', current_step=RetroStep.A
     return retro
 
 
-def create_mock_issue(id='issue_id', title='issue_name', section='Start doing', creator_token='creator-token', votes=[]):
+def create_mock_issue(id='issue_id', title='issue_name', section='Start doing', creator_token='creator-token',
+                      votes=None):
     issue = MagicMock()
 
     issue.id = id

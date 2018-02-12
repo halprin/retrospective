@@ -65,7 +65,7 @@ def _sanitize_issue_list(retro, user_token):
         if current_step == RetroStep.RESULTS:
             sanitized_issue['votes'] = len(issue.votes)
         elif current_step == RetroStep.VOTING:
-            sanitized_issue['votes'] = 1 if len([voter for voter in issue.votes if voter == user_token]) >= 1 else 0
+            sanitized_issue['votes'] = len([voter for voter in issue.votes if voter == user_token])
 
         sanitized_issues.append(sanitized_issue)
 
@@ -107,7 +107,7 @@ def mark_user_as_ready(user_token, is_ready, retro):
 
 
 def _create_issue(title, section, creator_token):
-    return IssueAttribute(id=str(uuid.uuid4()), title=title, section=section, creator_token=creator_token, votes=0)
+    return IssueAttribute(id=str(uuid.uuid4()), title=title, section=section, creator_token=creator_token, votes=None)
 
 
 def add_new_issue(title, section, user_token, retro):
@@ -117,3 +117,14 @@ def add_new_issue(title, section, user_token, retro):
     retro.save()
 
     return new_issue.id
+
+
+def vote_for_issue(issue_id_str, user_token, retro):
+    for issue in retro.issues:
+        if issue.id == issue_id_str:
+            if issue.votes is None:
+                issue.votes = set()
+            issue.votes.add(user_token)
+            break
+
+    retro.save()
