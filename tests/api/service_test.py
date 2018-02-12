@@ -47,7 +47,7 @@ def test__reset_ready_statuses():
 
 
 def test_move_retro_unknown_direction():
-    step = RetroStep.GROUPING
+    step = RetroStep.VOTING
     a_retro = retro.create_mock_retro(current_step=step.value)
 
     with pytest.raises(ValueError):
@@ -158,11 +158,11 @@ def test__sanitize_issue_list_shows_your_votes_during_voting():
     assert was_another_issue['votes'] == 1
 
 
-def test__sanitize_issue_list_shows_all_issues_during_grouping():
+def test__sanitize_issue_list_shows_all_issues_no_votes_yet_during_voting():
     user_token = 'a-token'
-    your_issue = retro.create_mock_issue(section='your_section', creator_token=user_token, votes={user_token})
+    your_issue = retro.create_mock_issue(section='your_section', creator_token=user_token)
     another_issue = retro.create_mock_issue(section='special_section', creator_token='a-different-token')
-    a_retro = retro.create_mock_retro(current_step=RetroStep.GROUPING, issues=[your_issue, another_issue])
+    a_retro = retro.create_mock_retro(current_step=RetroStep.VOTING, issues=[your_issue, another_issue])
 
     sanitized_issues = service._sanitize_issue_list(a_retro, user_token)
 
@@ -171,17 +171,15 @@ def test__sanitize_issue_list_shows_all_issues_during_grouping():
     assert was_your_issue['id'] == your_issue.id
     assert was_your_issue['title'] == your_issue.title
     assert was_your_issue['section'] == your_issue.section
-    with pytest.raises(KeyError):
-        was_your_issue['votes']
+    assert was_your_issue['votes'] == 0
     was_another_issue = sanitized_issues[1]
     assert was_another_issue['id'] == another_issue.id
     assert was_another_issue['title'] == another_issue.title
     assert was_another_issue['section'] == another_issue.section
-    with pytest.raises(KeyError):
-        was_another_issue['votes']
+    assert was_another_issue['votes'] == 0
 
 
-def test__sanitize_issue_list_shows_all_issues_during_adding_issues():
+def test__sanitize_issue_list_shows_my_issues_and_other_sections_during_adding_issues():
     user_token = 'a-token'
     your_issue = retro.create_mock_issue(section='your_section', creator_token=user_token, votes={user_token})
     another_issue = retro.create_mock_issue(section='special_section', creator_token='a-different-token')
@@ -198,6 +196,8 @@ def test__sanitize_issue_list_shows_all_issues_during_adding_issues():
         was_your_issue['votes']
     was_another_issue = sanitized_issues[1]
     assert was_another_issue['section'] == another_issue.section
+    with pytest.raises(KeyError):
+        was_another_issue['title']
     with pytest.raises(KeyError):
         was_another_issue['id']
     with pytest.raises(KeyError):
