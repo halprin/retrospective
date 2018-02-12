@@ -5,7 +5,6 @@ from enum import Enum
 
 class RetroStep(Enum):
     ADDING_ISSUES = 'Adding Issues'
-    GROUPING = 'Grouping'
     VOTING = 'Voting'
     RESULTS = 'Results'
 

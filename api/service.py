@@ -65,7 +65,10 @@ def _sanitize_issue_list(retro, user_token):
         if current_step == RetroStep.RESULTS:
             sanitized_issue['votes'] = len(issue.votes)
         elif current_step == RetroStep.VOTING:
-            sanitized_issue['votes'] = len([voter for voter in issue.votes if voter == user_token])
+            if issue.votes is not None:
+                sanitized_issue['votes'] = len([voter for voter in issue.votes if voter == user_token])
+            else:
+                sanitized_issue['votes'] = 0
 
         sanitized_issues.append(sanitized_issue)
 
