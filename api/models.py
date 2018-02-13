@@ -1,6 +1,10 @@
 from pynamodb.models import Model
 from pynamodb.attributes import UnicodeAttribute, ListAttribute, MapAttribute, BooleanAttribute, UnicodeSetAttribute
 from enum import Enum
+import os
+
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'test')
 
 
 class RetroStep(Enum):
@@ -42,8 +46,9 @@ class ParticipantAttribute(MapAttribute):
 
 class Retrospective(Model):
     class Meta:
-        table_name = "retrospective"
-        host = "http://localhost:8008"
+        table_name = 'retrospective-{}'.format(ENVIRONMENT)
+        if ENVIRONMENT == 'test':
+            host = "http://localhost:8008"
     id = UnicodeAttribute(hash_key=True)
     name = UnicodeAttribute()
     current_step = UnicodeAttribute()
