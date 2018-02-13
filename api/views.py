@@ -174,3 +174,8 @@ class RetroIssueView(View):
         service.vote_for_issue(issue_id_str, user_token, retro)
 
         return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
+
+
+class HealthView(View):
+    def get(self, request, *args, **kwargs):
+        return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
