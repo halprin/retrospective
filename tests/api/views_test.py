@@ -1,5 +1,5 @@
 import json
-from api.views import RetroView, RetroUserView, RetroIssueView
+from api.views import RetroView, RetroUserView, RetroIssueView, HealthView
 from api import views
 from tests.util import request
 from unittest.mock import patch
@@ -299,3 +299,12 @@ class TestRetroIssueView:
         assert response[content_type] == views.content_type_text_plain
         assert response.charset == views.charset_utf8
         assert response.content.decode() == ''
+
+
+class TestHealthView:
+    def test_get(self):
+        object_under_test = HealthView()
+
+        response = object_under_test.get(request.create_mock_request())
+
+        assert response.status_code == 200
