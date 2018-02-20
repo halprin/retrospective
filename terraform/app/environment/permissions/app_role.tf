@@ -27,3 +27,30 @@ resource "aws_iam_role_policy_attachment" "application_role_to_dynamodb_policy" 
   role       = "${aws_iam_role.application_role.name}"
   policy_arn = "${aws_iam_policy.read_writes_dynamodb.arn}"
 }
+
+data "aws_iam_policy" "AWSElasticBeanstalkWebTier" {
+  arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
+}
+
+data "aws_iam_policy" "AWSElasticBeanstalkMulticontainerDocker" {
+  arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkMulticontainerDocker"
+}
+
+data "aws_iam_policy" "AWSElasticBeanstalkWorkerTier" {
+  arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWorkerTier"
+}
+
+resource "aws_iam_role_policy_attachment" "application_role_to_eb_web_policy" {
+  role       = "${aws_iam_role.application_role.name}"
+  policy_arn = "${data.aws_iam_policy.AWSElasticBeanstalkWebTier.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "application_role_to_eb_docker_policy" {
+  role       = "${aws_iam_role.application_role.name}"
+  policy_arn = "${data.aws_iam_policy.AWSElasticBeanstalkMulticontainerDocker.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "application_role_to_eb_worker_policy" {
+  role       = "${aws_iam_role.application_role.name}"
+  policy_arn = "${data.aws_iam_policy.AWSElasticBeanstalkWorkerTier.arn}"
+}
