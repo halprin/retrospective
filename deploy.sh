@@ -74,8 +74,8 @@ else
 fi
 
 # deploy new version
-version_already_deployed ${GIT_HASH}
 DEPLOY_SUCCESS=0
+version_already_deployed ${GIT_HASH}
 if [[ $?  -ne 0 ]]; then
     deploy_application ${GIT_HASH}
     DEPLOY_SUCCESS=$?
