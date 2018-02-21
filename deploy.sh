@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 ENVIRONMENT=$1
-VERSION_S3_BUCKET=elasticbeanstalk-us-east-1-485419608727
 APPLICATION=retrospective
 
 function run_terraform() {
@@ -22,8 +21,8 @@ function create_new_version() {
     echo "Creating version"
     SOURCE_BUNDLE=retrospective_${VERSION}.zip
     git archive -o ${SOURCE_BUNDLE} HEAD
-    aws s3 cp ./${SOURCE_BUNDLE} s3://${VERSION_S3_BUCKET}/
-    aws elasticbeanstalk create-application-version --application-name ${APPLICATION} --version-label ${VERSION} --source-bundle S3Bucket=${VERSION_S3_BUCKET},S3Key=${SOURCE_BUNDLE}
+    aws s3 cp ./${SOURCE_BUNDLE} s3://${BEANSTALK_S3_BUCKET}/
+    aws elasticbeanstalk create-application-version --application-name ${APPLICATION} --version-label ${VERSION} --source-bundle S3Bucket=${BEANSTALK_S3_BUCKET},S3Key=${SOURCE_BUNDLE}
 }
 
 function version_already_deployed() {
