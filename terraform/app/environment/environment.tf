@@ -1,6 +1,6 @@
 resource "aws_elastic_beanstalk_environment" "env" {
   name = "${var.application}-${var.environment}"
-  description = "The retrospective non-production environment"
+  description = "The retrospective ${var.environment} environment"
   application = "${var.application}"
 
   solution_stack_name = "64bit Amazon Linux 2017.09 v2.6.4 running Python 3.6"
