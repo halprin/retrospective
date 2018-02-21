@@ -3,7 +3,7 @@ python:
   - "3.6"
 before_install:
   - sudo apt-get -q update
-  - sudo apt-get install -y awscli
+  - sudo pip install awscli
   - sudo apt-get install -y jq
   - wget https://releases.hashicorp.com/terraform/0.11.3/terraform_0.11.3_linux_amd64.zip
   - sudo unzip -d /usr/local/bin/ terraform_0.11.3_linux_amd64.zip
