@@ -13,4 +13,4 @@ deploy:
   script: ./deploy.sh dev
   on:
     branch:
-      - issue-20-ci
+      - master
