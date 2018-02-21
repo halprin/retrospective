@@ -43,7 +43,7 @@ function wait_for_complete_deployment() {
             echo "Done waiting for deployment to complete."
             return 1
         fi
-        echo "Waiting for deployment to complete..."
+        echo "Waiting for deployment to complete.  Waited ${TOTAL_SLEEP_LENGTH} seconds thus far."
         sleep ${SLEEP_LENGTH}
         TOTAL_SLEEP_LENGTH=$(($TOTAL_SLEEP_LENGTH + $SLEEP_LENGTH))
         aws elasticbeanstalk describe-environments --application-name ${APPLICATION} --environment-names ${APPLICATION}-${ENVIRONMENT} | jq -e '.Environments[] | select(.Status == "Ready")'
