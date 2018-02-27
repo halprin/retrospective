@@ -3,8 +3,6 @@ resource "aws_elastic_beanstalk_environment" "env" {
   description = "The retrospective ${var.environment} environment"
   application = "${var.application}"
 
-  solution_stack_name = "64bit Amazon Linux 2017.09 v2.6.4 running Python 3.6"
-
   cname_prefix = "${var.application}-${var.environment}"
 
   wait_for_ready_timeout = "30m"
