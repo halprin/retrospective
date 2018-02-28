@@ -5,10 +5,17 @@ APPLICATION=retrospective
 
 function run_terraform() {
     echo "Running Terraform"
-    cd ./terraform/
+
+    cd ./terraform/common/
     terraform init
-    terraform apply -auto-approve -var "notification_email=${DEPLOY_EMAIL}" -var "secret_key=${SECRET_KEY}"
-    cd ../
+    terraform apply -auto-approve
+    BEANSTALK_APPLICATION=$(terraform output beanstalk_application)
+    BEANSTALK_SERVICE_ROLE=$(terraform output beanstalk_service_role)
+
+    cd ../environments/${ENVIRONMENT}/
+    terraform init
+    terraform apply -auto-approve -var "beanstalk_application=${BEANSTALK_APPLICATION}" -var "notification_email=${DEPLOY_EMAIL}" -var "secret_key=${SECRET_KEY}" -var "beanstalk_service_role=${BEANSTALK_SERVICE_ROLE}"
+    cd ../../../
 }
 
 function version_exists() {
