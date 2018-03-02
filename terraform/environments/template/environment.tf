@@ -47,8 +47,20 @@ resource "aws_elastic_beanstalk_environment" "env" {
 
   setting {
     namespace = "aws:elasticbeanstalk:container:python:staticfiles"
-    name = "/"
-    value = "frontend/"
+    name = "/view/"
+    value = "frontend/view/"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:container:python:staticfiles"
+    name = "/create/"
+    value = "frontend/create/"
+  }
+
+  setting {
+    namespace = "aws:elasticbeanstalk:container:python:staticfiles"
+    name = "/join/"
+    value = "frontend/join/"
   }
 
   setting {
