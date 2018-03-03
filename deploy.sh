@@ -70,6 +70,10 @@ function deploy_application() {
 # update AWS resources
 run_terraform
 
+# deploy frontend
+echo "Deploying frontend"
+aws s3 sync ./frontend/ s3://${APPLICATION}-${ENVIRONMENT}-frontend/ --delete
+
 # create new version
 GIT_HASH=$(git rev-parse --short --verify HEAD)
 version_exists ${GIT_HASH}
