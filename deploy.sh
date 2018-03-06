@@ -18,6 +18,15 @@ function run_terraform() {
     cd ../../../
 }
 
+function deploy_frontend() {
+    echo "Deploying frontend"
+
+    cd ./frontend/
+    ng build --prod --build-optimizer
+    aws s3 sync ./dist/ s3://${APPLICATION}-${ENVIRONMENT}-frontend/ --delete
+    cd ../
+}
+
 function version_exists() {
     aws elasticbeanstalk describe-application-versions --application-name ${APPLICATION} --version-labels ${1} | jq -e ".ApplicationVersions[] | select(.VersionLabel == \"${1}\")"
     return $?
@@ -71,8 +80,7 @@ function deploy_application() {
 run_terraform
 
 # deploy frontend
-echo "Deploying frontend"
-aws s3 sync ./frontend/ s3://${APPLICATION}-${ENVIRONMENT}-frontend/ --delete
+deploy_frontend
 
 # create new version
 GIT_HASH=$(git rev-parse --short --verify HEAD)
