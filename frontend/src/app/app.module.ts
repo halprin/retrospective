@@ -7,6 +7,7 @@ import { NavigationBarComponent } from './navigation-bar/navigation-bar.componen
 import { AppRoutingModule } from './/app-routing.module';
 import { StartRetroComponent } from './start-retro/start-retro.component';
 import { JoinRetroComponent } from './join-retro/join-retro.component';
+import { ViewRetroComponent } from './view-retro/view-retro.component';
 
 
 @NgModule({
@@ -15,6 +16,7 @@ import { JoinRetroComponent } from './join-retro/join-retro.component';
     NavigationBarComponent,
     StartRetroComponent,
     JoinRetroComponent,
+    ViewRetroComponent,
   ],
   imports: [
     BrowserModule,

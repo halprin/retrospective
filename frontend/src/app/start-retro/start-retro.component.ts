@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-start-retro',
@@ -7,9 +8,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class StartRetroComponent implements OnInit {
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit() {
   }
 
+  start_retro(retro_name: string, user_name: string): void {
+    this.router.navigateByUrl('/view');
+  }
 }
