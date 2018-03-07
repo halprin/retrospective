@@ -9,7 +9,7 @@ before_install:
   - sudo unzip -d /usr/local/bin/ terraform_0.11.3_linux_amd64.zip
   - curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
   - sudo apt-get install -y nodejs
-  - npm install -g @angular/cli
+  - cd ./frontend/ && npm install -g
 script: pytest
 deploy:
   provider: script
