@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { RetrospectiveService } from '../retrospective.service'
 
 @Component({
   selector: 'app-start-retro',
@@ -8,12 +9,15 @@ import { Router } from '@angular/router';
 })
 export class StartRetroComponent implements OnInit {
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private retroService: RetrospectiveService) { }
 
   ngOnInit() {
   }
 
-  start_retro(retro_name: string, user_name: string): void {
-    this.router.navigateByUrl('/view');
+  startRetro(retroName: string, userName: string): void {
+    this.retroService.startRetrospective(retroName, userName)
+      .subscribe(uuid => {
+        this.router.navigateByUrl('/view');
+      });
   }
 }
