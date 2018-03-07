@@ -79,9 +79,6 @@ function deploy_application() {
 # update AWS resources
 run_terraform
 
-# deploy frontend
-deploy_frontend
-
 # create new version
 GIT_HASH=$(git rev-parse --short --verify HEAD)
 version_exists ${GIT_HASH}
@@ -100,5 +97,8 @@ if [[ $?  -ne 0 ]]; then
 else
     echo "Version ${GIT_HASH} already deployed"
 fi
+
+# deploy frontend
+deploy_frontend
 
 exit ${DEPLOY_SUCCESS}
