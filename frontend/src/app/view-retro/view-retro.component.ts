@@ -7,7 +7,7 @@ import { RetrospectiveService } from '../retrospective.service'
   styleUrls: ['./view-retro.component.css']
 })
 export class ViewRetroComponent implements OnInit {
-  private name = 'Moof'
+  name = 'Loading'
 
   constructor(private retroService: RetrospectiveService) { }
 
