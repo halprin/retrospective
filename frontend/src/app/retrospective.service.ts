@@ -27,4 +27,12 @@ export class RetrospectiveService {
     })
     .map(json => json.retroId);
   }
+
+  getRetrospective(): Observable<any> {
+    return this.http.get<any>(this.url + '/' + this.uuid, {
+      headers: {
+        Authorization: 'Bearer ' + this.token
+      }
+    });
+  }
 }
