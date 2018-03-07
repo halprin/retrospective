@@ -18,6 +18,15 @@ function run_terraform() {
     cd ../../../
 }
 
+function deploy_frontend() {
+    echo "Deploying frontend"
+
+    cd ./frontend/
+    ng build --prod --build-optimizer
+    aws s3 sync ./dist/ s3://${APPLICATION}-${ENVIRONMENT}-frontend/ --delete
+    cd ../
+}
+
 function version_exists() {
     aws elasticbeanstalk describe-application-versions --application-name ${APPLICATION} --version-labels ${1} | jq -e ".ApplicationVersions[] | select(.VersionLabel == \"${1}\")"
     return $?
@@ -88,5 +97,8 @@ if [[ $?  -ne 0 ]]; then
 else
     echo "Version ${GIT_HASH} already deployed"
 fi
+
+# deploy frontend
+deploy_frontend
 
 exit ${DEPLOY_SUCCESS}

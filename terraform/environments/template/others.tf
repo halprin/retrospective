@@ -10,3 +10,9 @@ module "permissions" {
   environment = "${var.environment}"
   dynamodb_arn = "${module.database.arn}"
 }
+
+module "frontend" {
+  source = "frontend"
+
+  environment = "${var.environment}"
+}

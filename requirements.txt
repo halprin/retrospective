@@ -2,3 +2,4 @@ boto3==1.5.14
 Django==2.0.1
 pytest==3.3.2
 pynamodb==3.2.1
+django-cors-headers==2.2.0

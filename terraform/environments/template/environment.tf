@@ -46,12 +46,6 @@ resource "aws_elastic_beanstalk_environment" "env" {
   }
 
   setting {
-    namespace = "aws:elasticbeanstalk:container:python:staticfiles"
-    name = "/static/"
-    value = "static/"
-  }
-
-  setting {
     namespace = "aws:elasticbeanstalk:application:environment"
     name = "ENVIRONMENT"
     value = "${var.environment}"

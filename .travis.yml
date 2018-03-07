@@ -7,6 +7,9 @@ before_install:
   - sudo apt-get install -y jq
   - wget https://releases.hashicorp.com/terraform/0.11.3/terraform_0.11.3_linux_amd64.zip
   - sudo unzip -d /usr/local/bin/ terraform_0.11.3_linux_amd64.zip
+  - curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+  - sudo apt-get install -y nodejs
+  - cd ./frontend/ && npm install -g && cd ../
 script: pytest
 deploy:
   provider: script
