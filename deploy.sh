@@ -22,7 +22,7 @@ function deploy_frontend() {
     echo "Deploying frontend"
 
     cd ./frontend/
-    npm install
+    npm install --silent
     ng build --prod --build-optimizer
     aws s3 sync ./dist/ s3://${APPLICATION}-${ENVIRONMENT}-frontend/ --delete
     cd ../
