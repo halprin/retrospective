@@ -27,6 +27,17 @@ export class RetrospectiveService {
     .map(json => json.retroId);
   }
 
+  joinRetrospective(retroId: string, userName: string): Observable<any> {
+    this.uuid = retroId;
+    return this.http.post<any>(this.url + '/' + this.uuid + '/user', {
+      name: userName
+    })
+    .do(json => {
+      this.token = json.token;
+    })
+    .map(json => this.uuid);
+  }
+
   getRetrospective(): Observable<any> {
     return this.http.get<any>(this.url + '/' + this.uuid, {
       headers: {

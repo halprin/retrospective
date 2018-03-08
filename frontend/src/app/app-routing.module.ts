@@ -8,6 +8,7 @@ const routes: Routes = [
   { path: '', redirectTo: '/start', pathMatch: 'full' },
   { path: 'start', component: StartRetroComponent },
   { path: 'join', component: JoinRetroComponent },
+  { path: 'join/:id', component: JoinRetroComponent },
   { path: 'view', component: ViewRetroComponent }
 ]
 
