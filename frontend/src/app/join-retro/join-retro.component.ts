@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { HttpErrorResponse} from '@angular/common/http'
 import { RetrospectiveService } from '../retrospective.service'
 
@@ -11,10 +11,12 @@ import { RetrospectiveService } from '../retrospective.service'
 export class JoinRetroComponent implements OnInit {
 
   errorText = '';
+  routeRetroId = '';
 
-  constructor(private router: Router, private retroService: RetrospectiveService) { }
+  constructor(private router: Router, private retroService: RetrospectiveService, private route: ActivatedRoute) { }
 
   ngOnInit() {
+    this.routeRetroId = this.route.snapshot.paramMap.get('id');
   }
 
   joinRetro(retroId: string, userName: string): void {
