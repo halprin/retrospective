@@ -77,27 +77,27 @@ function deploy_application() {
     return $?
 }
 
-## update AWS resources
-#run_terraform
-#
-## create new version
-#GIT_HASH=$(git rev-parse --short --verify HEAD)
-#version_exists ${GIT_HASH}
-#if [[ $?  -ne 0 ]]; then
-#    create_new_version ${GIT_HASH}
-#else
-#    echo "Version ${GIT_HASH} already exists"
-#fi
-#
-## deploy new version
-#DEPLOY_SUCCESS=0
-#version_already_deployed ${GIT_HASH}
-#if [[ $?  -ne 0 ]]; then
-#    deploy_application ${GIT_HASH}
-#    DEPLOY_SUCCESS=$?
-#else
-#    echo "Version ${GIT_HASH} already deployed"
-#fi
+# update AWS resources
+run_terraform
+
+# create new version
+GIT_HASH=$(git rev-parse --short --verify HEAD)
+version_exists ${GIT_HASH}
+if [[ $?  -ne 0 ]]; then
+    create_new_version ${GIT_HASH}
+else
+    echo "Version ${GIT_HASH} already exists"
+fi
+
+# deploy new version
+DEPLOY_SUCCESS=0
+version_already_deployed ${GIT_HASH}
+if [[ $?  -ne 0 ]]; then
+    deploy_application ${GIT_HASH}
+    DEPLOY_SUCCESS=$?
+else
+    echo "Version ${GIT_HASH} already deployed"
+fi
 
 # deploy frontend
 deploy_frontend
