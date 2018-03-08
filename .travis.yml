@@ -17,4 +17,4 @@ deploy:
   script: ./deploy.sh dev
   on:
     branch:
-      - master
+      - issue-43-ng-again
