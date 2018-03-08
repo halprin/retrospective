@@ -1,7 +1,8 @@
 language: python
 python:
   - "3.6"
-before_install:
+script: pytest ./tests/
+before_deploy:
   - sudo apt-get -q update
   - sudo pip install awscli
   - sudo apt-get install -y jq
@@ -11,7 +12,6 @@ before_install:
   - sudo apt-get install -y nodejs
   - npm install -g --silent @angular/cli
   - cd ./frontend/; npm install; cd ../
-script: pytest ./tests/
 deploy:
   provider: script
   script: ./deploy.sh dev
