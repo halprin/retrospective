@@ -7,11 +7,14 @@ import { RetrospectiveService } from '../retrospective.service'
   styleUrls: ['./view-retro.component.css']
 })
 export class ViewRetroComponent implements OnInit {
-  name = 'Loading'
+
+  retro;
 
   constructor(private retroService: RetrospectiveService) { }
 
   ngOnInit() {
-    this.retroService.getRetrospective().subscribe(json => this.name = json.name);
+    this.retroService.startRetrospective('Sprint 26 Retrospective', 'Peter Kendall').subscribe(uuid => {
+      this.retroService.getRetrospective().subscribe(json => this.retro = json);
+    });
   }
 }

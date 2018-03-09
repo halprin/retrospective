@@ -1,2 +1,46 @@
-<h1>Retro</h1>
-<h3>{{name}}</h3>
+<div class="container">
+  <div class="row justify-content-between">
+    <div class="col-auto">
+      <h1>{{retro.name}}</h1>
+      <h6><small class="text-muted">https://retrospective.kendallp.net/join/{{retro.id}}</small></h6><span class="glyphicon glyphicon-home"></span>
+    </div>
+    <div class="col-auto">
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-info">Admin</button>
+        <div class="btn-group" role="group">
+          <button id="btnGroupDrop3" type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button>
+          <div class="dropdown-menu" aria-labelledby="btnGroupDrop3">
+            <a class="dropdown-item" href="#">Dropdown link</a>
+            <a class="dropdown-item" href="#">Dropdown link</a>
+          </div>
+        </div>
+      </div>
+      <button type="button" class="btn btn-outline-success">Ready</button>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-auto">
+      <div>
+        <ul class="pagination pagination-lg">
+          <li class="page-item" [ngClass]="{disabled: retro.currentStep == 'Adding Issues'}">
+            <span class="page-link">&laquo;</span>
+          </li>
+          <li class="page-item" [ngClass]="{active: retro.currentStep == 'Adding Issues'}">
+            <span class="page-link">Issues</span>
+          </li>
+          <li class="page-item" [ngClass]="{active: retro.currentStep == 'Voting'}">
+            <span class="page-link">Votes</span>
+          </li>
+          <li class="page-item" [ngClass]="{active: retro.currentStep == 'Results'}">
+            <span class="page-link">Results</span>
+          </li>
+          <li class="page-item" [ngClass]="{disabled: retro.currentStep == 'Results'}">
+            <span class="page-link">&raquo;</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
