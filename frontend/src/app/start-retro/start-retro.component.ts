@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpErrorResponse} from '@angular/common/http'
 import { RetrospectiveService } from '../retrospective.service'
 
 @Component({
@@ -8,6 +9,8 @@ import { RetrospectiveService } from '../retrospective.service'
   styleUrls: ['./start-retro.component.css']
 })
 export class StartRetroComponent implements OnInit {
+
+  errorText = '';
 
   constructor(private router: Router, private retroService: RetrospectiveService) { }
 
@@ -18,6 +21,17 @@ export class StartRetroComponent implements OnInit {
     this.retroService.startRetrospective(retroName, userName)
       .subscribe(uuid => {
         this.router.navigateByUrl('/view');
+      },
+      (error: HttpErrorResponse) => {
+        this.displayError('Something bad happened.  Please contact us with the following information: [Status - ' + error.status + ', Message - ' + error.message + ']');
       });
+  }
+
+  displayError(errorMessage: string): void {
+    this.errorText = errorMessage;
+  }
+
+  hideError(): void {
+    this.errorText = '';
   }
 }
