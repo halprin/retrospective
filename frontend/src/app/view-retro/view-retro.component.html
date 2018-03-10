@@ -1,8 +1,9 @@
+<!--Title, admin dropdown, ready button-->
 <div class="container">
   <div class="row justify-content-between">
     <div class="col-auto">
       <h1>{{retro.name}}</h1>
-      <h6><small class="text-muted">https://retrospective.kendallp.net/join/{{retro.id}}</small></h6><span class="glyphicon glyphicon-home"></span>
+      <h6><small class="text-muted">https://retrospective.kendallp.net/join/{{retro.id}}</small></h6>
     </div>
     <div class="col-auto">
       <div class="btn-group" role="group">
@@ -15,10 +16,12 @@
           </div>
         </div>
       </div>
-      <button type="button" class="btn btn-outline-success">Ready</button>
+      <button type="button" class="btn btn-outline-success" (click)="markReady();">Ready</button>
     </div>
   </div>
 </div>
+
+<!--Retrospective phases-->
 <div class="container">
   <div class="row justify-content-center">
     <div class="col-auto">
@@ -43,4 +46,38 @@
       </div>
     </div>
   </div>
+</div>
+
+<!--Issues display-->
+<div class="container" *ngIf="retro.currentStep == 'Adding Issues'">
+  <div class="row">
+    <div class="col-6">
+      <div class="card border-success mb-3">
+        <h3 class="card-header">What went well</h3>
+        <div class="card-body">
+          <form (submit)="false;">
+            <input type="text" class="form-control" id="new_issue" #new_issue required />
+            <button type="submit" class="btn btn-primary">Add</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="card border-warning mb-3">
+        <h3 class="card-header">What can be improved</h3>
+        <div class="card-body">
+          <h4 class="card-title">Warning card title</h4>
+          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Voting display-->
+<div class="container" *ngIf="retro.currentStep == 'Voting'">
+</div>
+
+<!--Results display-->
+<div class="container" *ngIf="retro.currentStep == 'Results'">
 </div>

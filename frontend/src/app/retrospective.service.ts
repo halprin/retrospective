@@ -45,4 +45,10 @@ export class RetrospectiveService {
       }
     });
   }
+
+  markUserAsReady(): Observable<any> {
+    return this.http.put<any>(this.url + '/' + this.uuid + '/user', {
+      ready: true
+    });
+  }
 }

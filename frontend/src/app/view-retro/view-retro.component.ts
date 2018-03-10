@@ -17,4 +17,8 @@ export class ViewRetroComponent implements OnInit {
       this.retroService.getRetrospective().subscribe(json => this.retro = json);
     });
   }
+
+  markReady(): void {
+
+  }
 }
