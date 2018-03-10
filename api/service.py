@@ -75,13 +75,23 @@ def _sanitize_issue_list(retro, user_token):
     return sanitized_issues
 
 
+def _construct_yourself_info(retro, user_token):
+    yourself = token.get_participant(user_token, retro)
+    return {
+        'name': yourself.name,
+        'ready': yourself.ready,
+        'admin': yourself.admin
+    }
+
+
 def sanitize_retro_for_user_and_step(retro, user_token):
     sanitized_retro = {
         'id': retro.id,
         'name': retro.name,
         'currentStep': retro.current_step,
         'participants': _sanitize_participant_list(retro, user_token),
-        'issues': _sanitize_issue_list(retro, user_token)
+        'issues': _sanitize_issue_list(retro, user_token),
+        'yourself': _construct_yourself_info(retro, user_token)
     }
 
     return sanitized_retro

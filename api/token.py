@@ -9,18 +9,22 @@ def get_token_from_request(request):
     return request.META.get('HTTP_AUTHORIZATION', '')[len('Bearer '):]
 
 
+def get_participant(token, retro):
+    return _find_participant(lambda participant: participant.token == token, retro)
+
+
 def token_is_valid(token, retro):
-    return _find_token(lambda participant: participant.token == token, retro)
+    return get_participant(token, retro) is not None
 
 
 def token_is_admin(token, retro):
-    return _find_token(lambda participant: participant.admin is True and participant.token == token, retro)
+    return _find_participant(lambda participant: participant.admin is True and participant.token == token,
+                             retro) is not None
 
 
-def _find_token(func, retro):
-    approved = filter(func, retro.participants)
+def _find_participant(func, retro):
+    participant_iterator = filter(func, retro.participants)
     try:
-        approved.__next__()
-        return True
+        return participant_iterator.__next__()
     except StopIteration:
-        return False
+        return None
