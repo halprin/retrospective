@@ -58,4 +58,16 @@ export class ViewRetroComponent implements OnInit {
 
     return issue;
   }
+
+  moveRetroBackward(): void {
+    this.retroService.moveRetrospectiveBackward().subscribe(newStep => {
+      this.updateRetro();
+    });
+  }
+
+  moveRetroForward(): void {
+    this.retroService.moveRetrospectiveForward().subscribe(newStep => {
+      this.updateRetro();
+    });
+  }
 }

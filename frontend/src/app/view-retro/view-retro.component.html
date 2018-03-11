@@ -39,20 +39,20 @@
     <div class="col-auto">
       <div>
         <ul class="pagination pagination-lg">
-          <li class="page-item" [ngClass]="{disabled: retro.currentStep == 'Adding Issues'}">
-            <span class="page-link">&laquo;</span>
+          <li class="page-item" [ngClass]="{disabled: retro.currentStep == 'Adding Issues'}" *ngIf="retro.yourself.admin">
+            <span class="page-link" (click)="moveRetroBackward();">&laquo;</span>
           </li>
-          <li class="page-item" [ngClass]="{active: retro.currentStep == 'Adding Issues'}">
+          <li class="page-item" [ngClass]="{active: retro.currentStep == 'Adding Issues'}" style="pointer-events: none;">
             <span class="page-link">Issues</span>
           </li>
-          <li class="page-item" [ngClass]="{active: retro.currentStep == 'Voting'}">
+          <li class="page-item" [ngClass]="{active: retro.currentStep == 'Voting'}" style="pointer-events: none;">
             <span class="page-link">Votes</span>
           </li>
-          <li class="page-item" [ngClass]="{active: retro.currentStep == 'Results'}">
+          <li class="page-item" [ngClass]="{active: retro.currentStep == 'Results'}" style="pointer-events: none;">
             <span class="page-link">Results</span>
           </li>
-          <li class="page-item" [ngClass]="{disabled: retro.currentStep == 'Results'}">
-            <span class="page-link">&raquo;</span>
+          <li class="page-item" [ngClass]="{disabled: retro.currentStep == 'Results'}" *ngIf="retro.yourself.admin">
+            <span class="page-link" (click)="moveRetroForward();">&raquo;</span>
           </li>
         </ul>
       </div>

@@ -77,4 +77,26 @@ export class RetrospectiveService {
     })
     .map(json => json.id);
   }
+
+  moveRetrospectiveBackward(): Observable<any> {
+    return this.http.put<any>(this.url + '/' + this.uuid, {
+      direction: 'previous'
+    }, {
+      headers: {
+        Authorization: 'Bearer ' + this.token
+      }
+    })
+    .map(json => json.newStep);
+  }
+
+  moveRetrospectiveForward(): Observable<any> {
+    return this.http.put<any>(this.url + '/' + this.uuid, {
+      direction: 'next'
+    }, {
+      headers: {
+        Authorization: 'Bearer ' + this.token
+      }
+    })
+    .map(json => json.newStep);
+  }
 }
