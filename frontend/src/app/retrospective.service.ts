@@ -49,6 +49,32 @@ export class RetrospectiveService {
   markUserAsReady(): Observable<any> {
     return this.http.put<any>(this.url + '/' + this.uuid + '/user', {
       ready: true
+    }, {
+      headers: {
+        Authorization: 'Bearer ' + this.token
+      }
     });
+  }
+
+  markUserAsNotReady(): Observable<any> {
+    return this.http.put<any>(this.url + '/' + this.uuid + '/user', {
+      ready: false
+    }, {
+      headers: {
+        Authorization: 'Bearer ' + this.token
+      }
+    });
+  }
+
+  addIssue(title: string, section: string): Observable<any> {
+    return this.http.post<any>(this.url + '/' + this.uuid + '/issue', {
+      title: title,
+      section: section
+    }, {
+      headers: {
+        Authorization: 'Bearer ' + this.token
+      }
+    })
+    .map(json => json.id);
   }
 }

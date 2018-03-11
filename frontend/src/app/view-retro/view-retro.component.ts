@@ -14,11 +14,48 @@ export class ViewRetroComponent implements OnInit {
 
   ngOnInit() {
     this.retroService.startRetrospective('Sprint 26 Retrospective', 'Peter Kendall').subscribe(uuid => {
-      this.retroService.getRetrospective().subscribe(json => this.retro = json);
+      this.updateRetro();
     });
   }
 
-  markReady(): void {
+  updateRetro(): void {
+    this.retroService.getRetrospective().subscribe(json => this.retro = json);
+  }
 
+  alternateReadiness(): void {
+    if (this.retro.yourself.ready == true) {
+      this.retroService.markUserAsNotReady().subscribe(response => {
+        this.updateRetro();
+      });
+    } else {
+      this.retroService.markUserAsReady().subscribe(response => {
+        this.updateRetro();
+      });
+    }
+  }
+
+  addWentWellIssue(title: string): void {
+    this.retroService.addIssue(title, 'Went Well').subscribe(id => {
+      this.updateRetro();
+    });
+  }
+
+  getWentWellIssues(): any {
+    let goodIssues = [];
+    for(let issue of this.retro.issues) {
+      if(issue.section == 'Went Well') {
+        goodIssues.push(issue);
+      }
+    }
+
+    return goodIssues;
+  }
+
+  issueTitle(issue: string): string {
+    if(issue == null) {
+      return '...'
+    }
+
+    return issue;
   }
 }
