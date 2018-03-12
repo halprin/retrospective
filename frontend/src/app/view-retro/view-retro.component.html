@@ -67,9 +67,9 @@
       <div class="card border-success mb-3">
         <h3 class="card-header">What went well</h3>
         <div class="card-body">
-          <form (submit)="addWentWellIssue(new_issue_went_well.value); new_issue_went_well.value = ''; false;">
+          <form class="input-group" (submit)="addWentWellIssue(new_issue_went_well.value); new_issue_went_well.value = ''; false;">
             <input type="text" class="form-control" id="new_issue_went_well" #new_issue_went_well required />
-            <button type="submit" class="btn btn-primary">Add</button>
+            <button type="submit" class="btn btn-primary ml-2">Add</button>
           </form>
         </div>
         <ul class="list-group list-group-flush">
@@ -81,9 +81,9 @@
       <div class="card border-warning mb-3">
         <h3 class="card-header">What can be improved</h3>
         <div class="card-body">
-          <form (submit)="addNeedsImprovementIssue(new_issue_improved.value); new_issue_improved.value = ''; false;">
+          <form class="input-group" (submit)="addNeedsImprovementIssue(new_issue_improved.value); new_issue_improved.value = ''; false;">
             <input type="text" class="form-control" id="new_issue_improved" #new_issue_improved required />
-            <button type="submit" class="btn btn-primary">Add</button>
+            <button type="submit" class="btn btn-primary ml-2">Add</button>
           </form>
         </div>
         <ul class="list-group list-group-flush">
