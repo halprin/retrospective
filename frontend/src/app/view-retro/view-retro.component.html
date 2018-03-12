@@ -67,8 +67,8 @@
       <div class="card border-success mb-3">
         <h3 class="card-header">What went well</h3>
         <div class="card-body">
-          <form (submit)="addWentWellIssue(new_issue.value); new_issue.value = ''; false;">
-            <input type="text" class="form-control" id="new_issue" #new_issue required />
+          <form (submit)="addWentWellIssue(new_issue_went_well.value); new_issue_went_well.value = ''; false;">
+            <input type="text" class="form-control" id="new_issue_went_well" #new_issue_went_well required />
             <button type="submit" class="btn btn-primary">Add</button>
           </form>
         </div>
@@ -81,9 +81,14 @@
       <div class="card border-warning mb-3">
         <h3 class="card-header">What can be improved</h3>
         <div class="card-body">
-          <h4 class="card-title">Warning card title</h4>
-          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+          <form (submit)="addNeedsImprovementIssue(new_issue_improved.value); new_issue_improved.value = ''; false;">
+            <input type="text" class="form-control" id="new_issue_improved" #new_issue_improved required />
+            <button type="submit" class="btn btn-primary">Add</button>
+          </form>
         </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item" *ngFor="let issue of getNeedsImprovementIssues()">{{issueTitle(issue.title)}}</li>
+        </ul>
       </div>
     </div>
   </div>

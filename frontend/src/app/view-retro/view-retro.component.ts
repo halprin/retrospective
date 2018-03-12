@@ -40,6 +40,12 @@ export class ViewRetroComponent implements OnInit {
     });
   }
 
+  addNeedsImprovementIssue(title: string): void {
+    this.retroService.addIssue(title, 'Needs Improvement').subscribe(id => {
+      this.updateRetro();
+    });
+  }
+
   getWentWellIssues(): any {
     let goodIssues = [];
     for(let issue of this.retro.issues) {
@@ -49,6 +55,17 @@ export class ViewRetroComponent implements OnInit {
     }
 
     return goodIssues;
+  }
+
+  getNeedsImprovementIssues(): any {
+    let badIssues = [];
+    for(let issue of this.retro.issues) {
+      if(issue.section == 'Needs Improvement') {
+        badIssues.push(issue);
+      }
+    }
+
+    return badIssues;
   }
 
   issueTitle(issue: string): string {
