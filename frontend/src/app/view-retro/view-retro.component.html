@@ -2,33 +2,33 @@
 <div class="container">
   <div class="row justify-content-between">
     <div class="col-auto">
-      <h1>{{retro.name}}</h1>
-      <h6><small class="text-muted">https://retrospective.kendallp.net/join/{{retro.id}}</small></h6>
+      <h1>{{retro?.name}}</h1>
+      <h6><small class="text-muted">https://retrospective.kendallp.net/join/{{retro?.id}}</small></h6>
     </div>
     <div class="col-auto mt-3">
-      <span class="dropdown" *ngIf="retro.yourself.admin">
+      <span class="dropdown" *ngIf="retro?.yourself.admin">
         <button class="btn btn-info dropdown-toggle" type="button" id="dropdownAdminButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Administration
         </button>
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownAdminButton">
           <h5 class="ml-1">Readiness</h5>
-          <div class="custom-control custom-checkbox ml-2" *ngFor="let participant of retro.participants" style="pointer-events: none;">
+          <div class="custom-control custom-checkbox ml-2" *ngFor="let participant of retro?.participants" style="pointer-events: none;">
             <input type="checkbox" class="custom-control-input" [checked]="participant.ready" />
             <label class="custom-control-label">{{participant.name}}</label>
           </div>
         </div>
       </span>
-      <span class="dropdown" *ngIf="!retro.yourself.admin">
+      <span class="dropdown" *ngIf="!retro?.yourself.admin">
         <button class="btn btn-info dropdown-toggle" type="button" id="dropdownUserButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Users
         </button>
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownUserButton">
-          <h6 class="ml-2" *ngFor="let participant of retro.participants">
+          <h6 class="ml-2" *ngFor="let participant of retro?.participants">
             {{participant.name}}
           </h6>
         </div>
       </span>
-      <button type="button" [ngClass]="{'btn': true, 'btn-outline-success': !retro.yourself.ready, 'btn-success': retro.yourself.ready}" (click)="alternateReadiness();">Ready</button>
+      <button type="button" [ngClass]="{'btn': true, 'btn-outline-success': !retro?.yourself.ready, 'btn-success': retro?.yourself.ready}" (click)="alternateReadiness();">Ready</button>
     </div>
   </div>
 </div>
@@ -39,19 +39,19 @@
     <div class="col-auto">
       <div>
         <ul class="pagination pagination-lg">
-          <li class="page-item" [ngClass]="{disabled: retro.currentStep == 'Adding Issues'}" *ngIf="retro.yourself.admin">
+          <li class="page-item" [ngClass]="{disabled: retro?.currentStep == 'Adding Issues'}" *ngIf="retro?.yourself.admin">
             <span class="page-link" (click)="moveRetroBackward();">&laquo;</span>
           </li>
-          <li class="page-item" [ngClass]="{active: retro.currentStep == 'Adding Issues'}" style="pointer-events: none;">
+          <li class="page-item" [ngClass]="{active: retro?.currentStep == 'Adding Issues'}" style="pointer-events: none;">
             <span class="page-link">Issues</span>
           </li>
-          <li class="page-item" [ngClass]="{active: retro.currentStep == 'Voting'}" style="pointer-events: none;">
+          <li class="page-item" [ngClass]="{active: retro?.currentStep == 'Voting'}" style="pointer-events: none;">
             <span class="page-link">Votes</span>
           </li>
-          <li class="page-item" [ngClass]="{active: retro.currentStep == 'Results'}" style="pointer-events: none;">
+          <li class="page-item" [ngClass]="{active: retro?.currentStep == 'Results'}" style="pointer-events: none;">
             <span class="page-link">Results</span>
           </li>
-          <li class="page-item" [ngClass]="{disabled: retro.currentStep == 'Results'}" *ngIf="retro.yourself.admin">
+          <li class="page-item" [ngClass]="{disabled: retro?.currentStep == 'Results'}" *ngIf="retro?.yourself.admin">
             <span class="page-link" (click)="moveRetroForward();">&raquo;</span>
           </li>
         </ul>
@@ -61,7 +61,7 @@
 </div>
 
 <!--Issues display-->
-<div class="container" *ngIf="retro.currentStep == 'Adding Issues'">
+<div class="container" *ngIf="retro?.currentStep == 'Adding Issues'">
   <div class="row">
     <div class="col-6">
       <div class="card border-success mb-3">
@@ -95,9 +95,9 @@
 </div>
 
 <!--Voting display-->
-<div class="container" *ngIf="retro.currentStep == 'Voting'">
+<div class="container" *ngIf="retro?.currentStep == 'Voting'">
 </div>
 
 <!--Results display-->
-<div class="container" *ngIf="retro.currentStep == 'Results'">
+<div class="container" *ngIf="retro?.currentStep == 'Results'">
 </div>
