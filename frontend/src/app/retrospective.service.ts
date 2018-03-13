@@ -99,4 +99,12 @@ export class RetrospectiveService {
     })
     .map(json => json.newStep);
   }
+
+  voteForIssue(issue_id: string): Observable<any> {
+    return this.http.put<any>(this.url + '/' + this.uuid + '/issue/' + issue_id, {}, {
+      headers: {
+        Authorization: 'Bearer ' + this.token
+      }
+    });
+  }
 }

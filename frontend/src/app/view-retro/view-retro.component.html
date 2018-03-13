@@ -96,6 +96,37 @@
 
 <!--Voting display-->
 <div class="container" *ngIf="retro?.currentStep == 'Voting'">
+  <div class="row">
+    <div class="col-6">
+      <div class="card border-success mb-3">
+        <h3 class="card-header">What went well</h3>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item" *ngFor="let issue of getWentWellIssues()">{{issue.title}}</li>
+        </ul>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="card border-warning mb-3">
+        <h3 class="card-header">What can be improved</h3>
+        <h4 class="card-body">{{votes}} votes left</h4>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item" *ngFor="let issue of getNeedsImprovementIssues()">
+            <div class="container p-0">
+              <div class="row justify-content-between align-items-center">
+                <div class="col pr-0">{{issue.title}}</div>
+                <div class="col-auto">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="{{issue.id}}" (click)="voteForIssue(issue.id, $event.target);" [checked]="issue.votes == 1" [disabled]="issue.votes == 1 || votes == 0"/>
+                    <label class="custom-control-label" for="{{issue.id}}"></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!--Results display-->

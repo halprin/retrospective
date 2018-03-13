@@ -9,6 +9,7 @@ import { RetrospectiveService } from '../retrospective.service'
 export class ViewRetroComponent implements OnInit {
 
   retro;
+  votes = 3;
 
   constructor(private retroService: RetrospectiveService) { }
 
@@ -85,6 +86,16 @@ export class ViewRetroComponent implements OnInit {
   moveRetroForward(): void {
     this.retroService.moveRetrospectiveForward().subscribe(newStep => {
       this.updateRetro();
+    });
+  }
+
+  voteForIssue(issue_id: string, checkbox: any): void {
+    this.votes--;
+    this.retroService.voteForIssue(issue_id).subscribe(response => {
+      this.updateRetro();
+    }, error => {
+      this.votes++;
+      checkbox.checked = false;
     });
   }
 }
