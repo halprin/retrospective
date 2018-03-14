@@ -1,24 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RetrospectiveService } from '../retrospective.service'
 import { environment } from '../../environments/environment';
+import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/interval';
 
 @Component({
   selector: 'app-view-retro',
   templateUrl: './view-retro.component.html',
   styleUrls: ['./view-retro.component.css']
 })
-export class ViewRetroComponent implements OnInit {
+export class ViewRetroComponent implements OnInit, OnDestroy {
 
   retro;
   votes = 3;
   frontendEndpoint = environment.frontendEndpoint;
+  private intervalUpdate;
 
   constructor(private retroService: RetrospectiveService) { }
 
   ngOnInit() {
+    this.intervalUpdate = Observable.interval(10000).subscribe(interval => this.updateRetro())
     this.retroService.startRetrospective('Sprint 26 Retrospective', 'Peter Kendall').subscribe(uuid => {
       this.updateRetro();
     });
+  }
+
+  ngOnDestroy() {
+    this.intervalUpdate.unsubscribe();
   }
 
   updateRetro(): void {
