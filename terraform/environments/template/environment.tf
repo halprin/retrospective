@@ -108,7 +108,7 @@ resource "aws_elastic_beanstalk_environment" "env" {
   setting {
     namespace = "aws:elasticbeanstalk:command"
     name = "Timeout"
-    value = "600"
+    value = "900"
   }
 
   # Security
