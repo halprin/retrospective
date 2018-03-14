@@ -3,11 +3,12 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../environments/environment';
 
 @Injectable()
 export class RetrospectiveService {
 
-  private host = 'http://retrospective-dev.us-east-1.elasticbeanstalk.com';
+  private host = environment.backendEndpoint;
   private url = this.host + '/api/retro';
 
   private uuid = '';

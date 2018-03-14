@@ -3,7 +3,7 @@
   <div class="row justify-content-between">
     <div class="col-auto">
       <h1>{{retro?.name}}</h1>
-      <h6><small class="text-muted">https://retrospective.kendallp.net/join/{{retro?.id}}</small></h6>
+      <h6><small class="text-muted">{{frontendEndpoint}}/join/{{retro?.id}}</small></h6>
     </div>
     <div class="col-auto mt-3">
       <span class="dropdown" *ngIf="retro?.yourself.admin">

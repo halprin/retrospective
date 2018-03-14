@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { RetrospectiveService } from '../retrospective.service'
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-view-retro',
@@ -10,6 +11,7 @@ export class ViewRetroComponent implements OnInit {
 
   retro;
   votes = 3;
+  frontendEndpoint = environment.frontendEndpoint;
 
   constructor(private retroService: RetrospectiveService) { }
 
