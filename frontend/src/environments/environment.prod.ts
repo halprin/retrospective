@@ -1,3 +1,5 @@
 export const environment = {
-  production: true
+  production: true,
+  backendEndpoint: 'BACKEND_ENDPOINT',
+  frontendEndpoint: 'FRONTEND_ENDPOINT'
 };

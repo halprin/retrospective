@@ -118,11 +118,13 @@ def test__sanitize_issue_list_shows_all_votes_during_results():
                                          votes={'another-different-token'})
     another_issue = retro.create_mock_issue(section='special_section', creator_token='a-different-token',
                                             votes={your_token, 'another-different-token'})
-    a_retro = retro.create_mock_retro(current_step=RetroStep.RESULTS, issues=[your_issue, another_issue])
+    yet_another_issue = retro.create_mock_issue(section='special_section', creator_token='a-different-token')
+    a_retro = retro.create_mock_retro(current_step=RetroStep.RESULTS,
+                                      issues=[your_issue, another_issue, yet_another_issue])
 
     sanitized_issues = service._sanitize_issue_list(a_retro, your_token)
 
-    assert len(sanitized_issues) == 2
+    assert len(sanitized_issues) == 3
     was_your_issue = sanitized_issues[0]
     assert was_your_issue['id'] == your_issue.id
     assert was_your_issue['title'] == your_issue.title
@@ -133,6 +135,8 @@ def test__sanitize_issue_list_shows_all_votes_during_results():
     assert was_another_issue['title'] == another_issue.title
     assert was_another_issue['section'] == another_issue.section
     assert was_another_issue['votes'] == 2
+    was_yet_another_issue = sanitized_issues[2]
+    assert was_yet_another_issue['votes'] == 0
 
 
 def test__sanitize_issue_list_shows_your_votes_during_voting():
