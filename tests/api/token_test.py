@@ -61,22 +61,43 @@ def test_token_is_admin_false():
     assert result is False
 
 
-def test__find_token_true():
+def test__find_participant_found():
     test_name = 'DogCow'
     participant1 = retro.create_mock_participant(name='lame_name')
     participant2 = retro.create_mock_participant(name=test_name)
     a_retro = retro.create_mock_retro(participants=[participant1, participant2])
 
-    found = token._find_token(lambda participant: participant.name == test_name, a_retro)
+    found_participant = token._find_participant(lambda participant: participant.name == test_name, a_retro)
 
-    assert found is True
+    assert found_participant is participant2
 
 
-def test__find_token_false():
+def test__find_participant_none():
     participant1 = retro.create_mock_participant(name='lame_name')
     participant2 = retro.create_mock_participant(name='whatever_name')
     a_retro = retro.create_mock_retro(participants=[participant1, participant2])
 
-    found = token._find_token(lambda participant: participant.name == 'something_not_above', a_retro)
+    found_participant = token._find_participant(lambda participant: participant.name == 'something_not_above', a_retro)
 
-    assert found is False
+    assert found_participant is None
+
+
+def test_get_participant_found():
+    test_token = 'asdf-jkl'
+    participant1 = retro.create_mock_participant(token='junk')
+    participant2 = retro.create_mock_participant(token=test_token)
+    a_retro = retro.create_mock_retro(participants=[participant1, participant2])
+
+    found_participant = token.get_participant(test_token, a_retro)
+
+    assert found_participant is participant2
+
+
+def test_get_participant_none():
+    participant1 = retro.create_mock_participant(token='junk')
+    participant2 = retro.create_mock_participant(token='whatever')
+    a_retro = retro.create_mock_retro(participants=[participant1, participant2])
+
+    found_participant = token.get_participant('something_not_above', a_retro)
+
+    assert found_participant is None

@@ -204,12 +204,29 @@ def test__sanitize_issue_list_shows_my_issues_and_other_sections_during_adding_i
         was_another_issue['votes']
 
 
+def test__construct_yourself_info():
+    test_token = 'asdf-jkl'
+    test_name = 'Johny'
+    test_ready = True
+    test_admin = True
+    participant1 = retro.create_mock_participant(token='junk')
+    participant2 = retro.create_mock_participant(name=test_name, token=test_token, ready=test_ready, admin=test_admin)
+    a_retro = retro.create_mock_retro(participants=[participant1, participant2])
+
+    yourself = service._construct_yourself_info(a_retro, test_token)
+
+    assert yourself['name'] == test_name
+    assert yourself['ready'] == test_ready
+    assert yourself['admin'] == test_admin
+
+
 def test_sanitize_retro_for_user_and_step():
     id = 'asdf-jkl'
     name = 'Sprint 28'
     current_step = RetroStep.ADDING_ISSUES.value
-    a_retro = retro.create_mock_retro(id, name, current_step)
     user_token = 'whatever'
+    participant = retro.create_mock_participant(token=user_token)
+    a_retro = retro.create_mock_retro(id, name, current_step, participants=[participant])
 
     sanitized_retro = service.sanitize_retro_for_user_and_step(a_retro, user_token)
 
@@ -218,6 +235,7 @@ def test_sanitize_retro_for_user_and_step():
     assert sanitized_retro['currentStep'] == current_step
     assert sanitized_retro['participants'] is not None
     assert sanitized_retro['issues'] is not None
+    assert sanitized_retro['yourself'] is not None
 
 
 def test__create_participant():
