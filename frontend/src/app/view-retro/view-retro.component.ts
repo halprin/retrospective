@@ -19,10 +19,8 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   constructor(private retroService: RetrospectiveService) { }
 
   ngOnInit() {
-    this.intervalUpdate = Observable.interval(10000).subscribe(interval => this.updateRetro())
-    this.retroService.startRetrospective('Sprint 26 Retrospective', 'Peter Kendall').subscribe(uuid => {
-      this.updateRetro();
-    });
+    this.updateRetro();
+    this.intervalUpdate = Observable.interval(10000).subscribe(interval => this.updateRetro());
   }
 
   ngOnDestroy() {
