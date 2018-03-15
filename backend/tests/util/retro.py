@@ -1,5 +1,5 @@
 from unittest.mock import MagicMock
-from api.models import RetroStep
+from backend.api.models import RetroStep
 
 
 def create_mock_retro(id='retro_id', name='retro_name', current_step=RetroStep.ADDING_ISSUES.value, issues=[],

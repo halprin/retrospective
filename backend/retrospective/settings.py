@@ -51,7 +51,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'retrospective.urls'
+ROOT_URLCONF = 'backend.retrospective.urls'
 
 TEMPLATES = [
     {
@@ -69,7 +69,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'retrospective.wsgi.application'
+WSGI_APPLICATION = 'backend.retrospective.wsgi.application'
 
 
 # Password validation

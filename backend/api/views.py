@@ -1,8 +1,8 @@
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 import json
-from api import service, token
-from api.models import Retrospective, RetroStep
+from backend.api import service, token
+from backend.api.models import Retrospective, RetroStep
 
 
 charset_utf8 = 'UTF-8'

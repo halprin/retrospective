@@ -1,10 +1,9 @@
 import json
-from api.views import RetroView, RetroUserView, RetroIssueView, HealthView
-from api import views
-from tests.util import request
+from backend.api.views import RetroView, RetroUserView, RetroIssueView, HealthView
+from backend.api import views
 from unittest.mock import patch
-from tests.util import retro
-from api.models import Retrospective, RetroStep
+from backend.tests.util import retro, request
+from backend.api.models import Retrospective, RetroStep
 
 
 content_type = 'Content-Type'
@@ -25,8 +24,8 @@ def assert_user_not_valid(response):
     assert response.content.decode() == views.user_not_valid
 
 
-@patch('api.views.token', autospec=True)
-@patch('api.views.service', autospec=True)
+@patch('backend.api.views.token', autospec=True)
+@patch('backend.api.views.service', autospec=True)
 class TestRetroView:
     def test_post_create_new_retro(self, mock_service, mock_token):
         request_body = {
@@ -142,8 +141,8 @@ class TestRetroView:
         assert json.loads(response.content) == mock_response
 
 
-@patch('api.views.token', autospec=True)
-@patch('api.views.service', autospec=True)
+@patch('backend.api.views.token', autospec=True)
+@patch('backend.api.views.service', autospec=True)
 class TestRetroUserView:
     def test_post_retro_not_found(self, mock_service, mock_token):
         mock_service.get_retro.side_effect = Retrospective.DoesNotExist
@@ -205,8 +204,8 @@ class TestRetroUserView:
         assert response.content.decode() == ''
 
 
-@patch('api.views.token', autospec=True)
-@patch('api.views.service', autospec=True)
+@patch('backend.api.views.token', autospec=True)
+@patch('backend.api.views.service', autospec=True)
 class TestRetroIssueView:
     def test_post_retro_not_found(self, mock_service, mock_token):
         mock_service.get_retro.side_effect = Retrospective.DoesNotExist

@@ -1,6 +1,5 @@
-from api import token
-from tests.util import request
-from tests.util import retro
+from backend.api import token
+from backend.tests.util import retro, request
 
 
 def test_generate_token():

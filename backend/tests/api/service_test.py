@@ -1,12 +1,12 @@
-from api import service
+from backend.api import service
 import pytest
-from tests.util import retro
+from backend.tests.util import retro
 import copy
-from api.models import RetroStep
+from backend.api.models import RetroStep
 from unittest.mock import patch
 
 
-@patch('api.service.Retrospective', autospec=True)
+@patch('backend.api.service.Retrospective', autospec=True)
 def test_create_retro(mock_retrospective_class):
     retro_name = 'Sprint 26'
     admin_name = 'DogCow'
@@ -23,7 +23,7 @@ def test_create_retro(mock_retrospective_class):
     assert new_retro.id is not None
 
 
-@patch('api.service.Retrospective', autospec=True)
+@patch('backend.api.service.Retrospective', autospec=True)
 def test_get_retro(mock_retrospective_class):
     retro_id = 'an_awesome_retro_id'
     mock_retrospective_class.get.side_effect = lambda passed_in_retro_id: retro.create_mock_retro(id=passed_in_retro_id)
