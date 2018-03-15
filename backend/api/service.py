@@ -1,6 +1,6 @@
-from api.models import Retrospective, ParticipantAttribute, IssueAttribute, RetroStep
+from backend.api.models import Retrospective, ParticipantAttribute, IssueAttribute, RetroStep
 import uuid
-from api import token
+from backend.api import token
 
 
 def create_retro(retro_name, admin_name):

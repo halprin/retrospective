@@ -12,7 +12,7 @@ resource "aws_elastic_beanstalk_environment" "env" {
   setting {
     namespace = "aws:elasticbeanstalk:container:python"
     name = "WSGIPath"
-    value = "retrospective/wsgi.py"
+    value = "backend/retrospective/wsgi.py"
   }
 
   setting {
