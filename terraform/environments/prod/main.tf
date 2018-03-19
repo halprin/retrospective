@@ -19,4 +19,5 @@ module "environment" {
   ec2_key_name = "retrospective"
   notification_email = "${var.notification_email}"
   secret_key = "${var.secret_key}"
+  base_host_name = "${var.base_host_name}"
 }

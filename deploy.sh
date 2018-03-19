@@ -14,7 +14,7 @@ function run_terraform() {
 
     cd ../environments/${ENVIRONMENT}/
     terraform init
-    terraform apply -auto-approve -var "beanstalk_application=${BEANSTALK_APPLICATION}" -var "notification_email=${DEPLOY_EMAIL}" -var "secret_key=${SECRET_KEY}" -var "beanstalk_service_role=${BEANSTALK_SERVICE_ROLE}"
+    terraform apply -auto-approve -var "beanstalk_application=${BEANSTALK_APPLICATION}" -var "notification_email=${DEPLOY_EMAIL}" -var "secret_key=${SECRET_KEY}" -var "beanstalk_service_role=${BEANSTALK_SERVICE_ROLE}" -var "base_host_name=${BASE_HOSTNAME}"
     export BACKEND_ENDPOINT=$(terraform output backend_endpoint)
     export FRONTEND_ENDPOINT=$(terraform output frontend_endpoint)
     cd ../../../
@@ -26,7 +26,7 @@ function deploy_frontend() {
     cd ./frontend/
     npm install --silent
     ./build.sh "http://${FRONTEND_ENDPOINT}" "http://${BACKEND_ENDPOINT}"
-    aws s3 sync ./dist/ s3://${APPLICATION}-${ENVIRONMENT}-frontend/ --delete
+    aws s3 sync ./dist/ s3://${FRONTEND_ENDPOINT}/ --delete
     cd ../
 }
 

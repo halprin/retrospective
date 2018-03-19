@@ -1,8 +1,8 @@
-output "beanstalk_env_cname" {
-  value = "${aws_elastic_beanstalk_environment.env.cname}"
+output "backend_domain" {
+  value = "${data.null_data_source.hostname.outputs.backend}"
 }
 
-output "frontend_url" {
-  value = "${module.frontend.url}"
+output "frontend_domain" {
+  value = "${data.null_data_source.hostname.outputs.frontend}"
 }
 

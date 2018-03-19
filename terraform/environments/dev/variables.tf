@@ -18,3 +18,7 @@ variable "notification_email" {
 variable "beanstalk_service_role" {
   type = "string"
 }
+
+variable "base_host_name" {
+  type = "string"
+}
