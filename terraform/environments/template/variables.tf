@@ -21,3 +21,7 @@ variable "notification_email" {
 variable "secret_key" {
   type = "string"
 }
+
+variable "base_host_name" {
+  type = "string"
+}

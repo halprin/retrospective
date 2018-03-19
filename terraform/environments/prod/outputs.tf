@@ -1,7 +1,7 @@
 output "backend_endpoint" {
-  value = "${module.environment.beanstalk_env_cname}"
+  value = "${module.environment.backend_domain}"
 }
 
 output "frontend_endpoint" {
-  value = "${module.environment.frontend_url}"
+  value = "${module.environment.frontend_domain}"
 }
