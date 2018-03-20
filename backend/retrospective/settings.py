@@ -40,9 +40,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    # 'django.middleware.security.SecurityMiddleware',
-    # 'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    # 'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     # 'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -88,6 +88,12 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# Security
+SECURE_CONTENT_TYPE_NOSNIFF = True
+
+SECURE_BROWSER_XSS_FILTER = True
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
@@ -107,6 +113,12 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+
+# Environment this application is deployed in
+
 ENVIRONMENT = os.getenv('ENVIRONMENT', 'prod')
+
+
+# CORS
 
 CORS_ORIGIN_ALLOW_ALL = (ENVIRONMENT == 'dev' or ENVIRONMENT == 'test')
