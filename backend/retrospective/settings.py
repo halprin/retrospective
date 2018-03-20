@@ -33,7 +33,6 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '*']
 INSTALLED_APPS = [
     'corsheaders',
     # 'django.contrib.admin',
-    # 'django.contrib.auth',
     'django.contrib.contenttypes',
     # 'django.contrib.staticfiles',
 ]
@@ -43,7 +42,6 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
-    # 'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -58,7 +56,6 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
             ],
         },
     },
