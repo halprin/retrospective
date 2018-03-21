@@ -1,7 +1,9 @@
 language: python
 python:
   - "3.6"
-script: pytest ./backend/tests/
+script:
+  - pytest ./backend/tests/
+  - python manage.py check --deploy --fail-level ERROR
 before_deploy:
   - sudo apt-get -q update
   - sudo pip install awscli
