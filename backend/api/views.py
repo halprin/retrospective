@@ -12,6 +12,7 @@ user_not_admin = 'User is not valid or not an admin'
 user_not_valid = 'User is not valid'
 no_create_issue_retro_wrong_step = 'Cannot create an issue because the retrospective is on step {}'
 no_vote_issue_retro_wrong_step = 'Cannot vote for an issue because the retrospective is on step {}'
+no_delete_issue_retro_wrong_step = 'Cannot delete an issue because the retrospective is on step {}'
 
 
 class RetroView(View):
@@ -174,6 +175,28 @@ class RetroIssueView(View):
         service.vote_for_issue(issue_id_str, user_token, retro)
 
         return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
+
+    def delete(self, request, retro_id=None, issue_id=None, *args, **kwargs):
+        retro_id_str = str(retro_id)
+        issue_id_str = str(issue_id)
+
+        retro = None
+        try:
+            retro = service.get_retro(retro_id_str)
+        except Retrospective.DoesNotExist:
+            return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
+                                charset=charset_utf8)
+
+        user_token = token.get_token_from_request(request)
+        if not token.token_is_valid(user_token, retro):
+            return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
+
+        if not token.token_is_valid(user_token, retro):
+            return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
+
+        if RetroStep(retro.current_step) != RetroStep.ADDING_ISSUES:
+            return HttpResponse(no_delete_issue_retro_wrong_step.format(retro.current_step), status=422,
+                                content_type=content_type_text_plain, charset=charset_utf8)
 
 
 class HealthView(View):
