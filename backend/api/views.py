@@ -8,9 +8,6 @@ from backend.api.validation import retrospective_exists, user_is_admin, user_is_
 
 charset_utf8 = 'UTF-8'
 content_type_text_plain = 'text/plain'
-retro_not_found = 'Retro {} not found'
-user_not_admin = 'User is not valid or not an admin'
-user_not_valid = 'User is not valid'
 no_create_issue_retro_wrong_step = 'Cannot create an issue because the retrospective is on step {}'
 no_vote_issue_retro_wrong_step = 'Cannot vote for an issue because the retrospective is on step {}'
 

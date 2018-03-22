@@ -6,7 +6,6 @@ from backend.tests.util import retro, request, validators
 from backend.api.models import Retrospective, RetroStep
 
 
-content_type = 'Content-Type'
 content_type_application_json = 'application/json'
 
 
@@ -30,7 +29,7 @@ class TestRetroView:
         response = object_under_test.post(a_request)
 
         assert response.status_code == 201
-        assert response[content_type] == content_type_application_json
+        assert response[validators.content_type] == content_type_application_json
         assert response.charset == views.charset_utf8
         assert json.loads(response.content) == {'retroId': new_retro_id, 'token': new_admin_id}
 
@@ -71,7 +70,7 @@ class TestRetroView:
         response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever')
 
         assert response.status_code == 422
-        assert response[content_type] == views.content_type_text_plain
+        assert response[validators.content_type] == views.content_type_text_plain
         assert response.charset == views.charset_utf8
         assert response.content.decode() == value_error_text
 
@@ -88,7 +87,7 @@ class TestRetroView:
         response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever')
 
         assert response.status_code == 200
-        assert response[content_type] == content_type_application_json
+        assert response[validators.content_type] == content_type_application_json
         assert response.charset == views.charset_utf8
         assert json.loads(response.content) == {'newStep': new_stage}
 
@@ -120,7 +119,7 @@ class TestRetroView:
         response = object_under_test.get(request.create_mock_request(), retro_id='whatever')
 
         assert response.status_code == 200
-        assert response[content_type] == content_type_application_json
+        assert response[validators.content_type] == content_type_application_json
         assert response.charset == views.charset_utf8
         assert json.loads(response.content) == mock_response
 
@@ -151,7 +150,7 @@ class TestRetroUserView:
         response = object_under_test.post(request.create_mock_request(request_body), retro_id=retro_id)
 
         assert response.status_code == 201
-        assert response[content_type] == content_type_application_json
+        assert response[validators.content_type] == content_type_application_json
         assert response.charset == views.charset_utf8
         assert json.loads(response.content) == {'token': new_user_token}
 
@@ -184,7 +183,7 @@ class TestRetroUserView:
         response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever')
 
         assert response.status_code == 200
-        assert response[content_type] == views.content_type_text_plain
+        assert response[validators.content_type] == views.content_type_text_plain
         assert response.charset == views.charset_utf8
         assert response.content.decode() == ''
 
@@ -235,7 +234,7 @@ class TestRetroIssueView:
         response = object_under_test.post(request.create_mock_request(request_body), retro_id='whatever')
 
         assert response.status_code == 201
-        assert response[content_type] == content_type_application_json
+        assert response[validators.content_type] == content_type_application_json
         assert response.charset == views.charset_utf8
         assert json.loads(response.content) == {'id': mock_issue_id}
 
@@ -275,7 +274,7 @@ class TestRetroIssueView:
         response = object_under_test.put(request.create_mock_request(), retro_id='whatever', issue_id='some_issue_id')
 
         assert response.status_code == 200
-        assert response[content_type] == views.content_type_text_plain
+        assert response[validators.content_type] == views.content_type_text_plain
         assert response.charset == views.charset_utf8
         assert response.content.decode() == ''
 
