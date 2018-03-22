@@ -17,7 +17,7 @@ def assert_user_not_valid(response):
     assert response.content.decode() == views.user_not_valid
 
 
-@patch('backend.api.views.token', autospec=True)
+@patch('backend.api.validation.token', autospec=True)
 @patch('backend.api.views.service', autospec=True)
 @patch('backend.api.validation.service', autospec=True)
 class TestRetroView:
@@ -63,10 +63,7 @@ class TestRetroView:
         object_under_test = RetroView()
         response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever')
 
-        assert response.status_code == 401
-        assert response[content_type] == views.content_type_text_plain
-        assert response.charset == views.charset_utf8
-        assert response.content.decode() == views.user_not_admin
+        validators.assert_user_not_admin(response)
 
     def test_put_move_isnt_allowed(self, mock_service_validation, mock_service_view, mock_token):
         request_body = {
@@ -91,7 +88,7 @@ class TestRetroView:
         }
         mock_service_validation.get_retro.return_value = retro.create_mock_retro()
         mock_token.token_is_admin.return_value = True
-        new_stage = "Voting"
+        new_stage = 'Voting'
         mock_service_view.move_retro.return_value = new_stage
 
         object_under_test = RetroView()
@@ -102,7 +99,8 @@ class TestRetroView:
         assert response.charset == views.charset_utf8
         assert json.loads(response.content) == {'newStep': new_stage}
 
-    def test_get_retro_doesnt_exist(self, mock_service_validation, mock_service_view, mock_token):
+    @patch('backend.api.views.token', autospec=True)
+    def test_get_retro_doesnt_exist(self, mock_token_view, mock_service_validation, mock_service_view, mock_token):
         mock_service_validation.get_retro.side_effect = Retrospective.DoesNotExist
 
         object_under_test = RetroView()
@@ -111,18 +109,20 @@ class TestRetroView:
 
         validators.assert_retro_not_found(response, retro_id)
 
-    def test_get_user_isnt_valid(self, mock_service_validation, mock_service_view, mock_token):
+    @patch('backend.api.views.token', autospec=True)
+    def test_get_user_isnt_valid(self, mock_token_view, mock_service_validation, mock_service_view, mock_token):
         mock_service_validation.get_retro.return_value = retro.create_mock_retro()
-        mock_token.token_is_valid.return_value = False
+        mock_token_view.token_is_valid.return_value = False
 
         object_under_test = RetroView()
         response = object_under_test.get(request.create_mock_request(), retro_id='whatever')
 
         assert_user_not_valid(response)
 
-    def test_get_retro_success(self, mock_service_validation, mock_service_view, mock_token):
+    @patch('backend.api.views.token', autospec=True)
+    def test_get_retro_success(self, mock_token_view, mock_service_validation, mock_service_view, mock_token):
         mock_service_validation.get_retro.return_value = retro.create_mock_retro()
-        mock_token.token_is_valid.return_value = True
+        mock_token_view.token_is_valid.return_value = True
         mock_response = {'mockResponseBody': 'one awesome response body'}
         mock_service_view.sanitize_retro_for_user_and_step.return_value = mock_response
 

@@ -2,8 +2,8 @@ from django.http import HttpResponse, JsonResponse
 from django.views import View
 import json
 from backend.api import service, token
-from backend.api.models import Retrospective, RetroStep
-from backend.api.validation import retrospective_exists
+from backend.api.models import RetroStep
+from backend.api.validation import retrospective_exists, user_is_admin
 
 
 charset_utf8 = 'UTF-8'
@@ -31,10 +31,8 @@ class RetroView(View):
         return JsonResponse(response_body, status=201, charset=charset_utf8)
 
     @retrospective_exists
-    def put(self, request, retro, *args, **kwargs):
-        if not token.token_is_admin(token.get_token_from_request(request), retro):
-            return HttpResponse(user_not_admin, status=401, content_type=content_type_text_plain, charset=charset_utf8)
-
+    @user_is_admin
+    def put(self, request, retro=None, *args, **kwargs):
         request_body = json.loads(request.body)
         direction = request_body['direction']
 
@@ -51,7 +49,7 @@ class RetroView(View):
         return JsonResponse(response_body, status=200, charset=charset_utf8)
 
     @retrospective_exists
-    def get(self, request, retro, *args, **kwargs):
+    def get(self, request, retro=None, *args, **kwargs):
         user_token = token.get_token_from_request(request)
         if not token.token_is_valid(user_token, retro):
             return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
@@ -63,7 +61,7 @@ class RetroView(View):
 
 class RetroUserView(View):
     @retrospective_exists
-    def post(self, request, retro, *args, **kwargs):
+    def post(self, request, retro=None, *args, **kwargs):
         request_body = json.loads(request.body)
         participant_name = request_body['name']
 
@@ -76,7 +74,7 @@ class RetroUserView(View):
         return JsonResponse(response_body, status=201, charset=charset_utf8)
 
     @retrospective_exists
-    def put(self, request, retro, *args, **kwargs):
+    def put(self, request, retro=None, *args, **kwargs):
         user_token = token.get_token_from_request(request)
         if not token.token_is_valid(user_token, retro):
             return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
@@ -91,7 +89,7 @@ class RetroUserView(View):
 
 class RetroIssueView(View):
     @retrospective_exists
-    def post(self, request, retro, *args, **kwargs):
+    def post(self, request, retro=None, *args, **kwargs):
         user_token = token.get_token_from_request(request)
         if not token.token_is_valid(user_token, retro):
             return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
@@ -114,7 +112,7 @@ class RetroIssueView(View):
         return JsonResponse(response_body, status=201, charset=charset_utf8)
 
     @retrospective_exists
-    def put(self, request, retro, issue_id=None, *args, **kwargs):
+    def put(self, request, retro=None, issue_id=None, *args, **kwargs):
         issue_id_str = str(issue_id)
 
         user_token = token.get_token_from_request(request)
