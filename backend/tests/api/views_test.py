@@ -166,7 +166,7 @@ class TestRetroUserView:
         assert json.loads(response.content) == {'token': new_user_token}
 
     def test_put_retro_not_found(self, mock_service_validation, mock_service_view, mock_token):
-        mock_service_view.get_retro.side_effect = Retrospective.DoesNotExist
+        mock_service_validation.get_retro.side_effect = Retrospective.DoesNotExist
 
         object_under_test = RetroUserView()
         retro_id = 'non-existent_retro_id'
@@ -175,7 +175,7 @@ class TestRetroUserView:
         validators.assert_retro_not_found(response, retro_id)
 
     def test_put_user_not_valid(self, mock_service_validation, mock_service_view, mock_token):
-        mock_service_view.get_retro.return_value = retro.create_mock_retro()
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro()
         mock_token.token_is_valid.return_value = False
 
         object_under_test = RetroUserView()
@@ -187,7 +187,7 @@ class TestRetroUserView:
         request_body = {
             'ready': True
         }
-        mock_service_view.get_retro.return_value = retro.create_mock_retro()
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro()
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroUserView()
