@@ -201,9 +201,10 @@ class TestRetroUserView:
 
 @patch('backend.api.views.token', autospec=True)
 @patch('backend.api.views.service', autospec=True)
+@patch('backend.api.validation.service', autospec=True)
 class TestRetroIssueView:
-    def test_post_retro_not_found(self, mock_service, mock_token):
-        mock_service.get_retro.side_effect = Retrospective.DoesNotExist
+    def test_post_retro_not_found(self, mock_service_validation, mock_service_view, mock_token):
+        mock_service_validation.get_retro.side_effect = Retrospective.DoesNotExist
 
         object_under_test = RetroIssueView()
         retro_id = 'non-existent_retro_id'
@@ -211,8 +212,8 @@ class TestRetroIssueView:
 
         validators.assert_retro_not_found(response, retro_id)
 
-    def test_post_user_not_valid(self, mock_service, mock_token):
-        mock_service.get_retro.return_value = retro.create_mock_retro()
+    def test_post_user_not_valid(self, mock_service_validation, mock_service_view, mock_token):
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro()
         mock_token.token_is_valid.return_value = False
 
         object_under_test = RetroIssueView()
@@ -220,9 +221,9 @@ class TestRetroIssueView:
 
         assert_user_not_valid(response)
 
-    def test_post_retro_step_not_valid(self, mock_service, mock_token):
+    def test_post_retro_step_not_valid(self, mock_service_validation, mock_service_view, mock_token):
         retro_step = RetroStep.VOTING.value
-        mock_service.get_retro.return_value = retro.create_mock_retro(current_step=retro_step)
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro(current_step=retro_step)
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueView()
@@ -233,15 +234,15 @@ class TestRetroIssueView:
         assert response.charset == views.charset_utf8
         assert response.content.decode() == views.no_create_issue_retro_wrong_step.format(retro_step)
 
-    def test_post_new_issue_success(self, mock_service, mock_token):
+    def test_post_new_issue_success(self, mock_service_validation, mock_service_view, mock_token):
         request_body = {
             'title': 'More timely PR reviews',
             'section': 'Needs Improvement'
         }
-        mock_service.get_retro.return_value = retro.create_mock_retro()
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro()
         mock_token.token_is_valid.return_value = True
         mock_issue_id = 'new_issue_id'
-        mock_service.add_new_issue.return_value = mock_issue_id
+        mock_service_view.add_new_issue.return_value = mock_issue_id
 
         object_under_test = RetroIssueView()
         response = object_under_test.post(request.create_mock_request(request_body), retro_id='whatever')
@@ -251,8 +252,8 @@ class TestRetroIssueView:
         assert response.charset == views.charset_utf8
         assert json.loads(response.content) == {'id': mock_issue_id}
 
-    def test_put_retro_not_found(self, mock_service, mock_token):
-        mock_service.get_retro.side_effect = Retrospective.DoesNotExist
+    def test_put_retro_not_found(self, mock_service_validation, mock_service_view, mock_token):
+        mock_service_validation.get_retro.side_effect = Retrospective.DoesNotExist
 
         object_under_test = RetroIssueView()
         retro_id = 'non-existent_retro_id'
@@ -260,8 +261,8 @@ class TestRetroIssueView:
 
         validators.assert_retro_not_found(response, retro_id)
 
-    def test_put_user_not_valid(self, mock_service, mock_token):
-        mock_service.get_retro.return_value = retro.create_mock_retro()
+    def test_put_user_not_valid(self, mock_service_validation, mock_service_view, mock_token):
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro()
         mock_token.token_is_valid.return_value = False
 
         object_under_test = RetroIssueView()
@@ -269,9 +270,9 @@ class TestRetroIssueView:
 
         assert_user_not_valid(response)
 
-    def test_put_retro_not_voting_step(self, mock_service, mock_token):
+    def test_put_retro_not_voting_step(self, mock_service_validation, mock_service_view, mock_token):
         incorrect_retro_step = RetroStep.ADDING_ISSUES.value
-        mock_service.get_retro.return_value = retro.create_mock_retro(current_step=incorrect_retro_step)
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro(current_step=incorrect_retro_step)
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueView()
@@ -282,8 +283,8 @@ class TestRetroIssueView:
         assert response.charset == views.charset_utf8
         assert response.content.decode() == views.no_vote_issue_retro_wrong_step.format(incorrect_retro_step)
 
-    def test_put_retro_success(self, mock_service, mock_token):
-        mock_service.get_retro.return_value = retro.create_mock_retro(current_step=RetroStep.VOTING.value)
+    def test_put_retro_success(self, mock_service_validation, mock_service_view, mock_token):
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro(current_step=RetroStep.VOTING.value)
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueView()

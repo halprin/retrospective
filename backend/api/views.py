@@ -90,16 +90,8 @@ class RetroUserView(View):
 
 
 class RetroIssueView(View):
-    def post(self, request, retro_id=None, *args, **kwargs):
-        retro_id_str = str(retro_id)
-
-        retro = None
-        try:
-            retro = service.get_retro(retro_id_str)
-        except Retrospective.DoesNotExist:
-            return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
-                                charset=charset_utf8)
-
+    @retrospective_exists
+    def post(self, request, retro, *args, **kwargs):
         user_token = token.get_token_from_request(request)
         if not token.token_is_valid(user_token, retro):
             return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
@@ -121,16 +113,9 @@ class RetroIssueView(View):
 
         return JsonResponse(response_body, status=201, charset=charset_utf8)
 
-    def put(self, request, retro_id=None, issue_id=None, *args, **kwargs):
-        retro_id_str = str(retro_id)
+    @retrospective_exists
+    def put(self, request, retro, issue_id=None, *args, **kwargs):
         issue_id_str = str(issue_id)
-
-        retro = None
-        try:
-            retro = service.get_retro(retro_id_str)
-        except Retrospective.DoesNotExist:
-            return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
-                                charset=charset_utf8)
 
         user_token = token.get_token_from_request(request)
         if not token.token_is_valid(user_token, retro):
