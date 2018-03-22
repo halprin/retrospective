@@ -36,7 +36,7 @@ def test_retrospective_exists_positive(mock_service):
 
 
 @patch('backend.api.validation.token', autospec=True)
-def test_user_is_admin_exists_negative(mock_token):
+def test_user_is_admin_negative(mock_token):
     mock_token.token_is_admin.return_value = False
 
     object_under_test = validation.user_is_admin(original_function)
@@ -52,6 +52,29 @@ def test_user_is_admin_positive(mock_token):
     mock_request = request.create_mock_request()
 
     object_under_test = validation.user_is_admin(original_function)
+    passed_args = object_under_test(None, mock_request, retro=mock_retro)
+
+    assert mock_request == passed_args['args'][1]
+    assert mock_retro == passed_args['kwargs']['retro']
+
+
+@patch('backend.api.validation.token', autospec=True)
+def test_user_is_valid_negative(mock_token):
+    mock_token.token_is_valid.return_value = False
+
+    object_under_test = validation.user_is_valid(original_function)
+    response = object_under_test(None, request.create_mock_request(), retro=retro.create_mock_retro())
+
+    validators.assert_user_not_valid(response)
+
+
+@patch('backend.api.validation.token', autospec=True)
+def test_user_is_valid_positive(mock_token):
+    mock_token.token_is_valid.return_value = True
+    mock_retro = retro.create_mock_retro()
+    mock_request = request.create_mock_request()
+
+    object_under_test = validation.user_is_valid(original_function)
     passed_args = object_under_test(None, mock_request, retro=mock_retro)
 
     assert mock_request == passed_args['args'][1]

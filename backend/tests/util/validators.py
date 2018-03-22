@@ -16,3 +16,10 @@ def assert_user_not_admin(response):
     assert validation.content_type_text_plain == response[content_type]
     assert validation.charset_utf8 == response.charset
     assert validation.user_not_admin == response.content.decode()
+
+
+def assert_user_not_valid(response):
+    assert 401 == response.status_code
+    assert validation.content_type_text_plain == response[content_type]
+    assert validation.charset_utf8 == response.charset
+    assert validation.user_not_valid == response.content.decode()
