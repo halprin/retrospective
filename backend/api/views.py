@@ -3,6 +3,7 @@ from django.views import View
 import json
 from backend.api import service, token
 from backend.api.models import Retrospective, RetroStep
+from backend.api.validation import retrospective_exists
 
 
 charset_utf8 = 'UTF-8'
@@ -29,16 +30,8 @@ class RetroView(View):
 
         return JsonResponse(response_body, status=201, charset=charset_utf8)
 
-    def put(self, request, retro_id=None, *args, **kwargs):
-        retro_id_str = str(retro_id)
-
-        retro = None
-        try:
-            retro = service.get_retro(retro_id_str)
-        except Retrospective.DoesNotExist:
-            return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
-                                charset=charset_utf8)
-
+    @retrospective_exists
+    def put(self, request, retro, *args, **kwargs):
         if not token.token_is_admin(token.get_token_from_request(request), retro):
             return HttpResponse(user_not_admin, status=401, content_type=content_type_text_plain, charset=charset_utf8)
 

@@ -1,10 +1,7 @@
 from unittest.mock import patch
 from backend.api import validation
 from backend.api.models import Retrospective
-from backend.tests.util import retro
-
-
-content_type = 'Content-Type'
+from backend.tests.util import retro, validators
 
 
 def original_function(*args, **kwargs):
@@ -22,10 +19,7 @@ def test_retrospective_exists_negative(mock_service):
     object_under_test = validation.retrospective_exists(original_function)
     response = object_under_test(retro_id=retro_id)
 
-    assert 404 == response.status_code
-    assert validation.content_type_text_plain == response[content_type]
-    assert validation.charset_utf8 == response.charset
-    assert validation.retro_not_found.format(retro_id) == response.content.decode()
+    validators.assert_retro_not_found(response, retro_id)
 
 
 @patch('backend.api.validation.service', autospec=True)
