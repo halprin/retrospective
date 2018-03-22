@@ -1,7 +1,7 @@
 from functools import wraps
 from django.http import HttpResponse
 from backend.api import service, token
-from backend.api.models import Retrospective
+from backend.api.models import Retrospective, RetroStep
 
 
 charset_utf8 = 'UTF-8'
@@ -55,3 +55,19 @@ def user_is_valid(original_function):
         return original_function(*args, **kwargs)
 
     return wrapper
+
+
+def retro_on_step(retro_step, error_message):
+    def decorator(original_function):
+        @wraps(original_function)
+        def wrapper(*args, **kwargs):
+            retro = kwargs['retro']
+
+            if RetroStep(retro.current_step) != retro_step:
+                return HttpResponse(error_message.format(retro.current_step), status=422,
+                                    content_type=content_type_text_plain, charset=charset_utf8)
+
+            return original_function(*args, **kwargs)
+
+        return wrapper
+    return decorator

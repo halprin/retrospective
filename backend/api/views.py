@@ -3,7 +3,7 @@ from django.views import View
 import json
 from backend.api import service, token
 from backend.api.models import RetroStep
-from backend.api.validation import retrospective_exists, user_is_admin, user_is_valid
+from backend.api.validation import retrospective_exists, user_is_admin, user_is_valid, retro_on_step
 
 
 charset_utf8 = 'UTF-8'
@@ -87,13 +87,9 @@ class RetroUserView(View):
 class RetroIssueView(View):
     @retrospective_exists
     @user_is_valid
+    @retro_on_step(RetroStep.ADDING_ISSUES, no_create_issue_retro_wrong_step)
     def post(self, request, retro=None, *args, **kwargs):
         user_token = token.get_token_from_request(request)
-
-        if RetroStep(retro.current_step) != RetroStep.ADDING_ISSUES:
-            return HttpResponse(
-                no_create_issue_retro_wrong_step.format(retro.current_step), status=422, content_type=content_type_text_plain,
-                charset=charset_utf8)
 
         request_body = json.loads(request.body)
         issue_title = request_body['title']
@@ -109,13 +105,10 @@ class RetroIssueView(View):
 
     @retrospective_exists
     @user_is_valid
+    @retro_on_step(RetroStep.VOTING, no_vote_issue_retro_wrong_step)
     def put(self, request, retro=None, issue_id=None, *args, **kwargs):
         issue_id_str = str(issue_id)
         user_token = token.get_token_from_request(request)
-
-        if RetroStep(retro.current_step) != RetroStep.VOTING:
-            return HttpResponse(no_vote_issue_retro_wrong_step.format(retro.current_step), status=422,
-                                content_type=content_type_text_plain, charset=charset_utf8)
 
         service.vote_for_issue(issue_id_str, user_token, retro)
 

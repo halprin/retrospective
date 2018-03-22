@@ -219,10 +219,7 @@ class TestRetroIssueView:
         object_under_test = RetroIssueView()
         response = object_under_test.post(request.create_mock_request(), retro_id='whatever')
 
-        assert response.status_code == 422
-        assert response[content_type] == views.content_type_text_plain
-        assert response.charset == views.charset_utf8
-        assert response.content.decode() == views.no_create_issue_retro_wrong_step.format(retro_step)
+        validators.assert_retro_not_on_step(response, views.no_create_issue_retro_wrong_step.format(retro_step))
 
     def test_post_new_issue_success(self, mock_service_validation, mock_service_view, mock_token):
         request_body = {
@@ -268,10 +265,7 @@ class TestRetroIssueView:
         object_under_test = RetroIssueView()
         response = object_under_test.put(request.create_mock_request(), retro_id='whatever', issue_id='some_issue_id')
 
-        assert response.status_code == 422
-        assert response[content_type] == views.content_type_text_plain
-        assert response.charset == views.charset_utf8
-        assert response.content.decode() == views.no_vote_issue_retro_wrong_step.format(incorrect_retro_step)
+        validators.assert_retro_not_on_step(response, views.no_vote_issue_retro_wrong_step.format(incorrect_retro_step))
 
     def test_put_retro_success(self, mock_service_validation, mock_service_view, mock_token):
         mock_service_validation.get_retro.return_value = retro.create_mock_retro(current_step=RetroStep.VOTING.value)
