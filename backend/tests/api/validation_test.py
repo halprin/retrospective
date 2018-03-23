@@ -99,3 +99,47 @@ def test_retro_on_step_positive():
     passed_args = object_under_test(retro=mock_retro)
 
     assert mock_retro == passed_args['kwargs']['retro']
+
+
+def test__find_issue_negative():
+    issue_one = retro.create_mock_issue(id='an_issue_id')
+    issue_two = retro.create_mock_issue(id='another_issue_id')
+    mock_retro = retro.create_mock_retro(issues=[issue_one, issue_two])
+
+    issue = validation._find_issue('non-existing_issue_id', mock_retro)
+
+    assert issue is None
+
+
+def test__find_issue_positive():
+    existing_issue_id = 'an_issue_id'
+    issue_one = retro.create_mock_issue(id='some_issue_id')
+    expected_issue = retro.create_mock_issue(id=existing_issue_id)
+    mock_retro = retro.create_mock_retro(issues=[issue_one, expected_issue])
+
+    actual_issue = validation._find_issue(existing_issue_id, mock_retro)
+
+    assert expected_issue == actual_issue
+
+
+def test_issue_exists_negative():
+    issue_id = 'non-existent_issue_id'
+    object_under_test = validation.issue_exists(original_function)
+
+    response = object_under_test(retro=retro.create_mock_retro(issues=[retro.create_mock_issue(id='some_other_id')]),
+                                 issue_id=issue_id)
+
+    validators.assert_issue_not_found(response, issue_id)
+
+
+def test_issue_exists_positive():
+    issue_id = 'some_issue_id'
+    mock_issue = retro.create_mock_issue(id=issue_id)
+    mock_retro = retro.create_mock_retro(issues=[mock_issue])
+    object_under_test = validation.issue_exists(original_function)
+
+    passed_args = object_under_test(retro=mock_retro, issue_id=issue_id)
+
+    assert mock_retro == passed_args['kwargs']['retro']
+    assert issue_id == passed_args['kwargs']['issue_id']
+    assert mock_issue == passed_args['kwargs']['issue']
