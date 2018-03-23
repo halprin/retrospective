@@ -100,3 +100,20 @@ def test_get_participant_none():
     found_participant = token.get_participant('something_not_above', a_retro)
 
     assert found_participant is None
+
+
+def test_issue_owned_by_participant_negative():
+    mock_issue = retro.create_mock_issue(creator_token='owner_id')
+
+    issue_owned = token.issue_owned_by_participant(mock_issue, 'not_owner_id')
+
+    assert issue_owned is False
+
+
+def test_issue_owned_by_participant_positive():
+    creator_token = 'owner_token'
+    mock_issue = retro.create_mock_issue(creator_token=creator_token)
+
+    issue_owned = token.issue_owned_by_participant(mock_issue, creator_token)
+
+    assert issue_owned is True
