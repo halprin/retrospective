@@ -315,33 +315,23 @@ def test_add_new_issue():
 def test_vote_for_issue():
     issue_id_str = 'issue_id'
     user_token_str = 'voter_token'
-    first_issue = retro.create_mock_issue(id='not_right_issue')
     a_issue = retro.create_mock_issue(id=issue_id_str)
-    third_issue = retro.create_mock_issue(id='not_correct_issue')
-    a_retro = retro.create_mock_retro(issues=[first_issue, a_issue, third_issue])
+    a_retro = retro.create_mock_retro(issues=[a_issue])
 
-    service.vote_for_issue(issue_id_str, user_token_str, a_retro)
+    service.vote_for_issue(a_issue, user_token_str, a_retro)
 
-    for issue in a_retro.issues:
-        if issue.id == issue_id_str:
-            assert len(issue.votes) == 1
-            assert user_token_str in issue.votes
-        else:
-            assert issue.votes is None
+    assert 1 == len(a_issue.votes)
+    assert user_token_str in a_issue.votes
 
 
 def test_vote_for_issue_twice_results_in_one_vote():
     issue_id_str = 'issue_id'
     user_token_str = 'voter_token'
-    first_issue = retro.create_mock_issue(id='not_right_issue')
     a_issue = retro.create_mock_issue(id=issue_id_str)
-    third_issue = retro.create_mock_issue(id='not_correct_issue')
-    a_retro = retro.create_mock_retro(issues=[first_issue, a_issue, third_issue])
+    a_retro = retro.create_mock_retro(issues=[a_issue])
 
-    service.vote_for_issue(issue_id_str, user_token_str, a_retro)
-    service.vote_for_issue(issue_id_str, user_token_str, a_retro)
+    service.vote_for_issue(a_issue, user_token_str, a_retro)
+    service.vote_for_issue(a_issue, user_token_str, a_retro)
 
-    for issue in a_retro.issues:
-        if issue.id == issue_id_str:
-            assert len(issue.votes) == 1
-            assert user_token_str in issue.votes
+    assert 1 == len(a_issue.votes)
+    assert user_token_str in a_issue.votes
