@@ -10,6 +10,7 @@ retro_not_found = 'Retro {} not found'
 user_not_admin = 'User is not valid or not an admin'
 user_not_valid = 'User is not valid'
 issue_not_found = 'Issue {} not found'
+user_is_not_issue_owner = 'User is not owner of issue {}'
 
 
 def retrospective_exists(original_function):
@@ -87,6 +88,21 @@ def issue_exists(original_function):
                                 charset=charset_utf8)
 
         return original_function(*args, issue=issue, **kwargs)
+
+    return wrapper
+
+
+def issue_owned_by_user(original_function):
+    @wraps(original_function)
+    def wrapper(*args, **kwargs):
+        request = args[1]
+        issue = kwargs['issue']
+
+        if not token.issue_owned_by_participant(issue, token.get_token_from_request(request)):
+            return HttpResponse(user_is_not_issue_owner.format(issue.id), status=401,
+                                content_type=content_type_text_plain, charset=charset_utf8)
+
+        return original_function(*args, **kwargs)
 
     return wrapper
 

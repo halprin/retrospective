@@ -143,3 +143,27 @@ def test_issue_exists_positive():
     assert mock_retro == passed_args['kwargs']['retro']
     assert issue_id == passed_args['kwargs']['issue_id']
     assert mock_issue == passed_args['kwargs']['issue']
+
+
+@patch('backend.api.validation.token', autospec=True)
+def test_user_doesnt_own_issue(mock_token):
+    issue_id = 'issue_id'
+    mock_token.issue_owned_by_participant.return_value = False
+    object_under_test = validation.issue_owned_by_user(original_function)
+
+    response = object_under_test(None, request.create_mock_request(), issue=retro.create_mock_issue(id=issue_id))
+
+    validators.assert_user_not_owner_of_issue(response, issue_id)
+
+
+@patch('backend.api.validation.token', autospec=True)
+def test_user_owns_issue(mock_token):
+    mock_token.issue_owned_by_participant.return_value = True
+    mock_request = request.create_mock_request()
+    mock_issue = retro.create_mock_issue()
+    object_under_test = validation.issue_owned_by_user(original_function)
+
+    passed_args = object_under_test(None, mock_request, issue=mock_issue)
+
+    assert mock_request == passed_args['args'][1]
+    assert mock_issue == passed_args['kwargs']['issue']
