@@ -335,3 +335,13 @@ def test_vote_for_issue_twice_results_in_one_vote():
 
     assert 1 == len(a_issue.votes)
     assert user_token_str in a_issue.votes
+
+
+def test_delete_issue():
+    mock_issue = retro.create_mock_issue(id='some_issue')
+    another_mock_issue = retro.create_mock_issue(id='another_issue')
+    mock_retro = retro.create_mock_retro(issues=[another_mock_issue, mock_issue])
+
+    service.delete_issue(mock_issue, mock_retro)
+
+    assert mock_issue not in mock_retro.issues

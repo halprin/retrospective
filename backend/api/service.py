@@ -135,3 +135,9 @@ def vote_for_issue(issue, user_token, retro):
     issue.votes.add(user_token)
 
     retro.save()
+
+
+def delete_issue(issue, retro):
+    retro.issues.remove(issue)
+
+    retro.save()

@@ -3,7 +3,8 @@ from django.views import View
 import json
 from backend.api import service, token
 from backend.api.models import RetroStep
-from backend.api.validation import retrospective_exists, user_is_admin, user_is_valid, retro_on_step, issue_exists
+from backend.api.validation import retrospective_exists, user_is_admin, user_is_valid, retro_on_step, issue_exists,\
+    issue_owned_by_user
 
 
 charset_utf8 = 'UTF-8'
@@ -112,14 +113,15 @@ class RetroIssueView(View):
 
         return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
 
-    # @retrospective_exists
-    # @user_is_valid
-    # @retro_on_step(RetroStep.ADDING_ISSUES, no_delete_issue_retro_wrong_step)
-    # def delete(self, request, retro=None, issue_id=None, *args, **kwargs):
-    #     issue_id_str = str(issue_id)
-    #
-    #     if not token.token_is_valid(user_token, retro):
-    #         return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
+    @retrospective_exists
+    @user_is_valid
+    @retro_on_step(RetroStep.ADDING_ISSUES, no_delete_issue_retro_wrong_step)
+    @issue_exists
+    @issue_owned_by_user
+    def delete(self, request, retro=None, issue=None, *args, **kwargs):
+        service.delete_issue(issue, retro)
+
+        return HttpResponse('', status=204, content_type=content_type_text_plain, charset=charset_utf8)
 
 
 class HealthView(View):
