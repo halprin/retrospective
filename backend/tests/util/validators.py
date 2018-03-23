@@ -30,3 +30,17 @@ def assert_retro_not_on_step(response, expected_error_message):
     assert validation.content_type_text_plain == response[content_type]
     assert validation.charset_utf8 == response.charset
     assert expected_error_message == response.content.decode()
+
+
+def assert_issue_not_found(response, issue_id):
+    assert 404 == response.status_code
+    assert validation.content_type_text_plain == response[content_type]
+    assert validation.charset_utf8 == response.charset
+    assert validation.issue_not_found.format(issue_id) == response.content.decode()
+
+
+def assert_user_not_owner_of_issue(response, issue_id):
+    assert 401 == response.status_code
+    assert validation.content_type_text_plain == response[content_type]
+    assert validation.charset_utf8 == response.charset
+    assert validation.user_is_not_issue_owner.format(issue_id) == response.content.decode()

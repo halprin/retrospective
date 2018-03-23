@@ -55,6 +55,12 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
     });
   }
 
+  deleteIssue(issue_id: string): void {
+    this.retroService.deleteIssue(issue_id).subscribe(response => {
+      this.updateRetro();
+    });
+  }
+
   getWentWellIssues(): any {
     let goodIssues = [];
     for(let issue of this.retro.issues) {

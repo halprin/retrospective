@@ -256,7 +256,7 @@ class TestRetroIssueView:
 
         validators.assert_user_not_valid(response)
 
-    def test_put_retro_not_voting_step(self, mock_service_validation, mock_service_view, mock_token):
+    def test_put_not_voting_step(self, mock_service_validation, mock_service_view, mock_token):
         incorrect_retro_step = RetroStep.ADDING_ISSUES.value
         mock_service_validation.get_retro.return_value = retro.create_mock_retro(current_step=incorrect_retro_step)
         mock_token.token_is_valid.return_value = True
@@ -266,17 +266,98 @@ class TestRetroIssueView:
 
         validators.assert_retro_not_on_step(response, views.no_vote_issue_retro_wrong_step.format(incorrect_retro_step))
 
-    def test_put_retro_success(self, mock_service_validation, mock_service_view, mock_token):
-        mock_service_validation.get_retro.return_value = retro.create_mock_retro(current_step=RetroStep.VOTING.value)
+    def test_put_issue_doesnt_exist(self, mock_service_validation, mock_service_view, mock_token):
+        issue_id = 'non-existing_id'
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro(current_step=RetroStep.VOTING.value,
+                                                                                 issues=[retro.create_mock_issue(
+                                                                                     id='some_other_id')])
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueView()
-        response = object_under_test.put(request.create_mock_request(), retro_id='whatever', issue_id='some_issue_id')
+        response = object_under_test.put(request.create_mock_request(), retro_id='whatever', issue_id=issue_id)
 
-        assert response.status_code == 200
-        assert response[validators.content_type] == views.content_type_text_plain
-        assert response.charset == views.charset_utf8
-        assert response.content.decode() == ''
+        validators.assert_issue_not_found(response, issue_id)
+
+    def test_put_issue_success(self, mock_service_validation, mock_service_view, mock_token):
+        mock_issue_id = 'some_issue_id'
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro(current_step=RetroStep.VOTING.value,
+                                                                                 issues=[retro.create_mock_issue(
+                                                                                     id=mock_issue_id)])
+        mock_token.token_is_valid.return_value = True
+
+        object_under_test = RetroIssueView()
+        response = object_under_test.put(request.create_mock_request(), retro_id='whatever', issue_id=mock_issue_id)
+
+        assert 200 == response.status_code
+        assert views.content_type_text_plain == response[validators.content_type]
+        assert views.charset_utf8 == response.charset
+        assert '' == response.content.decode()
+
+    def test_delete_retro_not_found(self, mock_service_validation, mock_service_view, mock_token):
+        mock_service_validation.get_retro.side_effect = Retrospective.DoesNotExist
+
+        object_under_test = RetroIssueView()
+        retro_id = 'non-existent_retro_id'
+        response = object_under_test.delete(request.create_mock_request(), retro_id=retro_id)
+
+        validators.assert_retro_not_found(response, retro_id)
+
+    def test_delete_user_not_valid(self, mock_service_validation, mock_service_view, mock_token):
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro()
+        mock_token.token_is_valid.return_value = False
+
+        object_under_test = RetroIssueView()
+        response = object_under_test.delete(request.create_mock_request(), retro_id='whatever')
+
+        validators.assert_user_not_valid(response)
+
+    def test_delete_retro_step_not_valid(self, mock_service_validation, mock_service_view, mock_token):
+        retro_step = RetroStep.VOTING.value
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro(current_step=retro_step)
+        mock_token.token_is_valid.return_value = True
+
+        object_under_test = RetroIssueView()
+        response = object_under_test.delete(request.create_mock_request(), retro_id='whatever')
+
+        validators.assert_retro_not_on_step(response, views.no_delete_issue_retro_wrong_step.format(retro_step))
+
+    def test_delete_issue_doesnt_exist(self, mock_service_validation, mock_service_view, mock_token):
+        issue_id = 'non-existing_id'
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro(
+            current_step=RetroStep.ADDING_ISSUES.value, issues=[retro.create_mock_issue(id='some_other_id')])
+        mock_token.token_is_valid.return_value = True
+
+        object_under_test = RetroIssueView()
+        response = object_under_test.delete(request.create_mock_request(), retro_id='whatever', issue_id=issue_id)
+
+        validators.assert_issue_not_found(response, issue_id)
+
+    def test_delete_issue_not_owned_by_user(self, mock_service_validation, mock_service_view, mock_token):
+        issue_id = 'issue_id'
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro(
+            current_step=RetroStep.ADDING_ISSUES.value, issues=[retro.create_mock_issue(id=issue_id)])
+        mock_token.token_is_valid.return_value = True
+        mock_token.issue_owned_by_participant.return_value = False
+
+        object_under_test = RetroIssueView()
+        response = object_under_test.delete(request.create_mock_request(), retro_id='whatever', issue_id=issue_id)
+
+        validators.assert_user_not_owner_of_issue(response, issue_id)
+
+    def test_delete_success(self, mock_service_validation, mock_service_view, mock_token):
+        issue_id = 'issue_id'
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro(
+            current_step=RetroStep.ADDING_ISSUES.value, issues=[retro.create_mock_issue(id=issue_id)])
+        mock_token.token_is_valid.return_value = True
+        mock_token.issue_owned_by_participant.return_value = True
+
+        object_under_test = RetroIssueView()
+        response = object_under_test.delete(request.create_mock_request(), retro_id='whatever', issue_id=issue_id)
+
+        assert 204 == response.status_code
+        assert views.content_type_text_plain == response[validators.content_type]
+        assert views.charset_utf8 == response.charset
+        assert '' == response.content.decode()
 
 
 class TestHealthView:

@@ -129,12 +129,15 @@ def add_new_issue(title, section, user_token, retro):
     return new_issue.id
 
 
-def vote_for_issue(issue_id_str, user_token, retro):
-    for issue in retro.issues:
-        if issue.id == issue_id_str:
-            if issue.votes is None:
-                issue.votes = set()
-            issue.votes.add(user_token)
-            break
+def vote_for_issue(issue, user_token, retro):
+    if issue.votes is None:
+        issue.votes = set()
+    issue.votes.add(user_token)
+
+    retro.save()
+
+
+def delete_issue(issue, retro):
+    retro.issues.remove(issue)
 
     retro.save()

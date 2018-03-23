@@ -79,6 +79,14 @@ export class RetrospectiveService {
     .map(json => json.id);
   }
 
+  deleteIssue(issue_id: string): Observable<any> {
+    return this.http.delete<any>(this.url + '/' + this.uuid + '/issue/' + issue_id, {
+      headers: {
+        Authorization: 'Bearer ' + this.token
+      }
+    });
+  }
+
   moveRetrospectiveBackward(): Observable<any> {
     return this.http.put<any>(this.url + '/' + this.uuid, {
       direction: 'previous'

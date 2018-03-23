@@ -9,6 +9,10 @@ def get_token_from_request(request):
     return request.META.get('HTTP_AUTHORIZATION', '')[len('Bearer '):]
 
 
+def issue_owned_by_participant(issue, token):
+    return issue.creator_token == token
+
+
 def get_participant(token, retro):
     return _find_participant(lambda participant: participant.token == token, retro)
 

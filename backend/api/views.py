@@ -3,13 +3,15 @@ from django.views import View
 import json
 from backend.api import service, token
 from backend.api.models import RetroStep
-from backend.api.validation import retrospective_exists, user_is_admin, user_is_valid, retro_on_step
+from backend.api.validation import retrospective_exists, user_is_admin, user_is_valid, retro_on_step, issue_exists,\
+    issue_owned_by_user
 
 
 charset_utf8 = 'UTF-8'
 content_type_text_plain = 'text/plain'
 no_create_issue_retro_wrong_step = 'Cannot create an issue because the retrospective is on step {}'
 no_vote_issue_retro_wrong_step = 'Cannot vote for an issue because the retrospective is on step {}'
+no_delete_issue_retro_wrong_step = 'Cannot delete an issue because the retrospective is on step {}'
 
 
 class RetroView(View):
@@ -103,13 +105,23 @@ class RetroIssueView(View):
     @retrospective_exists
     @user_is_valid
     @retro_on_step(RetroStep.VOTING, no_vote_issue_retro_wrong_step)
-    def put(self, request, retro=None, issue_id=None, *args, **kwargs):
-        issue_id_str = str(issue_id)
+    @issue_exists
+    def put(self, request, retro=None, issue=None, *args, **kwargs):
         user_token = token.get_token_from_request(request)
 
-        service.vote_for_issue(issue_id_str, user_token, retro)
+        service.vote_for_issue(issue, user_token, retro)
 
         return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
+
+    @retrospective_exists
+    @user_is_valid
+    @retro_on_step(RetroStep.ADDING_ISSUES, no_delete_issue_retro_wrong_step)
+    @issue_exists
+    @issue_owned_by_user
+    def delete(self, request, retro=None, issue=None, *args, **kwargs):
+        service.delete_issue(issue, retro)
+
+        return HttpResponse('', status=204, content_type=content_type_text_plain, charset=charset_utf8)
 
 
 class HealthView(View):
