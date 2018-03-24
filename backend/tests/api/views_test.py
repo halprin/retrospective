@@ -278,7 +278,10 @@ class TestRetroIssueView:
 
         validators.assert_issue_not_found(response, issue_id)
 
-    def test_put_issue_success(self, mock_service_validation, mock_service_view, mock_token):
+    def test_put_issue_vote_success(self, mock_service_validation, mock_service_view, mock_token):
+        request_body = {
+            'vote': True,
+        }
         mock_issue_id = 'some_issue_id'
         mock_service_validation.get_retro.return_value = retro.create_mock_retro(current_step=RetroStep.VOTING.value,
                                                                                  issues=[retro.create_mock_issue(
@@ -286,8 +289,28 @@ class TestRetroIssueView:
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueView()
-        response = object_under_test.put(request.create_mock_request(), retro_id='whatever', issue_id=mock_issue_id)
+        response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever', issue_id=mock_issue_id)
 
+        assert mock_service_view.vote_for_issue.called is True
+        assert 200 == response.status_code
+        assert views.content_type_text_plain == response[validators.content_type]
+        assert views.charset_utf8 == response.charset
+        assert '' == response.content.decode()
+
+    def test_put_issue_unvote_success(self, mock_service_validation, mock_service_view, mock_token):
+        request_body = {
+            'vote': False,
+        }
+        mock_issue_id = 'some_issue_id'
+        mock_service_validation.get_retro.return_value = retro.create_mock_retro(current_step=RetroStep.VOTING.value,
+                                                                                 issues=[retro.create_mock_issue(
+                                                                                     id=mock_issue_id)])
+        mock_token.token_is_valid.return_value = True
+
+        object_under_test = RetroIssueView()
+        response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever', issue_id=mock_issue_id)
+
+        assert mock_service_view.unvote_for_issue.called is True
         assert 200 == response.status_code
         assert views.content_type_text_plain == response[validators.content_type]
         assert views.charset_utf8 == response.charset
