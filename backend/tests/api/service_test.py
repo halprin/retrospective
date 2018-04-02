@@ -357,8 +357,8 @@ def test_unvote_for_issue():
 
     service.unvote_for_issue(a_issue, user_token_str, a_retro)
 
-    assert 0 == len(a_issue.votes)
-    assert user_token_str not in a_issue.votes
+    assert a_issue.votes is None or 0 == len(a_issue.votes)
+    assert a_issue.votes is None or user_token_str not in a_issue.votes
 
 
 def test_unvote_for_issue_twice_results_in_zero_votes():

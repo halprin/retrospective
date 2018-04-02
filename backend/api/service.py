@@ -142,6 +142,9 @@ def unvote_for_issue(issue, user_token, retro):
         return
     issue.votes.discard(user_token)
 
+    if len(issue.votes) == 0:
+        issue.votes = None
+
     retro.save()
 
 
