@@ -11,7 +11,7 @@ import 'rxjs/add/observable/interval';
 })
 export class ViewRetroComponent implements OnInit, OnDestroy {
 
-  retro;
+  retro: any;
   votes = 3;
   frontendEndpoint = environment.frontendEndpoint;
   private intervalUpdate;
@@ -103,13 +103,41 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
     });
   }
 
-  voteForIssue(issue_id: string, checkbox: any): void {
-    this.votes--;
+  voteOrUnvoteForIssue(issue: any, checkbox: HTMLInputElement): void {
+    if(checkbox.checked) {
+      this.actuallyVoteForIssue(issue)
+    } else {
+      this.actuallyUnvoteForIssue(issue)
+    }
+  }
+
+  private actuallyVoteForIssue(issue: any): void {
+    let issue_id = issue.id;
+    this.simulateVoteForIssue(issue);
     this.retroService.voteForIssue(issue_id).subscribe(response => {
       this.updateRetro();
     }, error => {
-      this.votes++;
-      checkbox.checked = false;
+      this.simulateUnvoteForIssue(issue);
     });
+  }
+
+  private actuallyUnvoteForIssue(issue: any): void {
+    let issue_id = issue.id;
+    this.simulateUnvoteForIssue(issue);
+    this.retroService.unvoteForIssue(issue_id).subscribe(response => {
+      this.updateRetro();
+    }, error => {
+      this.simulateVoteForIssue(issue);
+    });
+  }
+
+  private simulateVoteForIssue(issue: any) {
+    this.votes--;
+    issue.votes = 1;
+  }
+
+  private simulateUnvoteForIssue(issue: any) {
+    this.votes++;
+    issue.votes = 0;
   }
 }

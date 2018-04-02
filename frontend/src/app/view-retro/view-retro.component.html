@@ -142,7 +142,7 @@
                 <div class="col pr-0">{{issue.title}}</div>
                 <div class="col-auto">
                   <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="{{issue.id}}" (click)="voteForIssue(issue.id, $event.target);" [checked]="issue.votes == 1" [disabled]="issue.votes == 1 || votes == 0"/>
+                    <input type="checkbox" class="custom-control-input" id="{{issue.id}}" (click)="voteOrUnvoteForIssue(issue, $event.target);" [checked]="issue.votes == 1" [disabled]="votes == 0 && issue.votes != 1"/>
                     <label class="custom-control-label" for="{{issue.id}}"></label>
                   </div>
                 </div>
