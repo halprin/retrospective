@@ -110,7 +110,19 @@ export class RetrospectiveService {
   }
 
   voteForIssue(issue_id: string): Observable<any> {
-    return this.http.put<any>(this.url + '/' + this.uuid + '/issue/' + issue_id, {}, {
+    return this.http.put<any>(this.url + '/' + this.uuid + '/issue/' + issue_id, {
+      vote: true
+    }, {
+      headers: {
+        Authorization: 'Bearer ' + this.token
+      }
+    });
+  }
+
+  unvoteForIssue(issue_id: string): Observable<any> {
+    return this.http.put<any>(this.url + '/' + this.uuid + '/issue/' + issue_id, {
+      vote: false
+    }, {
       headers: {
         Authorization: 'Bearer ' + this.token
       }

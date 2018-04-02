@@ -109,7 +109,13 @@ class RetroIssueView(View):
     def put(self, request, retro=None, issue=None, *args, **kwargs):
         user_token = token.get_token_from_request(request)
 
-        service.vote_for_issue(issue, user_token, retro)
+        request_body = json.loads(request.body)
+        vote_for = request_body['vote']
+
+        if vote_for:
+            service.vote_for_issue(issue, user_token, retro)
+        else:
+            service.unvote_for_issue(issue, user_token, retro)
 
         return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
 

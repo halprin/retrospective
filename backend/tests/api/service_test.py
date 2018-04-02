@@ -337,6 +337,45 @@ def test_vote_for_issue_twice_results_in_one_vote():
     assert user_token_str in a_issue.votes
 
 
+def test_unvote_for_issue_with_no_votes():
+    issue_id_str = 'issue_id'
+    user_token_str = 'voter_token'
+    a_issue = retro.create_mock_issue(id=issue_id_str)
+    a_retro = retro.create_mock_retro(issues=[a_issue])
+
+    service.unvote_for_issue(a_issue, user_token_str, a_retro)
+
+    assert a_issue.votes is None or 0 == len(a_issue.votes)
+    assert a_issue.votes is None or user_token_str not in a_issue.votes
+
+
+def test_unvote_for_issue():
+    issue_id_str = 'issue_id'
+    user_token_str = 'voter_token'
+    a_issue = retro.create_mock_issue(id=issue_id_str, votes={user_token_str})
+    a_retro = retro.create_mock_retro(issues=[a_issue])
+
+    service.unvote_for_issue(a_issue, user_token_str, a_retro)
+
+    assert a_issue.votes is None or 0 == len(a_issue.votes)
+    assert a_issue.votes is None or user_token_str not in a_issue.votes
+
+
+def test_unvote_for_issue_twice_results_in_zero_votes():
+    issue_id_str = 'issue_id'
+    user_token_str = 'voter_token'
+    initial_votes = {user_token_str, 'another_voter_token'}
+    initial_votes_length = len(initial_votes)
+    a_issue = retro.create_mock_issue(id=issue_id_str, votes=initial_votes)
+    a_retro = retro.create_mock_retro(issues=[a_issue])
+
+    service.unvote_for_issue(a_issue, user_token_str, a_retro)
+    service.unvote_for_issue(a_issue, user_token_str, a_retro)
+
+    assert initial_votes_length - 1 == len(a_issue.votes)
+    assert user_token_str not in a_issue.votes
+
+
 def test_delete_issue():
     mock_issue = retro.create_mock_issue(id='some_issue')
     another_mock_issue = retro.create_mock_issue(id='another_issue')
