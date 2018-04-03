@@ -16,6 +16,11 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+# Environment this application is deployed in
+
+ENVIRONMENT = os.getenv('ENVIRONMENT', 'prod')
+
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
@@ -25,8 +30,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '*']
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', os.getenv('ALLOWED_HOST')]
+if ENVIRONMENT == 'dev' or ENVIRONMENT == 'test':
+    ALLOWED_HOSTS.append('*')
 
 # Application definition
 
@@ -65,11 +71,8 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Environment this application is deployed in
-
-ENVIRONMENT = os.getenv('ENVIRONMENT', 'prod')
-
-
 # CORS
 
 CORS_ORIGIN_ALLOW_ALL = (ENVIRONMENT == 'dev' or ENVIRONMENT == 'test')
+
+CORS_ORIGIN_WHITELIST = [os.getenv('ALLOWED_HOST', 'localhost:4200')]
