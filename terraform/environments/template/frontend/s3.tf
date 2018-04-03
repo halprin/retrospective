@@ -12,6 +12,10 @@ resource "aws_s3_bucket" "frontend" {
   tags {
     environment = "${var.environment}"
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 data "aws_iam_policy_document" "allow_public" {
