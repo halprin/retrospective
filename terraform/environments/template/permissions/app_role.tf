@@ -1,6 +1,7 @@
 resource "aws_iam_role" "application_role" {
-  name = "retrospective-${var.environment}"
+  name        = "retrospective-${var.environment}"
   description = "Allows the Retrospective application in the ${var.environment} environment to interact with other AWS services"
+
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
