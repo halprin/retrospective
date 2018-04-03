@@ -49,6 +49,11 @@ resource "aws_elastic_beanstalk_environment" "env" {
     name      = "SECRET_KEY"
     value     = "${var.secret_key}"
   }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "ALLOWED_HOST"
+    value     = "${data.null_data_source.hostname.outputs.frontend}"
+  }
 
   # Instances
 
