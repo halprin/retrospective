@@ -1,14 +1,13 @@
 resource "aws_iam_policy" "read_writes_dynamodb" {
-  name = "ReadWriteDynamoDbRetrospective-${var.environment}"
+  name        = "ReadWriteDynamoDbRetrospective-${var.environment}"
   description = "Read and Write to the Retrospective ${var.environment} DynamoDB table"
 
   policy = "${data.aws_iam_policy_document.read_write_dynamodb.json}"
 }
 
 data "aws_iam_policy_document" "read_write_dynamodb" {
-
   statement {
-    sid = "AllowReadingAndWriting"
+    sid    = "AllowReadingAndWriting"
     effect = "Allow"
 
     actions = [

@@ -1,7 +1,7 @@
 resource "aws_s3_bucket" "frontend" {
   bucket = "${var.bucket_name}"
 
-  acl = "private"
+  acl    = "private"
   policy = "${data.aws_iam_policy_document.allow_public.json}"
 
   website {
@@ -16,13 +16,15 @@ resource "aws_s3_bucket" "frontend" {
 
 data "aws_iam_policy_document" "allow_public" {
   statement {
-    sid = "PublicReadGetObject"
+    sid    = "PublicReadGetObject"
     effect = "Allow"
+
     principals {
       identifiers = ["*"]
-      type = "AWS"
+      type        = "AWS"
     }
-    actions = ["s3:GetObject"]
+
+    actions   = ["s3:GetObject"]
     resources = ["arn:aws:s3:::${var.bucket_name}/*"]
   }
 }
