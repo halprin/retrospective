@@ -12,6 +12,10 @@ resource "aws_route53_record" "backend" {
     zone_id                = "${var.backend_zone_id}"
     evaluate_target_health = true
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_route53_record" "frontend" {
@@ -23,5 +27,9 @@ resource "aws_route53_record" "frontend" {
     name                   = "${var.frontend_target}"
     zone_id                = "${var.frontend_zone_id}"
     evaluate_target_health = false
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }

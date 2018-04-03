@@ -184,9 +184,12 @@ resource "aws_elastic_beanstalk_environment" "env" {
     value     = "subnet-125b725a,subnet-6efa090a,subnet-e8d3bfb2,subnet-f6d39dd9"
   }
 
-  # Database - nothings
+  # Database - nothing
 
   tags {
     environment = "${var.environment}"
+  }
+  lifecycle {
+    prevent_destroy = true
   }
 }

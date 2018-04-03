@@ -12,4 +12,8 @@ resource "aws_dynamodb_table" "retrospective_table" {
   tags {
     environment = "${var.environment}"
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
