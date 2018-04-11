@@ -38,6 +38,7 @@ if ENVIRONMENT == 'dev' or ENVIRONMENT == 'test':
 
 INSTALLED_APPS = [
     'corsheaders',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -49,6 +50,17 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'backend.retrospective.urls'
 
 WSGI_APPLICATION = 'backend.retrospective.wsgi.application'
+
+ASGI_APPLICATION = 'backend.retrospective.routing.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(os.getenv('MESSAGE_BROKER'), 6379)],
+        },
+    },
+}
 
 
 # Security

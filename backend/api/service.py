@@ -1,6 +1,9 @@
 from backend.api.models import Retrospective, ParticipantAttribute, IssueAttribute, RetroStep
 import uuid
 from backend.api import token
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+import pickle
 
 
 def create_retro(retro_name, admin_name):
@@ -38,6 +41,8 @@ def move_retro(retro, direction):
     _reset_ready_statuses(retro)
 
     retro.save()
+
+    send_retro_update(retro)
 
     return retro.current_step
 
@@ -104,6 +109,8 @@ def add_participant(name, retro):
     retro.participants.append(new_participant)
     retro.save()
 
+    send_retro_update(retro)
+
     return new_participant.token
 
 
@@ -114,6 +121,8 @@ def mark_user_as_ready(user_token, is_ready, retro):
             break
 
     retro.save()
+
+    send_retro_update(retro)
 
 
 def _create_issue(title, section, creator_token):
@@ -126,6 +135,8 @@ def add_new_issue(title, section, user_token, retro):
     retro.issues.append(new_issue)
     retro.save()
 
+    send_retro_update(retro)
+
     return new_issue.id
 
 
@@ -135,6 +146,8 @@ def vote_for_issue(issue, user_token, retro):
     issue.votes.add(user_token)
 
     retro.save()
+
+    send_retro_update(retro)
 
 
 def unvote_for_issue(issue, user_token, retro):
@@ -147,8 +160,19 @@ def unvote_for_issue(issue, user_token, retro):
 
     retro.save()
 
+    send_retro_update(retro)
+
 
 def delete_issue(issue, retro):
     retro.issues.remove(issue)
 
     retro.save()
+
+    send_retro_update(retro)
+
+
+def send_retro_update(retro):
+    async_to_sync(get_channel_layer().group_send)(retro.id, {
+        'type': 'disburse.update',
+        'retro': pickle.dumps(retro)
+    })
