@@ -3,7 +3,7 @@ import pytest
 from backend.tests.util import retro
 import copy
 from backend.api.models import RetroStep
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock, PropertyMock
 
 
 @patch('backend.api.service.Retrospective', autospec=True)
@@ -56,7 +56,8 @@ def test_move_retro_unknown_direction():
     assert a_retro.current_step == step.value
 
 
-def test_move_retro_previous():
+@patch('backend.api.service._send_retro_update', autospec=True)
+def test_move_retro_previous(mock_send_retro_update):
     step = RetroStep.RESULTS
     a_retro = retro.create_mock_retro(current_step=step.value)
 
@@ -65,9 +66,11 @@ def test_move_retro_previous():
     assert new_step == step.previous().value
     assert a_retro.current_step == step.previous().value
     a_retro.save.assert_called_with()
+    mock_send_retro_update.assert_called_once()
 
 
-def test_move_retro_next():
+@patch('backend.api.service._send_retro_update', autospec=True)
+def test_move_retro_next(mock_send_retro_update):
     step = RetroStep.ADDING_ISSUES
     a_retro = retro.create_mock_retro(current_step=step.value)
 
@@ -76,6 +79,7 @@ def test_move_retro_next():
     assert new_step == step.next().value
     assert a_retro.current_step == step.next().value
     a_retro.save.assert_called_with()
+    mock_send_retro_update.assert_called_once()
 
 
 def test__sanitize_participant_list_when_not_admin():
@@ -254,7 +258,8 @@ def test__create_participant():
     assert participant.token is not None
 
 
-def test_add_participant():
+@patch('backend.api.service._send_retro_update', autospec=True)
+def test_add_participant(mock_send_retro_update):
     name = 'halprin'
     initial_participant_list = []
     a_retro = retro.create_mock_retro(participants=copy.deepcopy(initial_participant_list))
@@ -265,9 +270,11 @@ def test_add_participant():
     assert user_token is not None
     assert user_token == a_retro.participants[len(a_retro.participants) - 1].token
     a_retro.save.assert_called_with()
+    mock_send_retro_update.assert_called_once()
 
 
-def test_mark_user_as_ready():
+@patch('backend.api.service._send_retro_update', autospec=True)
+def test_mark_user_as_ready(mock_send_retro_update):
     user_token = 'asdf-jkl'
     is_ready = True
     participants = [
@@ -281,6 +288,7 @@ def test_mark_user_as_ready():
     assert participants[0].ready is False
     assert participants[1].ready is is_ready
     a_retro.save.assert_called_with()
+    mock_send_retro_update.assert_called_once()
 
 
 def test__create_issue():
@@ -297,7 +305,8 @@ def test__create_issue():
     assert actual.id is not None
 
 
-def test_add_new_issue():
+@patch('backend.api.service._send_retro_update', autospec=True)
+def test_add_new_issue(mock_send_retro_update):
     title = 'improve something'
     section = 'start doing'
     user_token = 'asdf-jkl'
@@ -310,9 +319,11 @@ def test_add_new_issue():
     assert actual_id is not None
     assert actual_id == a_retro.issues[len(a_retro.issues) - 1].id
     a_retro.save.assert_called_with()
+    mock_send_retro_update.assert_called_once()
 
 
-def test_vote_for_issue():
+@patch('backend.api.service._send_retro_update', autospec=True)
+def test_vote_for_issue(mock_send_retro_update):
     issue_id_str = 'issue_id'
     user_token_str = 'voter_token'
     a_issue = retro.create_mock_issue(id=issue_id_str)
@@ -322,9 +333,11 @@ def test_vote_for_issue():
 
     assert 1 == len(a_issue.votes)
     assert user_token_str in a_issue.votes
+    mock_send_retro_update.assert_called_once()
 
 
-def test_vote_for_issue_twice_results_in_one_vote():
+@patch('backend.api.service._send_retro_update', autospec=True)
+def test_vote_for_issue_twice_results_in_one_vote(mock_send_retro_update):
     issue_id_str = 'issue_id'
     user_token_str = 'voter_token'
     a_issue = retro.create_mock_issue(id=issue_id_str)
@@ -335,6 +348,7 @@ def test_vote_for_issue_twice_results_in_one_vote():
 
     assert 1 == len(a_issue.votes)
     assert user_token_str in a_issue.votes
+    assert 2 == mock_send_retro_update.call_count
 
 
 def test_unvote_for_issue_with_no_votes():
@@ -349,7 +363,8 @@ def test_unvote_for_issue_with_no_votes():
     assert a_issue.votes is None or user_token_str not in a_issue.votes
 
 
-def test_unvote_for_issue():
+@patch('backend.api.service._send_retro_update', autospec=True)
+def test_unvote_for_issue(mock_send_retro_update):
     issue_id_str = 'issue_id'
     user_token_str = 'voter_token'
     a_issue = retro.create_mock_issue(id=issue_id_str, votes={user_token_str})
@@ -359,9 +374,11 @@ def test_unvote_for_issue():
 
     assert a_issue.votes is None or 0 == len(a_issue.votes)
     assert a_issue.votes is None or user_token_str not in a_issue.votes
+    mock_send_retro_update.assert_called_once()
 
 
-def test_unvote_for_issue_twice_results_in_zero_votes():
+@patch('backend.api.service._send_retro_update', autospec=True)
+def test_unvote_for_issue_twice_results_in_zero_votes(mock_send_retro_update):
     issue_id_str = 'issue_id'
     user_token_str = 'voter_token'
     initial_votes = {user_token_str, 'another_voter_token'}
@@ -374,9 +391,11 @@ def test_unvote_for_issue_twice_results_in_zero_votes():
 
     assert initial_votes_length - 1 == len(a_issue.votes)
     assert user_token_str not in a_issue.votes
+    assert 2 == mock_send_retro_update.call_count
 
 
-def test_delete_issue():
+@patch('backend.api.service._send_retro_update', autospec=True)
+def test_delete_issue(mock_send_retro_update):
     mock_issue = retro.create_mock_issue(id='some_issue')
     another_mock_issue = retro.create_mock_issue(id='another_issue')
     mock_retro = retro.create_mock_retro(issues=[another_mock_issue, mock_issue])
@@ -384,3 +403,20 @@ def test_delete_issue():
     service.delete_issue(mock_issue, mock_retro)
 
     assert mock_issue not in mock_retro.issues
+    mock_send_retro_update.assert_called_once()
+
+
+@patch('backend.api.service.async_to_sync', autospec=True)
+@patch('backend.api.service.pickle', autospec=True)
+@patch('backend.api.service.get_channel_layer', autospec=True)
+def test__send_retro_update(mock_get_channel_layer_function, mock_pickle_module, mock_async_to_sync_function):
+    mock_retro = retro.create_mock_retro()
+    mock_channel_layer = MagicMock()
+    mock_group_send = PropertyMock()
+    type(mock_channel_layer).group_send = mock_group_send
+    mock_get_channel_layer_function.return_value = mock_channel_layer
+
+    service._send_retro_update(mock_retro)
+
+    mock_get_channel_layer_function.assert_called_once()
+    mock_group_send.assert_called_once()
