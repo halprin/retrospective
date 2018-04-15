@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from '../environments/environment';
+import { Observer } from "rxjs/Observer";
 
 @Injectable()
 export class RetrospectiveService {
@@ -11,10 +12,12 @@ export class RetrospectiveService {
   private host = environment.backendEndpoint;
   private url = this.host + '/api/retro';
 
+  private liveUpdateSocket: WebSocket;
+
   private uuid = '';
   private token = '';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private zone: NgZone) { }
 
   startRetrospective(retroName: string, userName: string): Observable<any> {
     return this.http.post<any>(this.url, {
@@ -45,6 +48,25 @@ export class RetrospectiveService {
         Authorization: 'Bearer ' + this.token
       }
     });
+  }
+
+  startLiveUpdateRetrospective(): Observable<MessageEvent> {
+    if(!this.liveUpdateSocket || this.liveUpdateSocket.readyState !== WebSocket.OPEN) {
+      this.liveUpdateSocket = new WebSocket('ws://localhost:8000/api/ws/' + this.uuid, this.token);
+    }
+
+    let liveUpdaterObservable = Observable.create(
+      (observer: Observer<MessageEvent>) => {
+        this.liveUpdateSocket.onmessage = message => {
+          this.zone.run(() => observer.next(message))
+        };
+        this.liveUpdateSocket.onerror = observer.error.bind(observer);
+        this.liveUpdateSocket.onclose = observer.complete.bind(observer);
+        return this.liveUpdateSocket.close.bind(this.liveUpdateSocket);
+      }
+    );
+
+    return liveUpdaterObservable;
   }
 
   markUserAsReady(): Observable<any> {
