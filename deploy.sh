@@ -25,7 +25,7 @@ function deploy_frontend() {
 
     cd ./frontend/
     npm install --silent
-    ./build.sh "http://${FRONTEND_ENDPOINT}" "http://${BACKEND_ENDPOINT}"
+    ./build.sh "${FRONTEND_ENDPOINT}" "${BACKEND_ENDPOINT}"
     aws s3 sync ./dist/ s3://${FRONTEND_ENDPOINT}/ --delete
     cd ../
 }
