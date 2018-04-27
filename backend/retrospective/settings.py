@@ -58,6 +58,7 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             "hosts": [(os.getenv('MESSAGE_BROKER'), 6379)],
+            'prefix': ENVIRONMENT,
         },
     },
 }
