@@ -33,32 +33,22 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
 
   alternateReadiness(): void {
     if (this.retro.yourself.ready == true) {
-      this.retroService.markUserAsNotReady().subscribe(response => {
-        this.updateRetro();
-      });
+      this.retroService.markUserAsNotReady().subscribe();
     } else {
-      this.retroService.markUserAsReady().subscribe(response => {
-        this.updateRetro();
-      });
+      this.retroService.markUserAsReady().subscribe();
     }
   }
 
   addWentWellIssue(title: string): void {
-    this.retroService.addIssue(title, 'Went Well').subscribe(id => {
-      this.updateRetro();
-    });
+    this.retroService.addIssue(title, 'Went Well').subscribe();
   }
 
   addNeedsImprovementIssue(title: string): void {
-    this.retroService.addIssue(title, 'Needs Improvement').subscribe(id => {
-      this.updateRetro();
-    });
+    this.retroService.addIssue(title, 'Needs Improvement').subscribe();
   }
 
   deleteIssue(issue_id: string): void {
-    this.retroService.deleteIssue(issue_id).subscribe(response => {
-      this.updateRetro();
-    });
+    this.retroService.deleteIssue(issue_id).subscribe();
   }
 
   getWentWellIssues(): any {
@@ -92,15 +82,11 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   moveRetroBackward(): void {
-    this.retroService.moveRetrospectiveBackward().subscribe(newStep => {
-      this.updateRetro();
-    });
+    this.retroService.moveRetrospectiveBackward().subscribe();
   }
 
   moveRetroForward(): void {
-    this.retroService.moveRetrospectiveForward().subscribe(newStep => {
-      this.updateRetro();
-    });
+    this.retroService.moveRetrospectiveForward().subscribe();
   }
 
   voteOrUnvoteForIssue(issue: any, checkbox: HTMLInputElement): void {
@@ -114,9 +100,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   private actuallyVoteForIssue(issue: any): void {
     let issue_id = issue.id;
     this.simulateVoteForIssue(issue);
-    this.retroService.voteForIssue(issue_id).subscribe(response => {
-      this.updateRetro();
-    }, error => {
+    this.retroService.voteForIssue(issue_id).subscribe(response => {}, error => {
       this.simulateUnvoteForIssue(issue);
     });
   }
@@ -124,9 +108,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   private actuallyUnvoteForIssue(issue: any): void {
     let issue_id = issue.id;
     this.simulateUnvoteForIssue(issue);
-    this.retroService.unvoteForIssue(issue_id).subscribe(response => {
-      this.updateRetro();
-    }, error => {
+    this.retroService.unvoteForIssue(issue_id).subscribe(response => {}, error => {
       this.simulateVoteForIssue(issue);
     });
   }
