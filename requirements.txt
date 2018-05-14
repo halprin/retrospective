@@ -3,5 +3,6 @@ Django==2.0.1
 pytest==3.3.2
 pynamodb==3.2.1
 django-cors-headers==2.2.0
-channels==2.0.2
+channels==2.1.1
 channels_redis==2.1.1
+daphne==2.1.1
