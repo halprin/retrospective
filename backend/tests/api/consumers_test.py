@@ -93,7 +93,7 @@ def test_connect(mock_accept_function, mock_async_to_sync_function, mock_service
     object_under_test.connect()
 
     mock_group_add.assert_called_once()
-    mock_accept_function.assert_called_once()
+    mock_accept_function.assert_called_with(object_under_test, mock_user_token)
 
 
 @patch('backend.api.consumers.async_to_sync', autospec=True)

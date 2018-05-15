@@ -23,7 +23,7 @@ class RetrospectiveConsumer(WebsocketConsumer):
 
         async_to_sync(self.channel_layer.group_add)(self.retro_id, self.channel_name)
 
-        self.accept()
+        self.accept(self.user_token)
 
     def disconnect(self, close_code):
         async_to_sync(self.channel_layer.group_discard)(self.retro_id, self.channel_name)
