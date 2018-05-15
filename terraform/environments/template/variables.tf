@@ -25,3 +25,11 @@ variable "secret_key" {
 variable "base_host_name" {
   type = "string"
 }
+
+variable "message_broker_address" {
+  type = "string"
+}
+
+variable "message_broker_security_group" {
+  type = "string"
+}

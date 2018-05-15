@@ -54,6 +54,11 @@ resource "aws_elastic_beanstalk_environment" "env" {
     name      = "ALLOWED_HOST"
     value     = "${data.null_data_source.hostname.outputs.frontend}"
   }
+  setting {
+    namespace = "aws:elasticbeanstalk:application:environment"
+    name      = "MESSAGE_BROKER"
+    value     = "${var.message_broker_address}"
+  }
 
   # Instances
 
@@ -66,6 +71,11 @@ resource "aws_elastic_beanstalk_environment" "env" {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "MonitoringInterval"
     value     = "5 minute"
+  }
+  setting {
+    namespace = "aws:autoscaling:launchconfiguration"
+    name      = "SecurityGroups"
+    value     = "${var.message_broker_security_group}"
   }
 
   # Capacity
