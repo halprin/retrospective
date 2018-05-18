@@ -1,3 +1,4 @@
+from typing import List
 from backend.api.models import Retrospective, ParticipantAttribute, IssueAttribute, RetroStep
 import uuid
 from backend.api import token
@@ -6,8 +7,8 @@ from asgiref.sync import async_to_sync
 import pickle
 
 
-def create_retro(retro_name, admin_name):
-    new_retro = Retrospective(str(uuid.uuid4()))
+def create_retro(retro_name: str, admin_name: str) -> Retrospective:
+    new_retro: Retrospective = Retrospective(str(uuid.uuid4()))
 
     new_retro.name = retro_name
     new_retro.current_step = RetroStep.ADDING_ISSUES.value
@@ -19,17 +20,17 @@ def create_retro(retro_name, admin_name):
     return new_retro
 
 
-def get_retro(retro_id):
+def get_retro(retro_id: str) -> Retrospective:
     return Retrospective.get(retro_id)
 
 
-def _reset_ready_statuses(retro):
+def _reset_ready_statuses(retro: Retrospective):
     for participant in retro.participants:
         participant.ready = False
 
 
-def move_retro(retro, direction):
-    current_step = RetroStep(retro.current_step)
+def move_retro(retro: Retrospective, direction: str) -> str:
+    current_step: RetroStep = RetroStep(retro.current_step)
 
     if direction == 'next':
         retro.current_step = current_step.next().value
@@ -47,8 +48,8 @@ def move_retro(retro, direction):
     return retro.current_step
 
 
-def _sanitize_participant_list(retro, user_token):
-    is_admin = token.token_is_admin(user_token, retro)
+def _sanitize_participant_list(retro: Retrospective, user_token: str) -> List[dict]:
+    is_admin: bool = token.token_is_admin(user_token, retro)
 
     if is_admin:
         return [{'name': participant.name, 'ready': participant.ready} for participant in retro.participants]
@@ -56,13 +57,13 @@ def _sanitize_participant_list(retro, user_token):
         return [{'name': participant.name} for participant in retro.participants]
 
 
-def _sanitize_issue_list(retro, user_token):
-    current_step = RetroStep(retro.current_step)
+def _sanitize_issue_list(retro: Retrospective, user_token: str) -> List[dict]:
+    current_step: RetroStep = RetroStep(retro.current_step)
 
-    sanitized_issues = []
+    sanitized_issues: List[dict] = []
 
     for issue in retro.issues:
-        sanitized_issue = {}
+        sanitized_issue: dict = {}
         if issue.creator_token == user_token or current_step != RetroStep.ADDING_ISSUES:
             sanitized_issue['id'] = issue.id
             sanitized_issue['title'] = issue.title
@@ -77,8 +78,8 @@ def _sanitize_issue_list(retro, user_token):
     return sanitized_issues
 
 
-def _construct_yourself_info(retro, user_token):
-    yourself = token.get_participant(user_token, retro)
+def _construct_yourself_info(retro: Retrospective, user_token: str) -> dict:
+    yourself: ParticipantAttribute = token.get_participant(user_token, retro)
     return {
         'name': yourself.name,
         'ready': yourself.ready,
@@ -86,7 +87,7 @@ def _construct_yourself_info(retro, user_token):
     }
 
 
-def sanitize_retro_for_user_and_step(retro, user_token):
+def sanitize_retro_for_user_and_step(retro: Retrospective, user_token: str) -> dict:
     sanitized_retro = {
         'id': retro.id,
         'name': retro.name,
@@ -99,12 +100,12 @@ def sanitize_retro_for_user_and_step(retro, user_token):
     return sanitized_retro
 
 
-def _create_participant(name, is_admin=False):
+def _create_participant(name: str, is_admin: bool=False) -> ParticipantAttribute:
     return ParticipantAttribute(name=name, ready=False, admin=is_admin, token=token.generate_token())
 
 
-def add_participant(name, retro):
-    new_participant = _create_participant(name)
+def add_participant(name: str, retro: Retrospective) -> str:
+    new_participant: ParticipantAttribute = _create_participant(name)
 
     retro.participants.append(new_participant)
     retro.save()
@@ -114,7 +115,7 @@ def add_participant(name, retro):
     return new_participant.token
 
 
-def mark_user_as_ready(user_token, is_ready, retro):
+def mark_user_as_ready(user_token: str, is_ready: bool, retro: Retrospective):
     for participant in retro.participants:
         if participant.token == user_token:
             participant.ready = is_ready
@@ -125,12 +126,12 @@ def mark_user_as_ready(user_token, is_ready, retro):
     _send_retro_update(retro)
 
 
-def _create_issue(title, section, creator_token):
+def _create_issue(title: str, section: str, creator_token: str) -> IssueAttribute:
     return IssueAttribute(id=str(uuid.uuid4()), title=title, section=section, creator_token=creator_token, votes=None)
 
 
-def add_new_issue(title, section, user_token, retro):
-    new_issue = _create_issue(title, section, creator_token=user_token)
+def add_new_issue(title: str, section: str, user_token: str, retro: Retrospective) -> str:
+    new_issue: IssueAttribute = _create_issue(title, section, creator_token=user_token)
 
     retro.issues.append(new_issue)
     retro.save()
@@ -140,9 +141,9 @@ def add_new_issue(title, section, user_token, retro):
     return new_issue.id
 
 
-def vote_for_issue(issue, user_token, retro):
+def vote_for_issue(issue: IssueAttribute, user_token: str, retro: Retrospective):
     if issue.votes is None:
-        issue.votes = set()
+        issue.votes: set = set()
     issue.votes.add(user_token)
 
     retro.save()
@@ -150,7 +151,7 @@ def vote_for_issue(issue, user_token, retro):
     _send_retro_update(retro)
 
 
-def unvote_for_issue(issue, user_token, retro):
+def unvote_for_issue(issue: IssueAttribute, user_token: str, retro: Retrospective):
     if issue.votes is None:
         return
     issue.votes.discard(user_token)
@@ -163,7 +164,7 @@ def unvote_for_issue(issue, user_token, retro):
     _send_retro_update(retro)
 
 
-def delete_issue(issue, retro):
+def delete_issue(issue: IssueAttribute, retro: Retrospective):
     retro.issues.remove(issue)
 
     retro.save()
@@ -171,7 +172,7 @@ def delete_issue(issue, retro):
     _send_retro_update(retro)
 
 
-def _send_retro_update(retro):
+def _send_retro_update(retro: Retrospective):
     async_to_sync(get_channel_layer().group_send)(retro.id, {
         'type': 'disburse.update',
         'retro': pickle.dumps(retro)
