@@ -6,3 +6,7 @@
 .svg-white {
   fill: white;
 }
+
+.break-word {
+  word-break: break-word;
+}
