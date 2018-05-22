@@ -1,9 +1,7 @@
 import uuid
 from typing import Iterator, Optional
-
 from django.http import HttpRequest
-
-from api.models import IssueAttribute, Retrospective, ParticipantAttribute
+from backend.api.models import IssueAttribute, Retrospective, ParticipantAttribute
 
 
 def generate_token() -> str:
