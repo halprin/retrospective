@@ -37,13 +37,13 @@ data "aws_elastic_beanstalk_hosted_zone" "current" {}
 
 data "null_data_source" "prefix" {
   inputs {
-    prefix = "${var.environment != "prod" ? "${var.environment}." : ""}"
+    prefix = "${var.environment != "prod" ? "-${var.environment}" : ""}"
   }
 }
 
 data "null_data_source" "hostname" {
   inputs {
-    backend  = "${data.null_data_source.prefix.outputs.prefix}api.retrospective.${var.base_host_name}"
-    frontend = "${data.null_data_source.prefix.outputs.prefix}retrospective.${var.base_host_name}"
+    backend  = "retrospective-api${data.null_data_source.prefix.outputs.prefix}.${var.base_host_name}"
+    frontend = "retrospective${data.null_data_source.prefix.outputs.prefix}.${var.base_host_name}"
   }
 }
