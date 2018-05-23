@@ -18,6 +18,17 @@ module "frontend" {
   environment = "${var.environment}"
 }
 
+module "distribution" {
+  source = "distribution"
+
+  certificate_name = "${var.base_host_name}"
+
+  frontend_origin_domain = "${module.frontend.s3_domain}"
+  frontend_domain = "${data.null_data_source.hostname.outputs.frontend}"
+
+  environment = "${var.environment}"
+}
+
 module "dns" {
   source = "dns"
 
@@ -28,8 +39,8 @@ module "dns" {
   backend_zone_id = "${data.aws_elastic_beanstalk_hosted_zone.current.id}"
   backend_domain  = "${data.null_data_source.hostname.outputs.backend}"
 
-  frontend_target  = "${module.frontend.s3_domain}"
-  frontend_zone_id = "${module.frontend.zone_id}"
+  frontend_target  = "${module.distribution.frontend_domain}"
+  frontend_zone_id = "${module.distribution.frontend_zone_id}"
   frontend_domain  = "${data.null_data_source.hostname.outputs.frontend}"
 }
 
