@@ -10,8 +10,8 @@ import { Observer } from "rxjs/Observer";
 export class RetrospectiveService {
 
   private host = environment.backendEndpoint;
-  private httpUrl = 'http://' + this.host + '/api/retro';
-  private wsUrl = 'ws://' + this.host + '/api/ws';
+  private httpUrl = 'https://' + this.host + '/api/retro';
+  private wsUrl = 'wss://' + this.host + '/api/ws';
 
   private liveUpdateSocket: WebSocket;
 

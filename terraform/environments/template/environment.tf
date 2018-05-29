@@ -75,7 +75,7 @@ resource "aws_elastic_beanstalk_environment" "env" {
   setting {
     namespace = "aws:autoscaling:launchconfiguration"
     name      = "SecurityGroups"
-    value     = "${var.message_broker_security_group}"
+    value     = "${var.message_broker_security_group},${aws_security_group.https.id}"
   }
 
   # Capacity
