@@ -33,15 +33,21 @@ function deploy_frontend() {
 }
 
 function version_exists() {
-    aws elasticbeanstalk describe-application-versions --application-name ${APPLICATION} --version-labels ${1} | jq -e ".ApplicationVersions[] | select(.VersionLabel == \"${1}\")"
+    VERSION=${1}
+    aws elasticbeanstalk describe-application-versions --application-name ${APPLICATION} --version-labels ${VERSION} | jq -e ".ApplicationVersions[] | select(.VersionLabel == \"${VERSION}\")"
     return $?
 }
 
 function create_new_version() {
     VERSION=${1}
     echo "Creating version"
+
+    sed -i '' -e "s|BASE_HOSTNAME|${BASE_HOSTNAME}|" ./.ebextensions/container.config
+    sed -i '' -e "s|DEPLOY_EMAIL|${DEPLOY_EMAIL}|" ./.ebextensions/container.config
+
     SOURCE_BUNDLE=retrospective_${VERSION}.zip
-    git archive -o ${SOURCE_BUNDLE} HEAD
+    STASH_NAME=`git stash create`
+    git archive -o ${SOURCE_BUNDLE} ${STASH_NAME}
     aws s3 cp ./${SOURCE_BUNDLE} s3://${BEANSTALK_S3_BUCKET}/
     aws elasticbeanstalk create-application-version --application-name ${APPLICATION} --version-label ${VERSION} --source-bundle S3Bucket=${BEANSTALK_S3_BUCKET},S3Key=${SOURCE_BUNDLE}
 }
@@ -86,21 +92,23 @@ run_terraform
 
 # create new version
 GIT_HASH=$(git rev-parse --short --verify HEAD)
-version_exists ${GIT_HASH}
+MASTER_VERSION=${GIT_HASH}
+
+version_exists ${MASTER_VERSION}
 if [[ $?  -ne 0 ]]; then
-    create_new_version ${GIT_HASH}
+    create_new_version ${MASTER_VERSION}
 else
-    echo "Version ${GIT_HASH} already exists"
+    echo "Version ${MASTER_VERSION} already exists"
 fi
 
 # deploy new version
 DEPLOY_SUCCESS=0
-version_already_deployed ${GIT_HASH}
+version_already_deployed ${MASTER_VERSION}
 if [[ $?  -ne 0 ]]; then
-    deploy_application ${GIT_HASH}
+    deploy_application ${MASTER_VERSION}
     DEPLOY_SUCCESS=$?
 else
-    echo "Version ${GIT_HASH} already deployed"
+    echo "Version ${MASTER_VERSION} already deployed"
 fi
 
 # deploy frontend

@@ -29,6 +29,11 @@ resource "aws_iam_role_policy_attachment" "application_role_to_dynamodb_policy" 
   policy_arn = "${aws_iam_policy.read_writes_dynamodb.arn}"
 }
 
+resource "aws_iam_role_policy_attachment" "application_role_to_letsencrypt_policy" {
+  role       = "${aws_iam_role.application_role.name}"
+  policy_arn = "${aws_iam_policy.letsencrypt_authorize.arn}"
+}
+
 data "aws_iam_policy" "AWSElasticBeanstalkWebTier" {
   arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
 }

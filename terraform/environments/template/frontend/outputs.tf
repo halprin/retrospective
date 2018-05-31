@@ -1,5 +1,5 @@
 output "s3_domain" {
-  value = "${aws_s3_bucket.frontend.website_domain}"
+  value = "${aws_s3_bucket.frontend.bucket_domain_name}"
 }
 
 output "zone_id" {

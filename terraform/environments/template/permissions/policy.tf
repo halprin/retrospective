@@ -34,3 +34,42 @@ data "aws_iam_policy_document" "read_write_dynamodb" {
     resources = ["${var.dynamodb_arn}"]
   }
 }
+
+resource "aws_iam_policy" "letsencrypt_authorize" {
+  name        = "LetsEncryptAuthorization-${var.environment}"
+  description = "Allows Let's Encrypt to authorize the web server in the ${var.environment}"
+
+  policy = "${data.aws_iam_policy_document.letsencrypt_authorize.json}"
+}
+
+data "aws_route53_zone" "hosted_zone" {
+  name = "${var.hosted_zone_name}."
+}
+
+data "aws_iam_policy_document" "letsencrypt_authorize" {
+  statement {
+    sid    = "AllowModifyHostedZone"
+    effect = "Allow"
+
+    actions = [
+      "route53:GetChange",
+      "route53:ChangeResourceRecordSets",
+    ]
+
+    resources = [
+      "arn:aws:route53:::change/*",
+      "arn:aws:route53:::hostedzone/${data.aws_route53_zone.hosted_zone.zone_id}"
+    ]
+  }
+
+  statement {
+    sid    = "AllowListZones"
+    effect = "Allow"
+
+    actions = [
+      "route53:ListHostedZones",
+    ]
+
+    resources = ["*"]
+  }
+}
