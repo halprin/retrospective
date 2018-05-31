@@ -15,7 +15,7 @@ before_deploy:
   - npm install -g --silent @angular/cli
 deploy:
   provider: script
-  script: ./deploy.sh dev
+  script: ./deploy.sh prod
   on:
     branch:
       - master
