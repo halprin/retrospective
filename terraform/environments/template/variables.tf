@@ -33,3 +33,7 @@ variable "message_broker_address" {
 variable "message_broker_security_group" {
   type = "string"
 }
+
+variable "dynamodb_read_write_capacity" {
+  type = "string"
+}

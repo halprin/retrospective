@@ -1,14 +1,16 @@
 module "database" {
   source = "database"
 
-  environment = "${var.environment}"
+  read_capacity  = "${var.dynamodb_read_write_capacity}"
+  write_capacity = "${var.dynamodb_read_write_capacity}"
+  environment    = "${var.environment}"
 }
 
 module "permissions" {
   source = "permissions"
 
-  environment  = "${var.environment}"
-  dynamodb_arn = "${module.database.arn}"
+  environment      = "${var.environment}"
+  dynamodb_arn     = "${module.database.arn}"
   hosted_zone_name = "${var.base_host_name}"
 }
 
@@ -25,7 +27,7 @@ module "distribution" {
   certificate_name = "${var.base_host_name}"
 
   frontend_origin_domain = "${module.frontend.s3_domain}"
-  frontend_domain = "${data.null_data_source.hostname.outputs.frontend}"
+  frontend_domain        = "${data.null_data_source.hostname.outputs.frontend}"
 
   environment = "${var.environment}"
 }
@@ -50,27 +52,27 @@ resource "aws_security_group" "https" {
   description = "Allow HTTPS communication"
 
   tags {
-    Name = "https-${var.environment}"
+    Name        = "https-${var.environment}"
     environment = "${var.environment}"
   }
 }
 
 resource "aws_security_group_rule" "allow_https_in" {
-  type            = "ingress"
-  from_port       = 443
-  to_port         = 443
-  protocol        = "tcp"
-  cidr_blocks     = ["0.0.0.0/0"]
+  type        = "ingress"
+  from_port   = 443
+  to_port     = 443
+  protocol    = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
 
   security_group_id = "${aws_security_group.https.id}"
 }
 
 resource "aws_security_group_rule" "allow_all_to_anywhere" {
-  type            = "egress"
-  from_port       = 0
-  to_port         = 0
-  protocol        = "-1"
-  cidr_blocks     = ["0.0.0.0/0"]
+  type        = "egress"
+  from_port   = 0
+  to_port     = 0
+  protocol    = "-1"
+  cidr_blocks = ["0.0.0.0/0"]
 
   security_group_id = "${aws_security_group.https.id}"
 }

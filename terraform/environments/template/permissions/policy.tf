@@ -58,7 +58,7 @@ data "aws_iam_policy_document" "letsencrypt_authorize" {
 
     resources = [
       "arn:aws:route53:::change/*",
-      "arn:aws:route53:::hostedzone/${data.aws_route53_zone.hosted_zone.zone_id}"
+      "arn:aws:route53:::hostedzone/${data.aws_route53_zone.hosted_zone.zone_id}",
     ]
   }
 

@@ -1,7 +1,7 @@
 resource "aws_dynamodb_table" "retrospective_table" {
   name           = "retrospective-${var.environment}"
-  read_capacity  = 1
-  write_capacity = 1
+  read_capacity  = "${var.read_capacity}"
+  write_capacity = "${var.write_capacity}"
   hash_key       = "id"
 
   attribute {
