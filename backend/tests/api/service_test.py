@@ -129,18 +129,71 @@ def test__sanitize_issue_list_shows_all_votes_during_results():
     sanitized_issues = service._sanitize_issue_list(a_retro, your_token)
 
     assert len(sanitized_issues) == 3
-    was_your_issue = sanitized_issues[0]
-    assert was_your_issue['id'] == your_issue.id
-    assert was_your_issue['title'] == your_issue.title
-    assert was_your_issue['section'] == your_issue.section
-    assert was_your_issue['votes'] == 1
-    was_another_issue = sanitized_issues[1]
+    was_another_issue = sanitized_issues[0]
     assert was_another_issue['id'] == another_issue.id
     assert was_another_issue['title'] == another_issue.title
     assert was_another_issue['section'] == another_issue.section
     assert was_another_issue['votes'] == 2
+    was_your_issue = sanitized_issues[1]
+    assert was_your_issue['id'] == your_issue.id
+    assert was_your_issue['title'] == your_issue.title
+    assert was_your_issue['section'] == your_issue.section
+    assert was_your_issue['votes'] == 1
     was_yet_another_issue = sanitized_issues[2]
     assert was_yet_another_issue['votes'] == 0
+
+
+def test___get_issue_votes():
+    value = 'moof'
+    input_dictionary = {'votes': value}
+
+    output = service._get_issue_votes(input_dictionary)
+
+    assert output == value
+
+
+def test__sanitize_issue_list_orders_issues_by_vote_count():
+    your_token = 'a-token'
+    the_issue_section = 'a-section'
+    another_issue_section = 'another-section'
+
+    first_issue = retro.create_mock_issue(id='1', section=the_issue_section, creator_token=your_token,
+                                          votes=set())
+    second_issue = retro.create_mock_issue(id='3', section=the_issue_section, creator_token='a-different-token',
+                                          votes={your_token, 'another-different-token', 'yet-another-token'})
+    third_issue = retro.create_mock_issue(id='2', section=another_issue_section, creator_token='a-different-token',
+                                           votes={your_token})
+
+    a_retro = retro.create_mock_retro(current_step=RetroStep.RESULTS,
+                                      issues=[first_issue, second_issue, third_issue])
+
+    sanitized_issues = service._sanitize_issue_list(a_retro, your_token)
+
+    assert sanitized_issues[0]['id'] == second_issue.id
+    assert sanitized_issues[1]['id'] == third_issue.id
+    assert sanitized_issues[2]['id'] == first_issue.id
+
+
+def test__sanitize_issue_list_doesnt_order_issues_when_not_results():
+    your_token = 'a-token'
+    the_issue_section = 'a-section'
+    another_issue_section = 'another-section'
+
+    first_issue = retro.create_mock_issue(id='1', section=the_issue_section, creator_token=your_token,
+                                          votes=set())
+    second_issue = retro.create_mock_issue(id='3', section=the_issue_section, creator_token='a-different-token',
+                                           votes={your_token, 'another-different-token', 'yet-another-token'})
+    third_issue = retro.create_mock_issue(id='2', section=another_issue_section, creator_token='a-different-token',
+                                          votes={your_token})
+
+    a_retro = retro.create_mock_retro(current_step=RetroStep.VOTING,
+                                      issues=[first_issue, second_issue, third_issue])
+
+    sanitized_issues = service._sanitize_issue_list(a_retro, your_token)
+
+    assert sanitized_issues[0]['id'] == first_issue.id
+    assert sanitized_issues[1]['id'] == second_issue.id
+    assert sanitized_issues[2]['id'] == third_issue.id
 
 
 def test__sanitize_issue_list_shows_your_votes_during_voting():
