@@ -57,6 +57,10 @@ def _sanitize_participant_list(retro: Retrospective, user_token: str) -> List[di
         return [{'name': participant.name} for participant in retro.participants]
 
 
+def _get_issue_votes(issue: dict) -> int:
+    return issue['votes']
+
+
 def _sanitize_issue_list(retro: Retrospective, user_token: str) -> List[dict]:
     current_step: RetroStep = RetroStep(retro.current_step)
 
@@ -74,6 +78,9 @@ def _sanitize_issue_list(retro: Retrospective, user_token: str) -> List[dict]:
             sanitized_issue['votes'] = len(
                 [voter for voter in issue.votes if voter == user_token]) if issue.votes is not None else 0
         sanitized_issues.append(sanitized_issue)
+
+    if current_step == RetroStep.RESULTS:
+        sanitized_issues.sort(key=_get_issue_votes, reverse=True)
 
     return sanitized_issues
 
