@@ -7,11 +7,7 @@ import os
 ENVIRONMENT = os.getenv('ENVIRONMENT', 'test')
 
 
-class RetroStep(Enum):
-    ADDING_ISSUES = 'Adding Issues'
-    VOTING = 'Voting'
-    RESULTS = 'Results'
-
+class RetroStepBase(Enum):
     def next(self):
         cls = self.__class__
         members = list(cls)
@@ -27,6 +23,12 @@ class RetroStep(Enum):
         if previous_index < 0:
             raise ValueError('No previous step before {}'.format(members[previous_index + 1]))
         return members[previous_index]
+
+
+class RetroStep(RetroStepBase):
+    ADDING_ISSUES = 'Adding Issues'
+    VOTING = 'Voting'
+    RESULTS = 'Results'
 
 
 class IssueAttribute(MapAttribute):

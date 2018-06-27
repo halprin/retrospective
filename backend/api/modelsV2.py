@@ -1,8 +1,8 @@
 from pynamodb.attributes import UnicodeAttribute, ListAttribute, MapAttribute
-from backend.api.models import Retrospective, RetroStep, IssueAttribute
+from backend.api.models import Retrospective, RetroStepBase, IssueAttribute
 
 
-class RetroStepV2(RetroStep):
+class RetroStepV2(RetroStepBase):
     ADDING_ISSUES = 'Adding Issues'
     GROUPING = 'Grouping'
     VOTING = 'Voting'
