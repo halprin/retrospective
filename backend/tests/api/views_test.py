@@ -10,8 +10,8 @@ content_type_application_json = 'application/json'
 
 
 @patch('backend.api.validation.token', autospec=True)
-@patch('backend.api.views.service', autospec=True)
-@patch('backend.api.validation.service', autospec=True)
+@patch('backend.api.views.Service', autospec=True)
+@patch('backend.api.validation.Service', autospec=True)
 class TestRetroView:
     def test_post_create_new_retro(self, mock_service_validation, mock_service_view, mock_token):
         request_body = {
@@ -125,8 +125,8 @@ class TestRetroView:
 
 
 @patch('backend.api.validation.token', autospec=True)
-@patch('backend.api.views.service', autospec=True)
-@patch('backend.api.validation.service', autospec=True)
+@patch('backend.api.views.Service', autospec=True)
+@patch('backend.api.validation.Service', autospec=True)
 class TestRetroUserView:
     def test_post_retro_not_found(self, mock_service_validation, mock_service_view, mock_token):
         mock_service_validation.get_retro.side_effect = Retrospective.DoesNotExist
@@ -189,8 +189,8 @@ class TestRetroUserView:
 
 
 @patch('backend.api.validation.token', autospec=True)
-@patch('backend.api.views.service', autospec=True)
-@patch('backend.api.validation.service', autospec=True)
+@patch('backend.api.views.Service', autospec=True)
+@patch('backend.api.validation.Service', autospec=True)
 class TestRetroIssueView:
     def test_post_retro_not_found(self, mock_service_validation, mock_service_view, mock_token):
         mock_service_validation.get_retro.side_effect = Retrospective.DoesNotExist

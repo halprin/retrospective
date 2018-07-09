@@ -2,7 +2,8 @@ from typing import Union
 from django.http import HttpResponse, JsonResponse, HttpRequest
 from django.views import View
 import json
-from backend.api import service, token
+from backend.api import token
+from backend.api.service import Service
 from backend.api.models import RetroStep, Retrospective, IssueAttribute
 from backend.api.validation import retrospective_exists, user_is_admin, user_is_valid, retro_on_step, issue_exists,\
     issue_owned_by_user
@@ -21,7 +22,7 @@ class RetroView(View):
         retro_name: str = request_body['retroName']
         admin_name: str = request_body['adminName']
 
-        new_retro: Retrospective = service.create_retro(retro_name, admin_name)
+        new_retro: Retrospective = Service.create_retro(retro_name, admin_name)
 
         response_body: dict = {
             'retroId': new_retro.id,
@@ -40,7 +41,7 @@ class RetroView(View):
 
         new_step: str = None
         try:
-            new_step = service.move_retro(retro, direction)
+            new_step = Service.move_retro(retro, direction)
         except ValueError as exception:
             return HttpResponse(str(exception), status=422, content_type=content_type_text_plain, charset=charset_utf8)
 
@@ -54,7 +55,7 @@ class RetroView(View):
     @user_is_valid
     def get(self, request: HttpRequest, retro: Retrospective=None, *args, **kwargs) -> JsonResponse:
         user_token: str = token.get_token_from_request(request)
-        response_body: dict = service.sanitize_retro_for_user_and_step(retro, user_token)
+        response_body: dict = Service.sanitize_retro_for_user_and_step(retro, user_token)
 
         return JsonResponse(response_body, status=200, charset=charset_utf8)
 
@@ -65,7 +66,7 @@ class RetroUserView(View):
         request_body: dict = json.loads(request.body)
         participant_name: str = request_body['name']
 
-        participant_token: str = service.add_participant(participant_name, retro)
+        participant_token: str = Service.add_participant(participant_name, retro)
 
         response_body: dict = {
             'token': participant_token
@@ -81,7 +82,7 @@ class RetroUserView(View):
         request_body: dict = json.loads(request.body)
         is_ready: bool = request_body['ready']
 
-        service.mark_user_as_ready(user_token, is_ready, retro)
+        Service.mark_user_as_ready(user_token, is_ready, retro)
 
         return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
 
@@ -97,7 +98,7 @@ class RetroIssueView(View):
         issue_title: str = request_body['title']
         issue_section: str = request_body['section']
 
-        new_issue_id: str = service.add_new_issue(issue_title, issue_section, user_token, retro)
+        new_issue_id: str = Service.add_new_issue(issue_title, issue_section, user_token, retro)
 
         response_body: dict = {
             'id': new_issue_id
@@ -117,9 +118,9 @@ class RetroIssueView(View):
         vote_for: bool = request_body['vote']
 
         if vote_for:
-            service.vote_for_issue(issue, user_token, retro)
+            Service.vote_for_issue(issue, user_token, retro)
         else:
-            service.unvote_for_issue(issue, user_token, retro)
+            Service.unvote_for_issue(issue, user_token, retro)
 
         return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
 
@@ -130,7 +131,7 @@ class RetroIssueView(View):
     @issue_owned_by_user
     def delete(self, request: HttpRequest, retro: Retrospective = None, issue: IssueAttribute = None, *args,
                **kwargs) -> HttpResponse:
-        service.delete_issue(issue, retro)
+        Service.delete_issue(issue, retro)
 
         return HttpResponse('', status=204, content_type=content_type_text_plain, charset=charset_utf8)
 

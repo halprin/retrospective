@@ -1,6 +1,6 @@
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
-from backend.api import service
+from backend.api.service import Service
 from backend.api import token
 import json
 import pickle
@@ -15,7 +15,7 @@ class RetrospectiveConsumer(WebsocketConsumer):
         self.retro_id = str(self.scope['url_route']['kwargs']['retro_id'])
         self.user_token = self.scope['subprotocols'][0]
 
-        retro = service.get_retro(self.retro_id)
+        retro = Service.get_retro(self.retro_id)
 
         if not token.token_is_valid(self.user_token, retro):
             # do not accept the connection
@@ -35,6 +35,6 @@ class RetrospectiveConsumer(WebsocketConsumer):
     def disburse_update(self, event):
         retro = pickle.loads(event['retro'])
 
-        sanitized_retro = service.sanitize_retro_for_user_and_step(retro, self.user_token)
+        sanitized_retro = Service.sanitize_retro_for_user_and_step(retro, self.user_token)
 
         self.send(text_data=json.dumps(sanitized_retro))

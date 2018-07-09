@@ -11,7 +11,7 @@ def original_function(*args, **kwargs):
     }
 
 
-@patch('backend.api.validation.service', autospec=True)
+@patch('backend.api.validation.Service', autospec=True)
 def test_retrospective_exists_negative(mock_service):
     mock_service.get_retro.side_effect = Retrospective.DoesNotExist
 
@@ -22,7 +22,7 @@ def test_retrospective_exists_negative(mock_service):
     validators.assert_retro_not_found(response, retro_id)
 
 
-@patch('backend.api.validation.service', autospec=True)
+@patch('backend.api.validation.Service', autospec=True)
 def test_retrospective_exists_positive(mock_service):
     mock_retro = retro.create_mock_retro()
     mock_service.get_retro.return_value = mock_retro

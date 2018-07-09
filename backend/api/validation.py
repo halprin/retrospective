@@ -3,7 +3,8 @@ from functools import wraps
 from typing import Any, Iterator
 
 from django.http import HttpResponse, HttpRequest
-from backend.api import service, token
+from backend.api import token
+from backend.api.service import Service
 from backend.api.models import Retrospective, RetroStep, IssueAttribute
 
 charset_utf8 = 'UTF-8'
@@ -23,7 +24,7 @@ def retrospective_exists(original_function):
 
         retro: Retrospective = None
         try:
-            retro = service.get_retro(retro_id_str)
+            retro = Service.get_retro(retro_id_str)
         except Retrospective.DoesNotExist:
             return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
                                 charset=charset_utf8)
