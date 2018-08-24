@@ -46,6 +46,25 @@ def test__reset_ready_statuses():
         assert participant.ready is False
 
 
+def test__get_retro_step():
+    assert Service._get_retro_step(RetroStep.VOTING.value) is RetroStep.VOTING
+
+
+def test__is_adding_issues_step():
+    assert Service._is_adding_issues_step(RetroStep.VOTING) is False
+    assert Service._is_adding_issues_step(RetroStep.ADDING_ISSUES) is True
+
+
+def test__is_voting_step():
+    assert Service._is_voting_step(RetroStep.RESULTS) is False
+    assert Service._is_voting_step(RetroStep.VOTING) is True
+
+
+def test__is_results_step():
+    assert Service._is_results_step(RetroStep.VOTING) is False
+    assert Service._is_results_step(RetroStep.RESULTS) is True
+
+
 def test_move_retro_unknown_direction():
     step = RetroStep.VOTING
     a_retro = retro.create_mock_retro(current_step=step.value)

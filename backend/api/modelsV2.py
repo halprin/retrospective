@@ -1,4 +1,4 @@
-from pynamodb.attributes import UnicodeAttribute, ListAttribute, MapAttribute
+from pynamodb.attributes import UnicodeAttribute, ListAttribute, MapAttribute, UnicodeSetAttribute
 from backend.api.models import Retrospective, RetroStepBase, IssueAttribute
 
 
@@ -13,6 +13,7 @@ class GroupAttribute(MapAttribute):
     id = UnicodeAttribute()
     title = UnicodeAttribute()
     section = UnicodeAttribute()
+    votes = UnicodeSetAttribute()
 
 
 class IssueAttributeV2(IssueAttribute):
