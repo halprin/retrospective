@@ -32,6 +32,6 @@ def token_is_admin(token: str, retro: Retrospective) -> bool:
 def _find_participant(func, retro: Retrospective) -> Optional[ParticipantAttribute]:
     participant_iterator: Iterator[ParticipantAttribute] = filter(func, retro.participants)
     try:
-        return participant_iterator.__next__()
+        return next(participant_iterator)
     except StopIteration:
         return None

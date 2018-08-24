@@ -205,3 +205,109 @@ def test__get_group_by_id_not_found():
     found_group = ServiceV2._get_group_by_id(mock_id, mock_retro)
 
     assert found_group is None
+
+
+@patch('backend.api.service.Service._send_retro_update')
+def test_vote_for_issue_non_group(mock_send_retro_update):
+
+    voting_user = 'user-token'
+
+    mock_group = retro.create_mock_group(id='a group')
+    mock_issue = retro.create_mock_issueV2(id='an issue', group='')
+    mock_retro = retro.create_mock_retroV2(id='a retro', issues=[mock_issue], groups=[mock_group])
+
+    ServiceV2.vote_for_issue(mock_issue, voting_user, mock_retro)
+
+    assert voting_user in mock_issue.votes
+    assert mock_group.votes is None or voting_user not in mock_group.votes
+
+
+@patch('backend.api.service.Service._send_retro_update')
+def test_vote_for_issue_for_group(mock_send_retro_update):
+
+    voting_user = 'user-token'
+
+    mock_group = retro.create_mock_group(id='a group')
+    mock_issue = retro.create_mock_issueV2(id='an issue', group=mock_group.id)
+    mock_retro = retro.create_mock_retroV2(id='a retro', issues=[mock_issue], groups=[mock_group])
+
+    ServiceV2.vote_for_issue(mock_issue, voting_user, mock_retro)
+
+    assert mock_issue.votes is None or voting_user not in mock_issue.votes
+    assert voting_user in mock_group.votes
+
+
+@patch('backend.api.service.Service._send_retro_update')
+def test_vote_for_group(mock_send_retro_update):
+    voting_user = 'user-token'
+
+    mock_group = retro.create_mock_group(id='a group')
+    mock_retro = retro.create_mock_retroV2(id='a retro', groups=[mock_group])
+
+    ServiceV2.vote_for_group(mock_group, voting_user, mock_retro)
+
+    assert voting_user in mock_group.votes
+
+
+@patch('backend.api.service.Service._send_retro_update')
+def test_unvote_for_issue_non_group(mock_send_retro_update):
+
+    voting_user = 'user-token'
+
+    mock_group = retro.create_mock_group(id='a group')
+    mock_issue = retro.create_mock_issueV2(id='an issue', group='', votes={voting_user})
+    mock_retro = retro.create_mock_retroV2(id='a retro', issues=[mock_issue], groups=[mock_group])
+
+    ServiceV2.unvote_for_issue(mock_issue, voting_user, mock_retro)
+
+    assert mock_issue.votes is None or voting_user not in mock_issue.votes
+    assert mock_group.votes is None or voting_user not in mock_group.votes
+
+
+@patch('backend.api.service.Service._send_retro_update')
+def test_unvote_for_issue_for_group(mock_send_retro_update):
+
+    voting_user = 'user-token'
+
+    mock_group = retro.create_mock_group(id='a group', votes={voting_user})
+    mock_issue = retro.create_mock_issueV2(id='an issue', group=mock_group.id)
+    mock_retro = retro.create_mock_retroV2(id='a retro', issues=[mock_issue], groups=[mock_group])
+
+    ServiceV2.unvote_for_issue(mock_issue, voting_user, mock_retro)
+
+    assert mock_issue.votes is None or voting_user not in mock_issue.votes
+    assert mock_group.votes is None or voting_user not in mock_group.votes
+
+
+@patch('backend.api.service.Service._send_retro_update')
+def test_unvote_for_group(mock_send_retro_update):
+    voting_user = 'user-token'
+
+    mock_group = retro.create_mock_group(id='a group', votes={voting_user})
+    mock_retro = retro.create_mock_retroV2(id='a retro', groups=[mock_group])
+
+    ServiceV2.unvote_for_group(mock_group, voting_user, mock_retro)
+
+    assert mock_group.votes is None or voting_user not in mock_group.votes
+
+
+@patch('backend.api.service.Service._send_retro_update')
+def test_group_issue(mock_send_retro_update):
+    mock_group = retro.create_mock_group(id='a group')
+    mock_issue = retro.create_mock_issueV2(id='an issue')
+    mock_retro = retro.create_mock_retroV2(id='a retro', issues=[mock_issue], groups=[mock_group])
+
+    ServiceV2.group_issue(mock_issue, mock_group, mock_retro)
+
+    assert mock_group.id == mock_issue.group
+
+
+@patch('backend.api.service.Service._send_retro_update')
+def test_ungroup_issue(mock_send_retro_update):
+    mock_group = retro.create_mock_group(id='a group')
+    mock_issue = retro.create_mock_issueV2(id='an issue', group=mock_group.id)
+    mock_retro = retro.create_mock_retroV2(id='a retro', issues=[mock_issue], groups=[mock_group])
+
+    ServiceV2.ungroup_issue(mock_issue, mock_retro)
+
+    assert mock_issue.group is None

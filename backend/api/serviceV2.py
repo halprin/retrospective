@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 from backend.api.modelsV2 import RetrospectiveV2, RetroStepV2, IssueAttributeV2, GroupAttribute
 from backend.api.service import Service
 
@@ -88,7 +89,7 @@ class ServiceV2(Service):
                                 votes=None, group='')
 
     @staticmethod
-    def _get_group_by_id(group_id: str, retro: RetrospectiveV2) -> GroupAttribute:
+    def _get_group_by_id(group_id: str, retro: RetrospectiveV2) -> Optional[GroupAttribute]:
 
         group_finder = (group for group in retro.groups if group.id == group_id)
 
