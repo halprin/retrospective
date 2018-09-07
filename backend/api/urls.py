@@ -1,9 +1,10 @@
 from django.urls import path
 
 from . import views
+from .views_package import generic_views
 
 urlpatterns = [
-    path('retro', views.RetroView.as_view(), name='retro'),
+    path('retro', generic_views.GenericRetroView.as_view(), name='retro'),
     path('retro/<uuid:retro_id>', views.RetroView.as_view(), name='retro_id'),
     path('retro/<uuid:retro_id>/user', views.RetroUserView.as_view(), name='retro_id_user'),
     path('retro/<uuid:retro_id>/issue', views.RetroIssueView.as_view(), name='retro_id_issue'),

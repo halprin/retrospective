@@ -1,6 +1,6 @@
 import uuid
 from functools import wraps
-from typing import Any, Iterator
+from typing import Iterator
 
 from django.http import HttpResponse, HttpRequest
 from backend.api import token
