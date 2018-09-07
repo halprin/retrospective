@@ -1,6 +1,6 @@
 import json
-from backend.api.views import RetroView, RetroUserView, RetroIssueView, HealthView
-from backend.api import views
+from backend.api.views.views import RetroView, RetroUserView, RetroIssueView, HealthView
+from backend.api.views import views
 from unittest.mock import patch
 from backend.tests.util import retro, request, validators
 from backend.api.models import Retrospective, RetroStep
@@ -10,7 +10,7 @@ content_type_application_json = 'application/json'
 
 
 @patch('backend.api.validation.token', autospec=True)
-@patch('backend.api.views.Service', autospec=True)
+@patch('backend.api.views.views.Service', autospec=True)
 @patch('backend.api.validation.Service', autospec=True)
 class TestRetroView:
     def test_post_create_new_retro(self, mock_service_validation, mock_service_view, mock_token):
@@ -125,7 +125,7 @@ class TestRetroView:
 
 
 @patch('backend.api.validation.token', autospec=True)
-@patch('backend.api.views.Service', autospec=True)
+@patch('backend.api.views.views.Service', autospec=True)
 @patch('backend.api.validation.Service', autospec=True)
 class TestRetroUserView:
     def test_post_retro_not_found(self, mock_service_validation, mock_service_view, mock_token):
@@ -189,7 +189,7 @@ class TestRetroUserView:
 
 
 @patch('backend.api.validation.token', autospec=True)
-@patch('backend.api.views.Service', autospec=True)
+@patch('backend.api.views.views.Service', autospec=True)
 @patch('backend.api.validation.Service', autospec=True)
 class TestRetroIssueView:
     def test_post_retro_not_found(self, mock_service_validation, mock_service_view, mock_token):

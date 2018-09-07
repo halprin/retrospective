@@ -1,7 +1,6 @@
 from typing import Any
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest
 from django.views import View
-from ..views import RetroView
 import inspect
 import importlib
 
@@ -15,7 +14,7 @@ def get_service_version(request: HttpRequest):
 
 
 def find_class_and_method_to_call(service_version: str, method_name: str):
-    module = importlib.import_module('...views{}'.format(service_version), __name__)
+    module = importlib.import_module('..views{}'.format(service_version), __name__)
     class_to_use = getattr(module, 'RetroView{}'.format(service_version))
     method_to_call = getattr(class_to_use, method_name)
 

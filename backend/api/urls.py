@@ -1,7 +1,6 @@
 from django.urls import path
 
-from . import views
-from .views_package import generic_views
+from .views import generic_views, views
 
 urlpatterns = [
     path('retro', generic_views.GenericRetroView.as_view(), name='retro'),
