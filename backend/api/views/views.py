@@ -6,7 +6,8 @@ from backend.api import token
 from backend.api.service import Service
 from backend.api.models import RetroStep, Retrospective, IssueAttribute
 from backend.api.validation import retrospective_exists, user_is_admin, user_is_valid, retro_on_step, issue_exists,\
-    issue_owned_by_user
+    issue_owned_by_user, retrospective_api_is_correct
+from .generic_views import VersionServiceView
 
 
 charset_utf8 = 'UTF-8'
@@ -16,13 +17,19 @@ no_vote_issue_retro_wrong_step = 'Cannot vote for an issue because the retrospec
 no_delete_issue_retro_wrong_step = 'Cannot delete an issue because the retrospective is on step {}'
 
 
-class RetroView(View):
+class Version1ServiceView(VersionServiceView):
+    @staticmethod
+    def service():
+        return Service
+
+
+class RetroView(Version1ServiceView):
     def post(self, request: HttpRequest, *args, **kwargs) -> JsonResponse:
         request_body: dict = json.loads(request.body)
         retro_name: str = request_body['retroName']
         admin_name: str = request_body['adminName']
 
-        new_retro: Retrospective = Service.create_retro(retro_name, admin_name)
+        new_retro: Retrospective = self.service().create_retro(retro_name, admin_name)
 
         response_body: dict = {
             'retroId': new_retro.id,
@@ -32,6 +39,7 @@ class RetroView(View):
         return JsonResponse(response_body, status=201, charset=charset_utf8)
 
     @retrospective_exists
+    @retrospective_api_is_correct
     @user_is_admin
     def put(self, request: HttpRequest, retro: Retrospective = None, *args, **kwargs) -> Union[
             HttpResponse, JsonResponse]:
@@ -41,7 +49,7 @@ class RetroView(View):
 
         new_step: str = None
         try:
-            new_step = Service.move_retro(retro, direction)
+            new_step = self.service().move_retro(retro, direction)
         except ValueError as exception:
             return HttpResponse(str(exception), status=422, content_type=content_type_text_plain, charset=charset_utf8)
 
@@ -52,10 +60,11 @@ class RetroView(View):
         return JsonResponse(response_body, status=200, charset=charset_utf8)
 
     @retrospective_exists
+    @retrospective_api_is_correct
     @user_is_valid
     def get(self, request: HttpRequest, retro: Retrospective=None, *args, **kwargs) -> JsonResponse:
         user_token: str = token.get_token_from_request(request)
-        response_body: dict = Service.sanitize_retro_for_user_and_step(retro, user_token)
+        response_body: dict = self.service().sanitize_retro_for_user_and_step(retro, user_token)
 
         return JsonResponse(response_body, status=200, charset=charset_utf8)
 

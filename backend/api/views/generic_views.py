@@ -8,7 +8,7 @@ import importlib
 def get_service_version(request: HttpRequest):
     api_version = request.META.get('HTTP_API_VERSION', '1')
 
-    service_version = api_version if api_version != '1' else ''
+    service_version = 'V' + api_version if api_version != '1' else ''
 
     return service_version
 
@@ -45,3 +45,9 @@ class GenericRetroView(View):
         class_to_use, method_to_call = find_class_and_method_to_call(service_version, this_method)
 
         return method_to_call(class_to_use, request, *args, **kwargs)
+
+
+class VersionServiceView(View):
+    @staticmethod
+    def service():
+        raise NotImplementedError

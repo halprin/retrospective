@@ -1,7 +1,8 @@
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from backend.api import validation
 from backend.api.models import Retrospective, RetroStep
 from backend.tests.util import retro, validators, request
+from backend.api.serviceV2 import ServiceV2
 
 
 def original_function(*args, **kwargs):
@@ -11,25 +12,29 @@ def original_function(*args, **kwargs):
     }
 
 
-@patch('backend.api.validation.Service', autospec=True)
-def test_retrospective_exists_negative(mock_service):
-    mock_service.get_retro.side_effect = Retrospective.DoesNotExist
+@patch('backend.api.validation._get_service', autospec=True)
+def test_retrospective_exists_negative(mock_service_function):
+    mock_self_class = MagicMock()
+    mock_request = MagicMock()
+    mock_service_function.return_value.get_retro.side_effect = Retrospective.DoesNotExist
 
     retro_id = 'non-existent_retro_id'
     object_under_test = validation.retrospective_exists(original_function)
-    response = object_under_test(retro_id=retro_id)
+    response = object_under_test(mock_self_class, mock_request, retro_id=retro_id)
 
     validators.assert_retro_not_found(response, retro_id)
 
 
-@patch('backend.api.validation.Service', autospec=True)
-def test_retrospective_exists_positive(mock_service):
+@patch('backend.api.validation._get_service', autospec=True)
+def test_retrospective_exists_positive(mock_service_function):
     mock_retro = retro.create_mock_retro()
-    mock_service.get_retro.return_value = mock_retro
+    mock_self_class = MagicMock()
+    mock_request = MagicMock()
+    mock_service_function.return_value.get_retro.return_value = mock_retro
 
     passed_in_retro_id = 'some_retro_id'
     object_under_test = validation.retrospective_exists(original_function)
-    passed_args = object_under_test(retro_id=passed_in_retro_id)
+    passed_args = object_under_test(mock_self_class, mock_request, retro_id=passed_in_retro_id)
 
     assert mock_retro == passed_args['kwargs']['retro']
     assert passed_in_retro_id == passed_args['kwargs']['retro_id']
@@ -167,3 +172,103 @@ def test_user_owns_issue(mock_token):
 
     assert mock_request == passed_args['args'][1]
     assert mock_issue == passed_args['kwargs']['issue']
+
+
+def test_retrospective_api_is_correct():
+    api_version = '2'
+    mock_request = request.create_mock_request(api_version=api_version)
+    mock_retro = retro.create_mock_retroV2()
+    object_under_test = validation.retrospective_api_is_correct(original_function)
+
+    passed_args = object_under_test(None, mock_request, retro=mock_retro)
+
+    assert mock_request == passed_args['args'][1]
+
+
+def test_retrospective_api_is_incorrect():
+    api_version = '26'
+    mock_request = request.create_mock_request(api_version=api_version)
+    mock_retro = retro.create_mock_retroV2()
+    object_under_test = validation.retrospective_api_is_correct(original_function)
+
+    response = object_under_test(None, mock_request, retro=mock_retro)
+
+    validators.assert_api_mismatch(response, api_version, '2')
+
+
+def test__get_api_version_non_1():
+    api_version = '26'
+    mock_request = request.create_mock_request(api_version=api_version)
+
+    actual_api_version = validation._get_api_version(mock_request)
+
+    assert api_version == actual_api_version
+
+
+def test__get_api_version_unspecified():
+    mock_request = request.create_mock_request(api_version=None)
+
+    actual_api_version = validation._get_api_version(mock_request)
+
+    assert '1' == actual_api_version
+
+
+def test__get_service_version_non_1():
+    api_version = '26'
+    mock_request = request.create_mock_request(api_version=api_version)
+
+    actual_service_version = validation._get_service_version(mock_request)
+
+    assert 'V' + api_version == actual_service_version
+
+
+def test__get_service_version_1():
+    mock_request = request.create_mock_request(api_version='1')
+
+    actual_service_version = validation._get_service_version(mock_request)
+
+    assert '' == actual_service_version
+
+
+def test__find_service_class_to_use():
+    actual_class = validation._find_service_class_to_use('V2')
+
+    assert ServiceV2 == actual_class
+
+
+def test__get_service():
+    mock_request = request.create_mock_request(api_version='2')
+
+    actual_class = validation._get_service(mock_request)
+
+    assert ServiceV2 == actual_class
+
+
+def test__get_retro_version_not_exist():
+    class SimpleClassWithoutVersionAttribute:
+        pass
+
+    mock_retro = SimpleClassWithoutVersionAttribute()
+
+    actual_retro_version = validation._get_retro_version(mock_retro)
+
+    assert '1' == actual_retro_version
+
+
+def test__get_retro_version_none():
+    mock_retro = MagicMock()
+    mock_retro.version = None
+
+    actual_retro_version = validation._get_retro_version(mock_retro)
+
+    assert '1' == actual_retro_version
+
+
+def test__get_retro_version_something():
+    mock_retro = MagicMock()
+    retro_version = '26'
+    mock_retro.version = retro_version
+
+    actual_retro_version = validation._get_retro_version(mock_retro)
+
+    assert retro_version == actual_retro_version

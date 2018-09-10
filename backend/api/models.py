@@ -56,3 +56,4 @@ class Retrospective(Model):
     current_step = UnicodeAttribute()
     issues = ListAttribute(of=IssueAttribute)
     participants = ListAttribute(of=ParticipantAttribute)
+    version = UnicodeAttribute()

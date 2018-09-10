@@ -1,11 +1,12 @@
 import uuid
 from functools import wraps
 from typing import Iterator
-
 from django.http import HttpResponse, HttpRequest
 from backend.api import token
-from backend.api.service import Service
 from backend.api.models import Retrospective, RetroStep, IssueAttribute
+import importlib
+from typing import Optional
+
 
 charset_utf8 = 'UTF-8'
 content_type_text_plain = 'text/plain'
@@ -14,6 +15,7 @@ user_not_admin = 'User is not valid or not an admin'
 user_not_valid = 'User is not valid'
 issue_not_found = 'Issue {} not found'
 user_is_not_issue_owner = 'User is not owner of issue {}'
+incorrect_api_version = 'Using incorrect API version.  Utilizing API version {} when retrospective is version {}.'
 
 
 def retrospective_exists(original_function):
@@ -22,9 +24,12 @@ def retrospective_exists(original_function):
         retro_id: uuid = kwargs['retro_id']
         retro_id_str: str = str(retro_id)
 
+        request: HttpRequest = args[1]
+        service = _get_service(request)
+
         retro: Retrospective = None
         try:
-            retro = Service.get_retro(retro_id_str)
+            retro = service.get_retro(retro_id_str)
         except Retrospective.DoesNotExist:
             return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
                                 charset=charset_utf8)
@@ -110,9 +115,59 @@ def issue_owned_by_user(original_function):
     return wrapper
 
 
-def _find_issue(issue_id: str, retro: Retrospective) -> IssueAttribute:
+def retrospective_api_is_correct(original_function):
+    @wraps(original_function)
+    def wrapper(*args, **kwargs):
+        request: HttpRequest = args[1]
+        retro: Retrospective = kwargs['retro']
+
+        api_version = _get_api_version(request)
+        retro_version = _get_retro_version(retro)
+
+        if api_version != retro_version:
+            return HttpResponse(incorrect_api_version.format(api_version, retro_version), status=409,
+                                content_type=content_type_text_plain, charset=charset_utf8)
+
+        return original_function(*args, **kwargs)
+
+    return wrapper
+
+
+def _find_issue(issue_id: str, retro: Retrospective) -> Optional[IssueAttribute]:
     issue_iterator: Iterator[IssueAttribute] = filter(lambda current_issue: current_issue.id == issue_id, retro.issues)
     try:
         return issue_iterator.__next__()
     except StopIteration:
         return None
+
+
+def _get_api_version(request: HttpRequest) -> str:
+    return request.META.get('HTTP_API_VERSION', '1')
+
+
+def _get_service_version(request: HttpRequest) -> str:
+    api_version = _get_api_version(request)
+
+    service_version = 'V' + api_version if api_version != '1' else ''
+
+    return service_version
+
+
+def _find_service_class_to_use(service_version: str):
+    module = importlib.import_module('..service{}'.format(service_version), __name__)
+    class_to_use = getattr(module, 'Service{}'.format(service_version))
+
+    return class_to_use
+
+
+def _get_service(request: HttpRequest):
+    service_version = _get_service_version(request)
+
+    return _find_service_class_to_use(service_version)
+
+
+def _get_retro_version(retro) -> str:
+    retro_version = getattr(retro, 'version', '1')
+    retro_version = '1' if retro_version is None else retro_version
+
+    return retro_version

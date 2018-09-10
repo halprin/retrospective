@@ -12,6 +12,7 @@ def create_mock_retro(id='retro_id', name='retro_name', current_step=RetroStep.A
     retro.current_step = current_step
     retro.issues = issues
     retro.participants = participants
+    retro.version = None
 
     return retro
 
