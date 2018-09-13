@@ -20,6 +20,7 @@ def test_create_retro(mock_retrospective_class):
     assert new_retro.participants[0].name == admin_name
     assert new_retro.participants[0].admin is True
     assert len(new_retro.issues) == 0
+    assert new_retro.version == '1'
     assert new_retro.id is not None
 
 

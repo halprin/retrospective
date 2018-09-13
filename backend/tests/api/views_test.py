@@ -163,6 +163,19 @@ class TestRetroUserView:
 
         validators.assert_retro_not_found(response, retro_id)
 
+    def test_post_api_mismatch(self, mock_service_function_validation, mock_service_view, mock_token):
+        request_body = {
+            'direction': 'next'
+        }
+        mock_service_function_validation.return_value.get_retro.return_value = retro.create_mock_retro(id='moof')
+        mock_api_version = 'not 1'
+        mock_request = request.create_mock_request(request_body, api_version=mock_api_version)
+
+        object_under_test = RetroUserView()
+        response = object_under_test.post(mock_request, retro_id='whatever')
+
+        validators.assert_api_mismatch(response, mock_api_version, '1')
+
     def test_post_new_user_success(self, mock_service_function_validation, mock_service_view, mock_token):
         request_body = {
             'name': 'new_user'
@@ -188,6 +201,19 @@ class TestRetroUserView:
         response = object_under_test.put(request.create_mock_request(), retro_id=retro_id)
 
         validators.assert_retro_not_found(response, retro_id)
+
+    def test_put_api_mismatch(self, mock_service_function_validation, mock_service_view, mock_token):
+        request_body = {
+            'direction': 'next'
+        }
+        mock_service_function_validation.return_value.get_retro.return_value = retro.create_mock_retro(id='moof')
+        mock_api_version = 'not 1'
+        mock_request = request.create_mock_request(request_body, api_version=mock_api_version)
+
+        object_under_test = RetroUserView()
+        response = object_under_test.put(mock_request, retro_id='whatever')
+
+        validators.assert_api_mismatch(response, mock_api_version, '1')
 
     def test_put_user_not_valid(self, mock_service_function_validation, mock_service_view, mock_token):
         mock_service_function_validation.return_value.get_retro.return_value = retro.create_mock_retro()
@@ -238,7 +264,8 @@ class TestRetroIssueView:
 
     def test_post_retro_step_not_valid(self, mock_service_function_validation, mock_service_view, mock_token):
         retro_step = RetroStep.VOTING.value
-        mock_service_function_validation.return_value.get_retro.return_value = retro.create_mock_retro(current_step=retro_step)
+        mock_service_function_validation.return_value.get_retro.return_value = retro.create_mock_retro(
+            current_step=retro_step)
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueView()

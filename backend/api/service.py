@@ -16,6 +16,7 @@ class Service:
         new_retro.current_step = RetroStep.ADDING_ISSUES.value
         new_retro.participants = [cls._create_participant(admin_name, is_admin=True)]
         new_retro.issues = []
+        new_retro.version = '1'
 
         new_retro.save()
 

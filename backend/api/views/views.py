@@ -71,6 +71,7 @@ class RetroView(Version1ServiceView):
 
 class RetroUserView(View):
     @retrospective_exists
+    @retrospective_api_is_correct
     def post(self, request: HttpRequest, retro: Retrospective=None, *args, **kwargs) -> JsonResponse:
         request_body: dict = json.loads(request.body)
         participant_name: str = request_body['name']
@@ -84,6 +85,7 @@ class RetroUserView(View):
         return JsonResponse(response_body, status=201, charset=charset_utf8)
 
     @retrospective_exists
+    @retrospective_api_is_correct
     @user_is_valid
     def put(self, request: HttpRequest, retro: Retrospective=None, *args, **kwargs) -> HttpResponse:
         user_token: str = token.get_token_from_request(request)
