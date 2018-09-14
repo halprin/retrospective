@@ -98,8 +98,9 @@ class RetroUserView(Version1ServiceView):
         return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
 
 
-class RetroIssueView(View):
+class RetroIssueView(Version1ServiceView):
     @retrospective_exists
+    @retrospective_api_is_correct
     @user_is_valid
     @retro_on_step(RetroStep.ADDING_ISSUES, no_create_issue_retro_wrong_step)
     def post(self, request: HttpRequest, retro: Retrospective=None, *args, **kwargs) -> JsonResponse:
@@ -109,7 +110,7 @@ class RetroIssueView(View):
         issue_title: str = request_body['title']
         issue_section: str = request_body['section']
 
-        new_issue_id: str = Service.add_new_issue(issue_title, issue_section, user_token, retro)
+        new_issue_id: str = self.service().add_new_issue(issue_title, issue_section, user_token, retro)
 
         response_body: dict = {
             'id': new_issue_id
@@ -118,6 +119,7 @@ class RetroIssueView(View):
         return JsonResponse(response_body, status=201, charset=charset_utf8)
 
     @retrospective_exists
+    @retrospective_api_is_correct
     @user_is_valid
     @retro_on_step(RetroStep.VOTING, no_vote_issue_retro_wrong_step)
     @issue_exists
@@ -129,20 +131,21 @@ class RetroIssueView(View):
         vote_for: bool = request_body['vote']
 
         if vote_for:
-            Service.vote_for_issue(issue, user_token, retro)
+            self.service().vote_for_issue(issue, user_token, retro)
         else:
-            Service.unvote_for_issue(issue, user_token, retro)
+            self.service().unvote_for_issue(issue, user_token, retro)
 
         return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
 
     @retrospective_exists
+    @retrospective_api_is_correct
     @user_is_valid
     @retro_on_step(RetroStep.ADDING_ISSUES, no_delete_issue_retro_wrong_step)
     @issue_exists
     @issue_owned_by_user
     def delete(self, request: HttpRequest, retro: Retrospective = None, issue: IssueAttribute = None, *args,
                **kwargs) -> HttpResponse:
-        Service.delete_issue(issue, retro)
+        self.service().delete_issue(issue, retro)
 
         return HttpResponse('', status=204, content_type=content_type_text_plain, charset=charset_utf8)
 

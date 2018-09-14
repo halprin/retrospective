@@ -1,4 +1,4 @@
-from .views import RetroView, RetroUserView
+from .views import RetroView, RetroUserView, RetroIssueView
 from .generic_views import VersionServiceView
 from ..serviceV2 import ServiceV2
 
@@ -14,4 +14,8 @@ class RetroViewV2(Version2ServiceView, RetroView):
 
 
 class RetroUserViewV2(Version2ServiceView, RetroUserView):
+    pass
+
+
+class RetroIssueViewV2(Version2ServiceView, RetroIssueView):
     pass
