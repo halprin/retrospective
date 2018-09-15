@@ -311,3 +311,29 @@ def test_ungroup_issue(mock_send_retro_update):
     ServiceV2.ungroup_issue(mock_issue, mock_retro)
 
     assert mock_issue.group is None
+
+
+@patch('backend.api.service.Service._send_retro_update')
+def test_add_new_group(mock_send_retro_update):
+    mock_group_title = 'group_moof'
+    mock_group_section = 'a_section'
+    mock_retro = retro.create_mock_retroV2()
+
+    ServiceV2.add_new_group(mock_group_title, mock_group_section, mock_retro)
+
+    assert mock_retro.groups is not None
+    assert 1 == len(mock_retro.groups)
+    assert mock_group_title == mock_retro.groups[0].title
+    assert mock_group_section == mock_retro.groups[0].section
+    assert mock_retro.groups[0].votes is None or 0 == len(mock_retro.groups[0].votes)
+    assert mock_retro.groups[0].id is not None and 0 != len(mock_retro.groups[0].id)
+
+
+@patch('backend.api.service.Service._send_retro_update')
+def test_delete_group(mock_send_retro_update):
+    mock_group = retro.create_mock_group()
+    mock_retro = retro.create_mock_retroV2(groups=[mock_group])
+
+    ServiceV2.delete_group(mock_group, mock_retro)
+
+    assert mock_retro.groups is None or 0 == len(mock_retro.groups)

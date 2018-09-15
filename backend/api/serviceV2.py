@@ -154,3 +154,22 @@ class ServiceV2(Service):
         retro.save()
 
         cls._send_retro_update(retro)
+
+    @classmethod
+    def add_new_group(cls, title: str, section: str, retro: RetrospectiveV2):
+        new_group: GroupAttribute = GroupAttribute(id=str(uuid.uuid4()), title=title, section=section, votes=None)
+
+        retro.groups.append(new_group)
+        retro.save()
+
+        cls._send_retro_update(retro)
+
+        return new_group.id
+
+    @classmethod
+    def delete_group(cls, group: GroupAttribute, retro: RetrospectiveV2):
+        retro.groups.remove(group)
+
+        retro.save()
+
+        cls._send_retro_update(retro)
