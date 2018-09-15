@@ -106,6 +106,26 @@ def test_retro_on_step_positive():
     assert mock_retro == passed_args['kwargs']['retro']
 
 
+def test_retro_on_step_list_negative():
+    error_message = 'Some test {}'
+    retro_step = RetroStep.ADDING_ISSUES.value
+    object_under_test = validation.retro_on_step([RetroStep.VOTING, RetroStep.RESULTS], error_message)(original_function)
+
+    response = object_under_test(retro=retro.create_mock_retro(current_step=retro_step))
+
+    validators.assert_retro_not_on_step(response, error_message.format(retro_step))
+
+
+def test_retro_on_step_list_positive():
+    retro_step = RetroStep.VOTING
+    mock_retro = retro.create_mock_retro(current_step=retro_step.value)
+    object_under_test = validation.retro_on_step([RetroStep.RESULTS, retro_step], 'Some test {}')(original_function)
+
+    passed_args = object_under_test(retro=mock_retro)
+
+    assert mock_retro == passed_args['kwargs']['retro']
+
+
 def test__find_issue_negative():
     issue_one = retro.create_mock_issue(id='an_issue_id')
     issue_two = retro.create_mock_issue(id='another_issue_id')

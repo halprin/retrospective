@@ -4,8 +4,9 @@ from typing import Iterator
 from django.http import HttpResponse, HttpRequest
 from backend.api import token
 from backend.api.models import Retrospective, RetroStep, IssueAttribute
+from .modelsV2 import RetroStepV2
 import importlib
-from typing import Optional
+from typing import Optional, Union, List
 
 
 charset_utf8 = 'UTF-8'
@@ -67,13 +68,22 @@ def user_is_valid(original_function):
     return wrapper
 
 
-def retro_on_step(retro_step: RetroStep, error_message: str):
+def retro_on_step(retro_step: Union[RetroStep, RetroStepV2, List[RetroStep], List[RetroStepV2]], error_message: str):
     def decorator(original_function):
         @wraps(original_function)
         def wrapper(*args, **kwargs):
             retro: Retrospective = kwargs['retro']
 
-            if RetroStep(retro.current_step) != retro_step:
+            match = False
+
+            if isinstance(retro_step, list):
+                for a_step in retro_step:
+                    if retro.current_step == a_step.value:
+                        match = True
+            else:
+                match = retro.current_step == retro_step.value
+
+            if not match:
                 return HttpResponse(error_message.format(retro.current_step), status=422,
                                     content_type=content_type_text_plain, charset=charset_utf8)
 
