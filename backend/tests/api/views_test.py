@@ -362,13 +362,13 @@ class TestRetroIssueView:
             'vote': True,
         }
         mock_issue_id = 'some_issue_id'
-        mock_service_function_validation.return_value.get_retro.return_value = retro.create_mock_retro(current_step=RetroStep.VOTING.value,
-                                                                                          issues=[retro.create_mock_issue(
-                                                                                     id=mock_issue_id)])
+        mock_service_function_validation.return_value.get_retro.return_value = retro.create_mock_retro(
+            current_step=RetroStep.VOTING.value, issues=[retro.create_mock_issue(id=mock_issue_id)])
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueView()
-        response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever', issue_id=mock_issue_id)
+        response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever',
+                                         issue_id=mock_issue_id)
 
         assert mock_service_view.vote_for_issue.called is True
         assert 200 == response.status_code

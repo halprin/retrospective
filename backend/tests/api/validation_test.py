@@ -292,3 +292,24 @@ def test__get_retro_version_something():
     actual_retro_version = validation._get_retro_version(mock_retro)
 
     assert retro_version == actual_retro_version
+
+
+def test_find_group_negative():
+    group_one = retro.create_mock_group(id='an_group_id')
+    group_two = retro.create_mock_group(id='another_group_id')
+    mock_retro = retro.create_mock_retroV2(groups=[group_one, group_two])
+
+    issue = validation._find_group('non-existing_issue_id', mock_retro)
+
+    assert issue is None
+
+
+def test_find_group_positive():
+    existing_group_id = 'an_group_id'
+    group_one = retro.create_mock_group(id='some_issue_id')
+    expected_group = retro.create_mock_group(id=existing_group_id)
+    mock_retro = retro.create_mock_retroV2(groups=[group_one, expected_group])
+
+    actual_group = validation._find_group(existing_group_id, mock_retro)
+
+    assert expected_group == actual_group

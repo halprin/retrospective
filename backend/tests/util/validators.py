@@ -51,3 +51,10 @@ def assert_api_mismatch(response, api_version, retro_version):
     assert validation.content_type_text_plain == response[content_type]
     assert validation.charset_utf8 == response.charset
     assert validation.incorrect_api_version.format(api_version, retro_version) == response.content.decode()
+
+
+def assert_group_not_found(response, group_id):
+    assert 404 == response.status_code
+    assert validation.content_type_text_plain == response[content_type]
+    assert validation.charset_utf8 == response.charset
+    assert validation.group_not_found.format(group_id) == response.content.decode()

@@ -86,7 +86,7 @@ class ServiceV2(Service):
     @staticmethod
     def _create_issue(title: str, section: str, creator_token: str) -> IssueAttributeV2:
         return IssueAttributeV2(id=str(uuid.uuid4()), title=title, section=section, creator_token=creator_token,
-                                votes=None, group='')
+                                votes=None, group=None)
 
     @staticmethod
     def _get_group_by_id(group_id: str, retro: RetrospectiveV2) -> Optional[GroupAttribute]:
