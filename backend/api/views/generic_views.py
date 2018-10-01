@@ -100,6 +100,35 @@ class GenericRetroIssueView(View):
         return method_to_call(class_to_use, request, *args, **kwargs)
 
 
+class GenericRetroGroupView(View):
+    def post(self, request: HttpRequest, *args, **kwargs) -> Any:
+        service_version = get_service_version(request)
+
+        class_name = type(self).__name__
+        this_method = inspect.currentframe().f_code.co_name
+        class_to_use, method_to_call = find_class_and_method_to_call(service_version, class_name, this_method)
+
+        return method_to_call(class_to_use, request, *args, **kwargs)
+
+    def put(self, request: HttpRequest, *args, **kwargs) -> Any:
+        service_version = get_service_version(request)
+
+        class_name = type(self).__name__
+        this_method = inspect.currentframe().f_code.co_name
+        class_to_use, method_to_call = find_class_and_method_to_call(service_version, class_name, this_method)
+
+        return method_to_call(class_to_use, request, *args, **kwargs)
+
+    def delete(self, request: HttpRequest, *args, **kwargs) -> Any:
+        service_version = get_service_version(request)
+
+        class_name = type(self).__name__
+        this_method = inspect.currentframe().f_code.co_name
+        class_to_use, method_to_call = find_class_and_method_to_call(service_version, class_name, this_method)
+
+        return method_to_call(class_to_use, request, *args, **kwargs)
+
+
 class VersionServiceView(View):
     @staticmethod
     def service():

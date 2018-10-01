@@ -7,6 +7,7 @@ from backend.api.models import Retrospective, RetroStep, IssueAttribute
 from .modelsV2 import RetroStepV2, RetrospectiveV2, GroupAttribute
 import importlib
 from typing import Optional, Union, List
+from pynamodb.models import Model
 
 
 charset_utf8 = 'UTF-8'
@@ -32,7 +33,7 @@ def retrospective_exists(original_function):
         retro: Retrospective = None
         try:
             retro = service.get_retro(retro_id_str)
-        except Retrospective.DoesNotExist:
+        except Model.DoesNotExist:
             return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
                                 charset=charset_utf8)
 

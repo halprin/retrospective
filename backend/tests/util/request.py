@@ -1,9 +1,10 @@
 from unittest.mock import MagicMock
+from django.http import HttpRequest
 import json
 
 
 def create_mock_request(request_body=None, token=None, api_version=None):
-    request = MagicMock()
+    request = MagicMock(spec=HttpRequest)
 
     if request_body is None:
         request.body = ''

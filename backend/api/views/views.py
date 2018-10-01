@@ -2,7 +2,7 @@ from typing import Union
 from django.http import HttpResponse, JsonResponse, HttpRequest
 from django.views import View
 import json
-from backend.api import token
+from ...api import token
 from backend.api.service import Service
 from backend.api.models import RetroStep, Retrospective, IssueAttribute
 from backend.api.validation import retrospective_exists, user_is_admin, user_is_valid, retro_on_step, issue_exists,\

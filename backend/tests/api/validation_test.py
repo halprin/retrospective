@@ -15,7 +15,7 @@ def original_function(*args, **kwargs):
 @patch('backend.api.validation._get_service', autospec=True)
 def test_retrospective_exists_negative(mock_service_function):
     mock_self_class = MagicMock()
-    mock_request = MagicMock()
+    mock_request = request.create_mock_request()
     mock_service_function.return_value.get_retro.side_effect = Retrospective.DoesNotExist
 
     retro_id = 'non-existent_retro_id'
@@ -29,7 +29,7 @@ def test_retrospective_exists_negative(mock_service_function):
 def test_retrospective_exists_positive(mock_service_function):
     mock_retro = retro.create_mock_retro()
     mock_self_class = MagicMock()
-    mock_request = MagicMock()
+    mock_request = request.create_mock_request()
     mock_service_function.return_value.get_retro.return_value = mock_retro
 
     passed_in_retro_id = 'some_retro_id'

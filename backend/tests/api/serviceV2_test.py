@@ -183,7 +183,7 @@ def test__create_issue():
     assert section == issue.section
     assert owner == issue.creator_token
     assert issue.votes is None
-    assert '' == issue.group
+    assert issue.group is None
 
 
 def test__get_group_by_id():
