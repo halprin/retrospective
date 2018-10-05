@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { RetrospectiveService } from '../retrospective.service'
+import { RetrospectiveServiceV2 } from '../retrospectiveV2.service'
 import { environment } from '../../environments/environment';
 import 'rxjs/add/observable/interval';
 import {Subscription} from "rxjs/Subscription";
@@ -16,7 +16,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   frontendEndpoint = environment.frontendEndpoint;
   private liveUpdater: Subscription;
 
-  constructor(private retroService: RetrospectiveService) { }
+  constructor(private retroService: RetrospectiveServiceV2) { }
 
   ngOnInit() {
     this.updateRetro();
@@ -54,7 +54,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   getWentWellIssues(): any {
     let goodIssues = [];
     for(let issue of this.retro.issues) {
-      if(issue.section == 'Went Well') {
+      if(issue.section === 'Went Well') {
         goodIssues.push(issue);
       }
     }
@@ -65,7 +65,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   getNeedsImprovementIssues(): any {
     let badIssues = [];
     for(let issue of this.retro.issues) {
-      if(issue.section == 'Needs Improvement') {
+      if(issue.section === 'Needs Improvement') {
         badIssues.push(issue);
       }
     }
@@ -94,6 +94,64 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
       this.actuallyVoteForIssue(issue)
     } else {
       this.actuallyUnvoteForIssue(issue)
+    }
+  }
+
+  addWentWellGroup(title: string): void {
+    this.retroService.addGroup(title, 'Went Well').subscribe();
+  }
+
+  addNeedsImprovementGroup(title: string): void {
+    this.retroService.addGroup(title, 'Needs Improvement').subscribe();
+  }
+
+  deleteGroup(group_id: string): void {
+    this.retroService.deleteGroup(group_id).subscribe();
+  }
+
+  getWentWellGroups(): any {
+    let goodGroups = [];
+    for(let group of this.retro.groups) {
+      if(group.section === 'Went Well') {
+        goodGroups.push(group);
+      }
+    }
+
+    return goodGroups;
+  }
+
+  getNeedsImprovementGroups(): any {
+    let badGroups = [];
+    for(let group of this.retro.groups) {
+      if(group.section === 'Needs Improvement') {
+        badGroups.push(group);
+      }
+    }
+
+    return badGroups;
+  }
+
+  groupOrUngroupIssue(issue_id: string, group_id: string): void {
+    if(group_id === 'ungroup') {
+      this.retroService.ungroupIssue(issue_id).subscribe();
+    } else {
+      this.retroService.groupIssue(issue_id, group_id).subscribe();
+    }
+  }
+
+  isIssueGroupedWithGroup(issue_id: string, group_id: string): boolean {
+    for(let issue of this.retro.issues) {
+      if(issue.id === issue_id) {
+        return (issue.group === group_id)
+      }
+    }
+  }
+
+  isIssueUngrouped(issue_id: string): boolean {
+    for(let issue of this.retro.issues) {
+      if(issue.id === issue_id) {
+        return (issue.group === null)
+      }
     }
   }
 

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse} from '@angular/common/http'
-import { RetrospectiveService } from '../retrospective.service'
+import { RetrospectiveServiceV2 } from '../retrospectiveV2.service'
 
 @Component({
   selector: 'app-start-retro',
@@ -12,7 +12,7 @@ export class StartRetroComponent implements OnInit {
 
   errorText = '';
 
-  constructor(private router: Router, private retroService: RetrospectiveService) { }
+  constructor(private router: Router, private retroService: RetrospectiveServiceV2) { }
 
   ngOnInit() {
   }
