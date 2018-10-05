@@ -16,7 +16,6 @@ class RetrospectiveConsumer(WebsocketConsumer):
         self.user_token = self.scope['subprotocols'][0]
         self.version = self.scope['subprotocols'][1]
 
-        # TODO: support version 2
         retro = self._get_service(self.version).get_retro(self.retro_id)
 
         if not token.token_is_valid(self.user_token, retro):
