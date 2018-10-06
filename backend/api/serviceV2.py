@@ -168,6 +168,10 @@ class ServiceV2(Service):
 
     @classmethod
     def delete_group(cls, group: GroupAttribute, retro: RetrospectiveV2):
+        for issue in retro.issues:
+            if issue.group == group.id:
+                cls.ungroup_issue(issue, retro)
+
         retro.groups.remove(group)
 
         retro.save()

@@ -331,9 +331,19 @@ def test_add_new_group(mock_send_retro_update):
 
 @patch('backend.api.service.Service._send_retro_update')
 def test_delete_group(mock_send_retro_update):
-    mock_group = retro.create_mock_group()
-    mock_retro = retro.create_mock_retroV2(groups=[mock_group])
+    mock_group1 = retro.create_mock_group(id='group1')
+    mock_group2 = retro.create_mock_group(id='group2')
+    mock_issue1 = retro.create_mock_issueV2(group=mock_group1.id)
+    mock_issue2 = retro.create_mock_issueV2()
+    mock_issue3 = retro.create_mock_issueV2(group=mock_group2.id)
+    mock_issue4 = retro.create_mock_issueV2(group=mock_group1.id)
+    mock_retro = retro.create_mock_retroV2(groups=[mock_group1, mock_group2], issues=[mock_issue1, mock_issue2, mock_issue3, mock_issue4])
 
-    ServiceV2.delete_group(mock_group, mock_retro)
+    before_group_number = len(mock_retro.groups)
 
-    assert mock_retro.groups is None or 0 == len(mock_retro.groups)
+    ServiceV2.delete_group(mock_group1, mock_retro)
+
+    assert before_group_number - 1 == len(mock_retro.groups)
+    assert mock_issue1.group is None
+    assert mock_issue4.group is None
+    assert mock_group2.id == mock_issue3.group
