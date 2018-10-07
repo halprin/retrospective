@@ -62,10 +62,32 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
     return goodIssues;
   }
 
+  getWentWellIssuesForGroup(group: string): any {
+    let goodIssues = [];
+    for(let issue of this.retro.issues) {
+      if(issue.section === 'Went Well' && issue.group === group) {
+        goodIssues.push(issue);
+      }
+    }
+
+    return goodIssues;
+  }
+
   getNeedsImprovementIssues(): any {
     let badIssues = [];
     for(let issue of this.retro.issues) {
       if(issue.section === 'Needs Improvement') {
+        badIssues.push(issue);
+      }
+    }
+
+    return badIssues;
+  }
+
+  getNeedsImprovementIssuesForGroup(group: string): any {
+    let badIssues = [];
+    for(let issue of this.retro.issues) {
+      if(issue.section === 'Needs Improvement' && issue.group === group) {
         badIssues.push(issue);
       }
     }
@@ -94,6 +116,14 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
       this.actuallyVoteForIssue(issue)
     } else {
       this.actuallyUnvoteForIssue(issue)
+    }
+  }
+
+  voteOrUnvoteForGroup(group: any, checkbox: HTMLInputElement): void {
+    if(checkbox.checked) {
+      this.actuallyVoteForGroup(group)
+    } else {
+      this.actuallyUnvoteForGroup(group)
     }
   }
 
@@ -157,27 +187,43 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
 
   private actuallyVoteForIssue(issue: any): void {
     let issue_id = issue.id;
-    this.simulateVoteForIssue(issue);
+    this.simulateVoteForIssueOrGroup(issue);
     this.retroService.voteForIssue(issue_id).subscribe(response => {}, error => {
-      this.simulateUnvoteForIssue(issue);
+      this.simulateUnvoteForIssueOrGroup(issue);
     });
   }
 
   private actuallyUnvoteForIssue(issue: any): void {
     let issue_id = issue.id;
-    this.simulateUnvoteForIssue(issue);
+    this.simulateUnvoteForIssueOrGroup(issue);
     this.retroService.unvoteForIssue(issue_id).subscribe(response => {}, error => {
-      this.simulateVoteForIssue(issue);
+      this.simulateVoteForIssueOrGroup(issue);
     });
   }
 
-  private simulateVoteForIssue(issue: any) {
-    this.votes--;
-    issue.votes = 1;
+  private actuallyVoteForGroup(group: any): void {
+    let group_id = group.id;
+    this.simulateVoteForIssueOrGroup(group);
+    this.retroService.voteForGroup(group_id).subscribe(response => {}, error => {
+      this.simulateUnvoteForIssueOrGroup(group);
+    });
   }
 
-  private simulateUnvoteForIssue(issue: any) {
+  private actuallyUnvoteForGroup(group: any): void {
+    let group_id = group.id;
+    this.simulateUnvoteForIssueOrGroup(group);
+    this.retroService.unvoteForGroup(group_id).subscribe(response => {}, error => {
+      this.simulateVoteForIssueOrGroup(group);
+    });
+  }
+
+  private simulateVoteForIssueOrGroup(issue_or_group: any) {
+    this.votes--;
+    issue_or_group.votes = 1;
+  }
+
+  private simulateUnvoteForIssueOrGroup(issue_or_group: any) {
     this.votes++;
-    issue.votes = 0;
+    issue_or_group.votes = 0;
   }
 }

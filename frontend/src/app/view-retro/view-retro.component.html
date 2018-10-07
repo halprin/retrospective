@@ -216,7 +216,17 @@
       <div class="card border-success mb-3">
         <h3 class="card-header">What went well</h3>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item break-word" *ngFor="let issue of getWentWellIssues()">{{issue.title}}</li>
+          <li class="list-group-item break-word" *ngFor="let group of getWentWellGroups()">
+            {{group.title}}
+            <ul>
+              <li class="list-group-item break-word" *ngFor="let issue of getWentWellIssuesForGroup(group.id)">
+                {{issue.title}}
+              </li>
+            </ul>
+          </li>
+          <li class="list-group-item break-word" *ngFor="let issue of getWentWellIssuesForGroup(null)">
+            {{issue.title}}
+          </li>
         </ul>
       </div>
     </div>
@@ -225,7 +235,27 @@
         <h3 class="card-header">What can be improved</h3>
         <h4 class="card-body">{{votes}} votes left</h4>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item" *ngFor="let issue of getNeedsImprovementIssues()">
+          <li class="list-group-item" *ngFor="let group of getNeedsImprovementGroups()">
+            <div class="container p-0">
+              <div class="row justify-content-between align-items-center">
+                <div class="col pr-0 break-word">{{group.title}}</div>
+                <div class="col-auto">
+                  <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" id="{{group.id}}" (click)="voteOrUnvoteForGroup(group, $event.target);" [checked]="group.votes == 1" [disabled]="votes == 0 && group.votes != 1"/>
+                    <label class="custom-control-label" for="{{group.id}}">&#x200A;</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ul class="no-top-border-first-li">
+              <li class="list-group-item break-word" *ngFor="let issue of getNeedsImprovementIssuesForGroup(group.id)">
+                {{issue.title}}
+              </li>
+            </ul>
+          </li>
+
+          <li class="list-group-item" *ngFor="let issue of getNeedsImprovementIssuesForGroup(null)">
             <div class="container p-0">
               <div class="row justify-content-between align-items-center">
                 <div class="col pr-0 break-word">{{issue.title}}</div>
@@ -251,7 +281,17 @@
       <div class="card border-success mb-3">
         <h3 class="card-header">What went well</h3>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item break-word" *ngFor="let issue of getWentWellIssues()">{{issue.title}}</li>
+          <li class="list-group-item break-word" *ngFor="let group of getWentWellGroups()">
+            {{group.title}}
+            <ul>
+              <li class="list-group-item break-word" *ngFor="let issue of getWentWellIssuesForGroup(group.id)">
+                {{issue.title}}
+              </li>
+            </ul>
+          </li>
+          <li class="list-group-item break-word" *ngFor="let issue of getWentWellIssuesForGroup(null)">
+            {{issue.title}}
+          </li>
         </ul>
       </div>
     </div>
@@ -259,7 +299,24 @@
       <div class="card border-warning mb-3">
         <h3 class="card-header">What can be improved</h3>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item" *ngFor="let issue of getNeedsImprovementIssues()">
+          <li class="list-group-item" *ngFor="let group of getNeedsImprovementGroups()">
+            <div class="container p-0">
+              <div class="row justify-content-between align-items-center">
+                <div class="col pr-0 break-word">{{group.title}}</div>
+                <div class="col-auto">
+                  {{group.votes}}
+                </div>
+              </div>
+            </div>
+
+            <ul class="no-top-border-first-li">
+              <li class="list-group-item break-word" *ngFor="let issue of getNeedsImprovementIssuesForGroup(group.id)">
+                {{issue.title}}
+              </li>
+            </ul>
+          </li>
+
+          <li class="list-group-item" *ngFor="let issue of getNeedsImprovementIssuesForGroup(null)">
             <div class="container p-0">
               <div class="row justify-content-between align-items-center">
                 <div class="col pr-0 break-word">{{issue.title}}</div>
