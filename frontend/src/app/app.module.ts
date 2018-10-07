@@ -4,11 +4,11 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { NavigationBarComponent } from './navigation-bar/navigation-bar.component';
-import { AppRoutingModule } from './/app-routing.module';
+import { AppRoutingModule } from './app-routing.module';
 import { StartRetroComponent } from './start-retro/start-retro.component';
 import { JoinRetroComponent } from './join-retro/join-retro.component';
 import { ViewRetroComponent } from './view-retro/view-retro.component';
-import { RetrospectiveService } from './retrospective.service';
+import { RetrospectiveServiceV2 } from './retrospectiveV2.service';
 
 
 @NgModule({
@@ -22,9 +22,9 @@ import { RetrospectiveService } from './retrospective.service';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
   ],
-  providers: [RetrospectiveService],
+  providers: [RetrospectiveServiceV2],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

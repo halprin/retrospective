@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -89,3 +90,7 @@ USE_TZ = True
 CORS_ORIGIN_ALLOW_ALL = (ENVIRONMENT == 'dev' or ENVIRONMENT == 'test')
 
 CORS_ORIGIN_WHITELIST = [os.getenv('ALLOWED_HOST', 'localhost:4200')]
+
+CORS_ALLOW_HEADERS = default_headers + (
+    'Api-Version',
+)
