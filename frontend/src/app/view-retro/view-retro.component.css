@@ -10,3 +10,7 @@
 .break-word {
   word-break: break-word;
 }
+
+.no-top-border-first-li li:first-child {
+  border-top-width: 0px;
+}

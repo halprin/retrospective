@@ -1,6 +1,6 @@
+import importlib
 from channels.generic.websocket import WebsocketConsumer
 from asgiref.sync import async_to_sync
-from backend.api import service
 from backend.api import token
 import json
 import pickle
@@ -8,14 +8,15 @@ import pickle
 
 class RetrospectiveConsumer(WebsocketConsumer):
     def connect(self):
-        if 'subprotocols' not in self.scope or len(self.scope['subprotocols']) < 1:
+        if 'subprotocols' not in self.scope or len(self.scope['subprotocols']) < 2:
             # do not accept the connection
             return
 
         self.retro_id = str(self.scope['url_route']['kwargs']['retro_id'])
         self.user_token = self.scope['subprotocols'][0]
+        self.version = self.scope['subprotocols'][1]
 
-        retro = service.get_retro(self.retro_id)
+        retro = self._get_service(self.version).get_retro(self.retro_id)
 
         if not token.token_is_valid(self.user_token, retro):
             # do not accept the connection
@@ -35,6 +36,15 @@ class RetrospectiveConsumer(WebsocketConsumer):
     def disburse_update(self, event):
         retro = pickle.loads(event['retro'])
 
-        sanitized_retro = service.sanitize_retro_for_user_and_step(retro, self.user_token)
+        sanitized_retro = self._get_service(self.version).sanitize_retro_for_user_and_step(retro, self.user_token)
 
         self.send(text_data=json.dumps(sanitized_retro))
+
+    @staticmethod
+    def _get_service(version: str):
+        service_version = 'V' + version if version != '1' else ''
+
+        module = importlib.import_module('..service{}'.format(service_version), __name__)
+        class_to_use = getattr(module, 'Service{}'.format(service_version))
+
+        return class_to_use
