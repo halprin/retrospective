@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional
+from typing import Optional, List
 from backend.api.modelsV2 import RetrospectiveV2, RetroStepV2, IssueAttributeV2, GroupAttribute
 from backend.api.service import Service
 
@@ -67,7 +67,17 @@ class ServiceV2(Service):
     @classmethod
     def _sanitize_group_list(cls, retro: RetrospectiveV2, user_token: str):
         retro_step: RetroStepV2 = cls._get_retro_step(retro.current_step)
-        return [cls._sanitize_group(group, retro_step, user_token) for group in retro.groups]
+
+        sanitized_groups: List[dict] = [cls._sanitize_group(group, retro_step, user_token) for group in retro.groups]
+
+        if cls._is_results_step(retro_step):
+            sanitized_groups.sort(key=cls._get_group_votes, reverse=True)
+
+        return sanitized_groups
+
+    @staticmethod
+    def _get_group_votes(group: dict) -> int:
+        return group['votes']
 
     @classmethod
     def sanitize_retro_for_user_and_step(cls, retro: RetrospectiveV2, user_token: str) -> dict:

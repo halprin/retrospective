@@ -150,6 +150,22 @@ def test__sanitize_group_list():
     assert size == len(sanitized_groups)
 
 
+def test__sanitize_group_list_order_by_vote():
+    size = 4
+
+    groups = [retro.create_mock_group(id='id' + str(index)) for index in range(size)]
+    groups[0].votes = ['1', '2']
+    groups[2].votes = ['1', '2', '3']
+    most_votes_id = groups[2].id
+    second_most_votes_id = groups[0].id
+    mock_retro = retro.create_mock_retroV2(groups=groups, current_step=RetroStepV2.RESULTS)
+
+    sanitized_groups = ServiceV2._sanitize_group_list(mock_retro, 'user-token')
+
+    assert most_votes_id == sanitized_groups[0]['id']
+    assert second_most_votes_id == sanitized_groups[1]['id']
+
+
 def test_sanitize_retro_for_user_and_step():
     size = 4
     mock_user_token = 'user-token'
