@@ -73,3 +73,24 @@ data "aws_iam_policy_document" "letsencrypt_authorize" {
     resources = ["*"]
   }
 }
+
+resource "aws_iam_policy" "change_t_unlimited" {
+  name        = "ChangeTUnlimited-${var.environment}"
+  description = "Allows the changing of the T2 or T3 Unlimited setting"
+
+  policy = "${data.aws_iam_policy_document.change_t_unlimited.json}"
+}
+
+data "aws_iam_policy_document" "change_t_unlimited" {
+  statement {
+    sid    = "InstanceCreditPolicy"
+    effect = "Allow"
+
+    actions = [
+      "ec2:ModifyInstanceCreditSpecification",
+      "ec2:DescribeInstanceCreditSpecifications",
+    ]
+
+    resources = ["*"]
+  }
+}
