@@ -1,4 +1,4 @@
-import { Injectable, NgZone } from '@angular/core';
+import { NgZone } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/do';
 import 'rxjs/add/operator/map';
@@ -6,24 +6,27 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
 import { Observer } from "rxjs/Observer";
 
-@Injectable()
 export class RetrospectiveService {
 
   private host = environment.backendEndpoint;
-  private httpUrl = 'https://' + this.host + '/api/retro';
+  protected httpUrl = 'https://' + this.host + '/api/retro';
   private wsUrl = 'wss://' + this.host + '/api/ws';
 
   private liveUpdateSocket: WebSocket;
 
-  private uuid = '';
-  private token = '';
+  protected uuid = '';
+  protected token = '';
 
-  constructor(private http: HttpClient, private zone: NgZone) { }
+  constructor(protected http: HttpClient, protected zone: NgZone, protected version: string = '1') { }
 
   startRetrospective(retroName: string, userName: string): Observable<any> {
     return this.http.post<any>(this.httpUrl, {
       retroName: retroName,
       adminName: userName
+    }, {
+      headers: {
+        'Api-Version': this.version
+      }
     })
     .do(json => {
       this.uuid = json.retroId;
@@ -36,6 +39,10 @@ export class RetrospectiveService {
     this.uuid = retroId;
     return this.http.post<any>(this.httpUrl + '/' + this.uuid + '/user', {
       name: userName
+    }, {
+      headers: {
+        'Api-Version': this.version
+      }
     })
     .do(json => {
       this.token = json.token;
@@ -46,14 +53,15 @@ export class RetrospectiveService {
   getRetrospective(): Observable<any> {
     return this.http.get<any>(this.httpUrl + '/' + this.uuid, {
       headers: {
-        Authorization: 'Bearer ' + this.token
+        Authorization: 'Bearer ' + this.token,
+        'Api-Version': this.version
       }
     });
   }
 
   startLiveUpdateRetrospective(): Observable<MessageEvent> {
     if(!this.liveUpdateSocket || this.liveUpdateSocket.readyState !== WebSocket.OPEN) {
-      this.liveUpdateSocket = new WebSocket(this.wsUrl + '/' + this.uuid, this.token);
+      this.liveUpdateSocket = new WebSocket(this.wsUrl + '/' + this.uuid, [this.token, this.version]);
     }
 
     let liveUpdaterObservable = Observable.create(
@@ -75,7 +83,8 @@ export class RetrospectiveService {
       ready: true
     }, {
       headers: {
-        Authorization: 'Bearer ' + this.token
+        Authorization: 'Bearer ' + this.token,
+        'Api-Version': this.version
       }
     });
   }
@@ -85,7 +94,8 @@ export class RetrospectiveService {
       ready: false
     }, {
       headers: {
-        Authorization: 'Bearer ' + this.token
+        Authorization: 'Bearer ' + this.token,
+        'Api-Version': this.version
       }
     });
   }
@@ -96,7 +106,8 @@ export class RetrospectiveService {
       section: section
     }, {
       headers: {
-        Authorization: 'Bearer ' + this.token
+        Authorization: 'Bearer ' + this.token,
+        'Api-Version': this.version
       }
     })
     .map(json => json.id);
@@ -105,7 +116,8 @@ export class RetrospectiveService {
   deleteIssue(issue_id: string): Observable<any> {
     return this.http.delete<any>(this.httpUrl + '/' + this.uuid + '/issue/' + issue_id, {
       headers: {
-        Authorization: 'Bearer ' + this.token
+        Authorization: 'Bearer ' + this.token,
+        'Api-Version': this.version
       }
     });
   }
@@ -115,7 +127,8 @@ export class RetrospectiveService {
       direction: 'previous'
     }, {
       headers: {
-        Authorization: 'Bearer ' + this.token
+        Authorization: 'Bearer ' + this.token,
+        'Api-Version': this.version
       }
     })
     .map(json => json.newStep);
@@ -126,7 +139,8 @@ export class RetrospectiveService {
       direction: 'next'
     }, {
       headers: {
-        Authorization: 'Bearer ' + this.token
+        Authorization: 'Bearer ' + this.token,
+        'Api-Version': this.version
       }
     })
     .map(json => json.newStep);
@@ -137,7 +151,8 @@ export class RetrospectiveService {
       vote: true
     }, {
       headers: {
-        Authorization: 'Bearer ' + this.token
+        Authorization: 'Bearer ' + this.token,
+        'Api-Version': this.version
       }
     });
   }
@@ -147,7 +162,8 @@ export class RetrospectiveService {
       vote: false
     }, {
       headers: {
-        Authorization: 'Bearer ' + this.token
+        Authorization: 'Bearer ' + this.token,
+        'Api-Version': this.version
       }
     });
   }

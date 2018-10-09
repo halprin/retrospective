@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { RetrospectiveService } from '../retrospective.service'
+import { RetrospectiveServiceV2 } from '../retrospectiveV2.service'
 import { environment } from '../../environments/environment';
 import 'rxjs/add/observable/interval';
 import {Subscription} from "rxjs/Subscription";
@@ -16,7 +16,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   frontendEndpoint = environment.frontendEndpoint;
   private liveUpdater: Subscription;
 
-  constructor(private retroService: RetrospectiveService) { }
+  constructor(private retroService: RetrospectiveServiceV2) { }
 
   ngOnInit() {
     this.updateRetro();
@@ -54,7 +54,18 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   getWentWellIssues(): any {
     let goodIssues = [];
     for(let issue of this.retro.issues) {
-      if(issue.section == 'Went Well') {
+      if(issue.section === 'Went Well') {
+        goodIssues.push(issue);
+      }
+    }
+
+    return goodIssues;
+  }
+
+  getWentWellIssuesForGroup(group: string): any {
+    let goodIssues = [];
+    for(let issue of this.retro.issues) {
+      if(issue.section === 'Went Well' && issue.group === group) {
         goodIssues.push(issue);
       }
     }
@@ -65,7 +76,18 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   getNeedsImprovementIssues(): any {
     let badIssues = [];
     for(let issue of this.retro.issues) {
-      if(issue.section == 'Needs Improvement') {
+      if(issue.section === 'Needs Improvement') {
+        badIssues.push(issue);
+      }
+    }
+
+    return badIssues;
+  }
+
+  getNeedsImprovementIssuesForGroup(group: string): any {
+    let badIssues = [];
+    for(let issue of this.retro.issues) {
+      if(issue.section === 'Needs Improvement' && issue.group === group) {
         badIssues.push(issue);
       }
     }
@@ -97,29 +119,111 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
     }
   }
 
+  voteOrUnvoteForGroup(group: any, checkbox: HTMLInputElement): void {
+    if(checkbox.checked) {
+      this.actuallyVoteForGroup(group)
+    } else {
+      this.actuallyUnvoteForGroup(group)
+    }
+  }
+
+  addWentWellGroup(title: string): void {
+    this.retroService.addGroup(title, 'Went Well').subscribe();
+  }
+
+  addNeedsImprovementGroup(title: string): void {
+    this.retroService.addGroup(title, 'Needs Improvement').subscribe();
+  }
+
+  deleteGroup(group_id: string): void {
+    this.retroService.deleteGroup(group_id).subscribe();
+  }
+
+  getWentWellGroups(): any {
+    let goodGroups = [];
+    for(let group of this.retro.groups) {
+      if(group.section === 'Went Well') {
+        goodGroups.push(group);
+      }
+    }
+
+    return goodGroups;
+  }
+
+  getNeedsImprovementGroups(): any {
+    let badGroups = [];
+    for(let group of this.retro.groups) {
+      if(group.section === 'Needs Improvement') {
+        badGroups.push(group);
+      }
+    }
+
+    return badGroups;
+  }
+
+  groupOrUngroupIssue(issue_id: string, group_id: string): void {
+    if(group_id === 'ungroup') {
+      this.retroService.ungroupIssue(issue_id).subscribe();
+    } else {
+      this.retroService.groupIssue(issue_id, group_id).subscribe();
+    }
+  }
+
+  isIssueGroupedWithGroup(issue_id: string, group_id: string): boolean {
+    for(let issue of this.retro.issues) {
+      if(issue.id === issue_id) {
+        return (issue.group === group_id)
+      }
+    }
+  }
+
+  isIssueUngrouped(issue_id: string): boolean {
+    for(let issue of this.retro.issues) {
+      if(issue.id === issue_id) {
+        return (issue.group === null)
+      }
+    }
+  }
+
   private actuallyVoteForIssue(issue: any): void {
     let issue_id = issue.id;
-    this.simulateVoteForIssue(issue);
+    this.simulateVoteForIssueOrGroup(issue);
     this.retroService.voteForIssue(issue_id).subscribe(response => {}, error => {
-      this.simulateUnvoteForIssue(issue);
+      this.simulateUnvoteForIssueOrGroup(issue);
     });
   }
 
   private actuallyUnvoteForIssue(issue: any): void {
     let issue_id = issue.id;
-    this.simulateUnvoteForIssue(issue);
+    this.simulateUnvoteForIssueOrGroup(issue);
     this.retroService.unvoteForIssue(issue_id).subscribe(response => {}, error => {
-      this.simulateVoteForIssue(issue);
+      this.simulateVoteForIssueOrGroup(issue);
     });
   }
 
-  private simulateVoteForIssue(issue: any) {
-    this.votes--;
-    issue.votes = 1;
+  private actuallyVoteForGroup(group: any): void {
+    let group_id = group.id;
+    this.simulateVoteForIssueOrGroup(group);
+    this.retroService.voteForGroup(group_id).subscribe(response => {}, error => {
+      this.simulateUnvoteForIssueOrGroup(group);
+    });
   }
 
-  private simulateUnvoteForIssue(issue: any) {
+  private actuallyUnvoteForGroup(group: any): void {
+    let group_id = group.id;
+    this.simulateUnvoteForIssueOrGroup(group);
+    this.retroService.unvoteForGroup(group_id).subscribe(response => {}, error => {
+      this.simulateVoteForIssueOrGroup(group);
+    });
+  }
+
+  private simulateVoteForIssueOrGroup(issue_or_group: any) {
+    this.votes--;
+    issue_or_group.votes = 1;
+  }
+
+  private simulateUnvoteForIssueOrGroup(issue_or_group: any) {
     this.votes++;
-    issue.votes = 0;
+    issue_or_group.votes = 0;
   }
 }

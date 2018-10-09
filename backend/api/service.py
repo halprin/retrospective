@@ -7,173 +7,206 @@ from asgiref.sync import async_to_sync
 import pickle
 
 
-def create_retro(retro_name: str, admin_name: str) -> Retrospective:
-    new_retro: Retrospective = Retrospective(str(uuid.uuid4()))
+class Service:
+    @classmethod
+    def create_retro(cls, retro_name: str, admin_name: str) -> Retrospective:
+        new_retro: Retrospective = Retrospective(str(uuid.uuid4()))
 
-    new_retro.name = retro_name
-    new_retro.current_step = RetroStep.ADDING_ISSUES.value
-    new_retro.participants = [_create_participant(admin_name, is_admin=True)]
-    new_retro.issues = []
+        new_retro.name = retro_name
+        new_retro.current_step = RetroStep.ADDING_ISSUES.value
+        new_retro.participants = [cls._create_participant(admin_name, is_admin=True)]
+        new_retro.issues = []
+        new_retro.version = '1'
 
-    new_retro.save()
+        new_retro.save()
 
-    return new_retro
+        return new_retro
 
+    @staticmethod
+    def get_retro(retro_id: str) -> Retrospective:
+        return Retrospective.get(retro_id)
 
-def get_retro(retro_id: str) -> Retrospective:
-    return Retrospective.get(retro_id)
+    @staticmethod
+    def _reset_ready_statuses(retro: Retrospective):
+        for participant in retro.participants:
+            participant.ready = False
 
+    @staticmethod
+    def _get_retro_step(step: str) -> RetroStep:
+        return RetroStep(step)
 
-def _reset_ready_statuses(retro: Retrospective):
-    for participant in retro.participants:
-        participant.ready = False
+    @classmethod
+    def move_retro(cls, retro: Retrospective, direction: str) -> str:
+        current_step = cls._get_retro_step(retro.current_step)
 
+        if direction == 'next':
+            retro.current_step = current_step.next().value
+        elif direction == 'previous':
+            retro.current_step = current_step.previous().value
+        else:
+            raise ValueError('{} is not a valid direction'.format(direction))
 
-def move_retro(retro: Retrospective, direction: str) -> str:
-    current_step: RetroStep = RetroStep(retro.current_step)
+        cls._reset_ready_statuses(retro)
 
-    if direction == 'next':
-        retro.current_step = current_step.next().value
-    elif direction == 'previous':
-        retro.current_step = current_step.previous().value
-    else:
-        raise ValueError('{} is not a valid direction'.format(direction))
+        retro.save()
 
-    _reset_ready_statuses(retro)
+        cls._send_retro_update(retro)
 
-    retro.save()
+        return retro.current_step
 
-    _send_retro_update(retro)
+    @staticmethod
+    def _sanitize_participant_list(retro: Retrospective, user_token: str) -> List[dict]:
+        is_admin: bool = token.token_is_admin(user_token, retro)
 
-    return retro.current_step
+        if is_admin:
+            return [{'name': participant.name, 'ready': participant.ready} for participant in retro.participants]
+        else:
+            return [{'name': participant.name} for participant in retro.participants]
 
+    @staticmethod
+    def _get_issue_votes(issue: dict) -> int:
+        return issue['votes']
 
-def _sanitize_participant_list(retro: Retrospective, user_token: str) -> List[dict]:
-    is_admin: bool = token.token_is_admin(user_token, retro)
-
-    if is_admin:
-        return [{'name': participant.name, 'ready': participant.ready} for participant in retro.participants]
-    else:
-        return [{'name': participant.name} for participant in retro.participants]
-
-
-def _sanitize_issue_list(retro: Retrospective, user_token: str) -> List[dict]:
-    current_step: RetroStep = RetroStep(retro.current_step)
-
-    sanitized_issues: List[dict] = []
-
-    for issue in retro.issues:
+    @classmethod
+    def _sanitize_issue(cls, issue: IssueAttribute, current_step: RetroStep, user_token: str) -> dict:
         sanitized_issue: dict = {}
-        if issue.creator_token == user_token or current_step != RetroStep.ADDING_ISSUES:
+
+        if issue.creator_token == user_token or not cls._is_adding_issues_step(current_step):
             sanitized_issue['id'] = issue.id
             sanitized_issue['title'] = issue.title
         sanitized_issue['section'] = issue.section
-        if current_step == RetroStep.RESULTS:
+        if cls._is_results_step(current_step):
             sanitized_issue['votes'] = len(issue.votes) if issue.votes is not None else 0
-        elif current_step == RetroStep.VOTING:
+        elif cls._is_voting_step(current_step):
             sanitized_issue['votes'] = len(
                 [voter for voter in issue.votes if voter == user_token]) if issue.votes is not None else 0
-        sanitized_issues.append(sanitized_issue)
 
-    return sanitized_issues
+        return sanitized_issue
 
+    @staticmethod
+    def _is_adding_issues_step(current_step: RetroStep) -> bool:
+        return current_step is RetroStep.ADDING_ISSUES
 
-def _construct_yourself_info(retro: Retrospective, user_token: str) -> dict:
-    yourself: ParticipantAttribute = token.get_participant(user_token, retro)
-    return {
-        'name': yourself.name,
-        'ready': yourself.ready,
-        'admin': yourself.admin
-    }
+    @staticmethod
+    def _is_voting_step(current_step: RetroStep) -> bool:
+        return current_step is RetroStep.VOTING
 
+    @staticmethod
+    def _is_results_step(current_step: RetroStep) -> bool:
+        return current_step is RetroStep.RESULTS
 
-def sanitize_retro_for_user_and_step(retro: Retrospective, user_token: str) -> dict:
-    sanitized_retro = {
-        'id': retro.id,
-        'name': retro.name,
-        'currentStep': retro.current_step,
-        'participants': _sanitize_participant_list(retro, user_token),
-        'issues': _sanitize_issue_list(retro, user_token),
-        'yourself': _construct_yourself_info(retro, user_token)
-    }
+    @classmethod
+    def _sanitize_issue_list(cls, retro: Retrospective, user_token: str) -> List[dict]:
+        current_step = cls._get_retro_step(retro.current_step)
 
-    return sanitized_retro
+        sanitized_issues: List[dict] = []
 
+        for issue in retro.issues:
+            sanitized_issues.append(cls._sanitize_issue(issue, current_step, user_token))
 
-def _create_participant(name: str, is_admin: bool=False) -> ParticipantAttribute:
-    return ParticipantAttribute(name=name, ready=False, admin=is_admin, token=token.generate_token())
+        if cls._is_results_step(current_step):
+            sanitized_issues.sort(key=cls._get_issue_votes, reverse=True)
 
+        return sanitized_issues
 
-def add_participant(name: str, retro: Retrospective) -> str:
-    new_participant: ParticipantAttribute = _create_participant(name)
+    @staticmethod
+    def _construct_yourself_info(retro: Retrospective, user_token: str) -> dict:
+        yourself: ParticipantAttribute = token.get_participant(user_token, retro)
+        return {
+            'name': yourself.name,
+            'ready': yourself.ready,
+            'admin': yourself.admin
+        }
 
-    retro.participants.append(new_participant)
-    retro.save()
+    @classmethod
+    def sanitize_retro_for_user_and_step(cls, retro: Retrospective, user_token: str) -> dict:
+        sanitized_retro = {
+            'id': retro.id,
+            'name': retro.name,
+            'currentStep': retro.current_step,
+            'participants': cls._sanitize_participant_list(retro, user_token),
+            'issues': cls._sanitize_issue_list(retro, user_token),
+            'yourself': cls._construct_yourself_info(retro, user_token)
+        }
 
-    _send_retro_update(retro)
+        return sanitized_retro
 
-    return new_participant.token
+    @staticmethod
+    def _create_participant(name: str, is_admin: bool=False) -> ParticipantAttribute:
+        return ParticipantAttribute(name=name, ready=False, admin=is_admin, token=token.generate_token())
 
+    @classmethod
+    def add_participant(cls, name: str, retro: Retrospective) -> str:
+        new_participant: ParticipantAttribute = cls._create_participant(name)
 
-def mark_user_as_ready(user_token: str, is_ready: bool, retro: Retrospective):
-    for participant in retro.participants:
-        if participant.token == user_token:
-            participant.ready = is_ready
-            break
+        retro.participants.append(new_participant)
+        retro.save()
 
-    retro.save()
+        cls._send_retro_update(retro)
 
-    _send_retro_update(retro)
+        return new_participant.token
 
+    @classmethod
+    def mark_user_as_ready(cls, user_token: str, is_ready: bool, retro: Retrospective):
+        for participant in retro.participants:
+            if participant.token == user_token:
+                participant.ready = is_ready
+                break
 
-def _create_issue(title: str, section: str, creator_token: str) -> IssueAttribute:
-    return IssueAttribute(id=str(uuid.uuid4()), title=title, section=section, creator_token=creator_token, votes=None)
+        retro.save()
 
+        cls._send_retro_update(retro)
 
-def add_new_issue(title: str, section: str, user_token: str, retro: Retrospective) -> str:
-    new_issue: IssueAttribute = _create_issue(title, section, creator_token=user_token)
+    @staticmethod
+    def _create_issue(title: str, section: str, creator_token: str) -> IssueAttribute:
+        return IssueAttribute(id=str(uuid.uuid4()), title=title, section=section, creator_token=creator_token,
+                              votes=None)
 
-    retro.issues.append(new_issue)
-    retro.save()
+    @classmethod
+    def add_new_issue(cls, title: str, section: str, user_token: str, retro: Retrospective) -> str:
+        new_issue = cls._create_issue(title, section, creator_token=user_token)
 
-    _send_retro_update(retro)
+        retro.issues.append(new_issue)
+        retro.save()
 
-    return new_issue.id
+        cls._send_retro_update(retro)
 
+        return new_issue.id
 
-def vote_for_issue(issue: IssueAttribute, user_token: str, retro: Retrospective):
-    if issue.votes is None:
-        issue.votes: set = set()
-    issue.votes.add(user_token)
+    @classmethod
+    def vote_for_issue(cls, issue: IssueAttribute, user_token: str, retro: Retrospective):
+        if issue.votes is None:
+            issue.votes: set = set()
+        issue.votes.add(user_token)
 
-    retro.save()
+        retro.save()
 
-    _send_retro_update(retro)
+        cls._send_retro_update(retro)
 
+    @classmethod
+    def unvote_for_issue(cls, issue: IssueAttribute, user_token: str, retro: Retrospective):
+        if issue.votes is None:
+            return
+        issue.votes.discard(user_token)
 
-def unvote_for_issue(issue: IssueAttribute, user_token: str, retro: Retrospective):
-    if issue.votes is None:
-        return
-    issue.votes.discard(user_token)
+        if len(issue.votes) == 0:
+            issue.votes = None
 
-    if len(issue.votes) == 0:
-        issue.votes = None
+        retro.save()
 
-    retro.save()
+        cls._send_retro_update(retro)
 
-    _send_retro_update(retro)
+    @classmethod
+    def delete_issue(cls, issue: IssueAttribute, retro: Retrospective):
+        retro.issues.remove(issue)
 
+        retro.save()
 
-def delete_issue(issue: IssueAttribute, retro: Retrospective):
-    retro.issues.remove(issue)
+        cls._send_retro_update(retro)
 
-    retro.save()
-
-    _send_retro_update(retro)
-
-
-def _send_retro_update(retro: Retrospective):
-    async_to_sync(get_channel_layer().group_send)(retro.id, {
-        'type': 'disburse.update',
-        'retro': pickle.dumps(retro)
-    })
+    @staticmethod
+    def _send_retro_update(retro: Retrospective):
+        async_to_sync(get_channel_layer().group_send)(retro.id, {
+            'type': 'disburse.update',
+            'retro': pickle.dumps(retro)
+        })
