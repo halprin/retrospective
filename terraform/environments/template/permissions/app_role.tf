@@ -34,6 +34,11 @@ resource "aws_iam_role_policy_attachment" "application_role_to_letsencrypt_polic
   policy_arn = "${aws_iam_policy.letsencrypt_authorize.arn}"
 }
 
+resource "aws_iam_role_policy_attachment" "application_role_to_t_unlimited_policy" {
+  role       = "${aws_iam_role.application_role.name}"
+  policy_arn = "${aws_iam_policy.change_t_unlimited.arn}"
+}
+
 data "aws_iam_policy" "AWSElasticBeanstalkWebTier" {
   arn = "arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier"
 }
