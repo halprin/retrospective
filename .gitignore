@@ -102,3 +102,7 @@ ENV/
 
 .idea/
 .terraform/
+
+.serverless/
+node_modules/
+package-lock.json
