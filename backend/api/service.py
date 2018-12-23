@@ -2,8 +2,6 @@ from typing import List
 from backend.api.models import Retrospective, ParticipantAttribute, IssueAttribute, RetroStep
 import uuid
 from backend.api import token
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 import pickle
 
 

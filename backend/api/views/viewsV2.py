@@ -1,9 +1,8 @@
-from django.http import HttpResponse, HttpRequest, JsonResponse
 import json
 from typing import Union
 from . import views
 from .views import RetroView, RetroUserView, RetroIssueView
-from .generic_views import VersionServiceView
+from .generic.utils import VersionServiceView, Request
 from ..serviceV2 import ServiceV2
 from ..modelsV2 import RetroStepV2, RetrospectiveV2, IssueAttributeV2, GroupAttribute
 from ...api.validation import retrospective_exists, user_is_valid, retro_on_step, issue_exists,\
@@ -36,8 +35,7 @@ class RetroIssueViewV2(Version2ServiceView, RetroIssueView):
     @retrospective_api_is_correct
     @user_is_valid
     @issue_exists
-    def put(self, request: HttpRequest, retro: RetrospectiveV2 = None, issue: IssueAttributeV2 = None, *args,
-            **kwargs) -> HttpResponse:
+    def put(self, request: Request, retro: RetrospectiveV2 = None, issue: IssueAttributeV2 = None):
 
         request_body: dict = json.loads(request.body)
         vote_for: bool = request_body.get('vote')
@@ -50,8 +48,7 @@ class RetroIssueViewV2(Version2ServiceView, RetroIssueView):
 
     @retro_on_step(RetroStepV2.GROUPING, no_group_issue_retro_wrong_step)
     @group_exists
-    def _group_put(self, issue: IssueAttributeV2, retro: RetrospectiveV2 = None, group: GroupAttribute = None, *args,
-                   **kwargs) -> HttpResponse:
+    def _group_put(self, issue: IssueAttributeV2, retro: RetrospectiveV2 = None, group: GroupAttribute = None):
 
         if group is not None:
             self.service().group_issue(issue, group, retro)
@@ -66,7 +63,7 @@ class RetroGroupViewV2(Version2ServiceView):
     @retrospective_api_is_correct
     @user_is_valid
     @retro_on_step(RetroStepV2.GROUPING, no_create_group_retro_wrong_step)
-    def post(self, request: HttpRequest, retro: RetrospectiveV2 = None, *args, **kwargs) -> JsonResponse:
+    def post(self, request: Request, retro: RetrospectiveV2 = None):
         request_body: dict = json.loads(request.body)
         group_title: str = request_body['title']
         group_section: str = request_body['section']
@@ -84,8 +81,7 @@ class RetroGroupViewV2(Version2ServiceView):
     @user_is_valid
     @retro_on_step(RetroStepV2.VOTING, no_vote_group_retro_wrong_step)
     @group_exists
-    def put(self, request: HttpRequest, retro: RetrospectiveV2 = None, group: GroupAttribute = None, *args,
-            **kwargs) -> HttpResponse:
+    def put(self, request: Request, retro: RetrospectiveV2 = None, group: GroupAttribute = None):
 
         user_token: str = token.get_token_from_request(request)
 
@@ -104,8 +100,7 @@ class RetroGroupViewV2(Version2ServiceView):
     @user_is_valid
     @retro_on_step(RetroStepV2.GROUPING, no_delete_group_retro_wrong_step)
     @group_exists
-    def delete(self, request: HttpRequest, retro: RetrospectiveV2 = None, group: GroupAttribute = None, *args,
-               **kwargs) -> HttpResponse:
+    def delete(self, request: Request, retro: RetrospectiveV2 = None, group: GroupAttribute = None):
         self.service().delete_group(group, retro)
 
         return HttpResponse('', status=204, content_type=views.content_type_text_plain, charset=views.charset_utf8)

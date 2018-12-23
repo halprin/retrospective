@@ -1,13 +1,13 @@
 import uuid
 from functools import wraps
 from typing import Iterator
-from django.http import HttpResponse, HttpRequest
 from backend.api import token
 from backend.api.models import Retrospective, RetroStep, IssueAttribute
 from .modelsV2 import RetroStepV2, RetrospectiveV2, GroupAttribute
 import importlib
 from typing import Optional, Union, List
 from pynamodb.models import Model
+from .views.generic.utils import Request
 
 
 charset_utf8 = 'UTF-8'
@@ -181,11 +181,11 @@ def _find_issue(issue_id: str, retro: Retrospective) -> Optional[IssueAttribute]
         return None
 
 
-def _get_api_version(request: HttpRequest) -> str:
-    return request.META.get('HTTP_API_VERSION', '1')
+def _get_api_version(request: Request) -> str:
+    return request.headers.get('Api-Version', '1')
 
 
-def _get_service_version(request: HttpRequest) -> str:
+def _get_service_version(request: Request) -> str:
     api_version = _get_api_version(request)
 
     service_version = 'V' + api_version if api_version != '1' else ''
@@ -200,7 +200,7 @@ def _find_service_class_to_use(service_version: str):
     return class_to_use
 
 
-def _get_service(request: HttpRequest):
+def _get_service(request: Request):
     service_version = _get_service_version(request)
 
     return _find_service_class_to_use(service_version)

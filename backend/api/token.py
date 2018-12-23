@@ -1,15 +1,15 @@
 import uuid
 from typing import Iterator, Optional
-from django.http import HttpRequest
 from backend.api.models import IssueAttribute, Retrospective, ParticipantAttribute
+from .views.generic.utils import Request
 
 
 def generate_token() -> str:
     return str(uuid.uuid4())
 
 
-def get_token_from_request(request: HttpRequest) -> str:
-    return request.META.get('HTTP_AUTHORIZATION', '')[len('Bearer '):]
+def get_token_from_request(request: Request) -> str:
+    return request.headers.get('Authorization', '')[len('Bearer '):]
 
 
 def issue_owned_by_participant(issue: IssueAttribute, token: str) -> bool:
