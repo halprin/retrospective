@@ -58,7 +58,7 @@ class RetroView(Version1ServiceView):
     @retrospective_exists
     @retrospective_api_is_correct
     @user_is_valid
-    def get(self, request: Request, retro: Retrospective=None):
+    def get(self, request: Request, retro: Retrospective = None) -> Response:
         user_token: str = token.get_token_from_request(request)
         response_body: dict = self.service().sanitize_retro_for_user_and_step(retro, user_token)
 

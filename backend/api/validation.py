@@ -7,7 +7,7 @@ from .modelsV2 import RetroStepV2, RetrospectiveV2, GroupAttribute
 import importlib
 from typing import Optional, Union, List
 from pynamodb.models import Model
-from .views.generic.utils import Request
+from .views.generic.utils import Request, Response
 
 
 charset_utf8 = 'UTF-8'
@@ -24,18 +24,15 @@ incorrect_api_version = 'Using incorrect API version.  Utilizing API version {} 
 def retrospective_exists(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        retro_id: uuid = kwargs['retro_id']
-        retro_id_str: str = str(retro_id)
-
-        request: HttpRequest = next(arg for arg in args if isinstance(arg, HttpRequest))
+        request: Request = next(arg for arg in args if isinstance(arg, Request))
+        retro_id_str = request.path_values['retro_id']
         service = _get_service(request)
 
         retro: Retrospective = None
         try:
             retro = service.get_retro(retro_id_str)
         except Model.DoesNotExist:
-            return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
-                                charset=charset_utf8)
+            return Response(404, retro_not_found.format(retro_id_str), {'Content-Type': content_type_text_plain})
 
         return original_function(*args, retro=retro, **kwargs)
 
@@ -59,11 +56,11 @@ def user_is_admin(original_function):
 def user_is_valid(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        request: HttpRequest = next(arg for arg in args if isinstance(arg, HttpRequest))
+        request: Request = next(arg for arg in args if isinstance(arg, Request))
         retro: Retrospective = kwargs['retro']
 
         if not token.token_is_valid(token.get_token_from_request(request), retro):
-            return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
+            return Response(401, user_not_valid, {'Content-Type': content_type_text_plain})
 
         return original_function(*args, **kwargs)
 
@@ -130,15 +127,15 @@ def issue_owned_by_user(original_function):
 def retrospective_api_is_correct(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        request: HttpRequest = next(arg for arg in args if isinstance(arg, HttpRequest))
+        request: Request = next(arg for arg in args if isinstance(arg, Request))
         retro: Retrospective = kwargs['retro']
 
         api_version = _get_api_version(request)
         retro_version = _get_retro_version(retro)
 
         if api_version != retro_version:
-            return HttpResponse(incorrect_api_version.format(api_version, retro_version), status=409,
-                                content_type=content_type_text_plain, charset=charset_utf8)
+            return Response(409, incorrect_api_version.format(api_version, retro_version),
+                            {'Content-Type': content_type_text_plain})
 
         return original_function(*args, **kwargs)
 

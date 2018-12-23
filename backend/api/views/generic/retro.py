@@ -1,7 +1,6 @@
 import inspect
 from . import utils
-from .utils import Lambda, Request
-from typing import Any
+from .utils import Lambda, Request, Response
 
 
 def create(event, context):
@@ -11,9 +10,16 @@ def create(event, context):
     return Lambda.get_response(response)
 
 
+def get(event, context):
+    request = Lambda.get_request(event)
+    response = GenericRetroView.get(request)
+
+    return Lambda.get_response(response)
+
+
 class GenericRetroView:
     @classmethod
-    def post(cls, request: Request) -> Any:
+    def post(cls, request: Request) -> Response:
         service_version = utils.get_service_version(request)
 
         class_name = cls.__name__
@@ -23,7 +29,7 @@ class GenericRetroView:
         return method_to_call(class_to_use, request)
 
     @classmethod
-    def put(cls, request: Request) -> Any:
+    def put(cls, request: Request) -> Response:
         service_version = utils.get_service_version(request)
 
         class_name = cls.__name__
@@ -33,7 +39,7 @@ class GenericRetroView:
         return method_to_call(class_to_use, request)
 
     @classmethod
-    def get(cls, request: Request) -> Any:
+    def get(cls, request: Request) -> Response:
         service_version = utils.get_service_version(request)
 
         class_name = cls.__name__

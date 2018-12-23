@@ -59,14 +59,18 @@ package:
 functions:
   createRetro:
     handler: backend.api.views.generic.retro.create
-
-#    The following are a few example events you can configure
-#    NOTE: Please make sure to change your handler code to work with those events
-#    Check the event documentation for details
     events:
       - http:
           path: /api/retro
           method: post
+
+  getRetro:
+    handler: backend.api.views.generic.retro.get
+    events:
+      - http:
+          path: /api/retro/{retro_id}
+          method: get
+
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic
