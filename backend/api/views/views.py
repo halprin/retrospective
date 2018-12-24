@@ -119,7 +119,7 @@ class RetroIssueView(Version1ServiceView):
     @user_is_valid
     @retro_on_step(RetroStep.VOTING, no_vote_issue_retro_wrong_step)
     @issue_exists
-    def put(self, request: Request, retro: Retrospective = None, issue: IssueAttribute = None):
+    def put(self, request: Request, retro: Retrospective = None, issue: IssueAttribute = None) -> Response:
         user_token: str = token.get_token_from_request(request)
 
         request_body: dict = json.loads(request.body)
@@ -130,7 +130,7 @@ class RetroIssueView(Version1ServiceView):
         else:
             self.service().unvote_for_issue(issue, user_token, retro)
 
-        return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
+        return Response(200, '', {'Content-Type': content_type_text_plain})
 
     @retrospective_exists
     @retrospective_api_is_correct
@@ -138,7 +138,7 @@ class RetroIssueView(Version1ServiceView):
     @retro_on_step(RetroStep.ADDING_ISSUES, no_delete_issue_retro_wrong_step)
     @issue_exists
     @issue_owned_by_user
-    def delete(self, request: Request, retro: Retrospective = None, issue: IssueAttribute = None):
+    def delete(self, request: Request, retro: Retrospective = None, issue: IssueAttribute = None) -> Response:
         self.service().delete_issue(issue, retro)
 
         return Response(204, '', {'Content-Type': content_type_text_plain})

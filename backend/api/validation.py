@@ -25,14 +25,14 @@ def retrospective_exists(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
         request: Request = next(arg for arg in args if isinstance(arg, Request))
-        retro_id_str = request.path_values['retro_id']
+        retro_id = request.path_values['retro_id']
         service = _get_service(request)
 
         retro: Retrospective = None
         try:
-            retro = service.get_retro(retro_id_str)
+            retro = service.get_retro(retro_id)
         except Model.DoesNotExist:
-            return Response(404, retro_not_found.format(retro_id_str), {'Content-Type': content_type_text_plain})
+            return Response(404, retro_not_found.format(retro_id), {'Content-Type': content_type_text_plain})
 
         return original_function(*args, retro=retro, **kwargs)
 
@@ -96,13 +96,13 @@ def issue_exists(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
         request: Request = next(arg for arg in args if isinstance(arg, Request))
-        issue_id_str = request.path_values['issue_id']
+        issue_id = request.path_values['issue_id']
 
         retro: Retrospective = kwargs['retro']
 
-        issue: IssueAttribute = _find_issue(issue_id_str, retro)
+        issue: IssueAttribute = _find_issue(issue_id, retro)
         if issue is None:
-            return Response(404, issue_not_found.format(issue_id_str), {'Content-Type': content_type_text_plain})
+            return Response(404, issue_not_found.format(issue_id), {'Content-Type': content_type_text_plain})
 
         return original_function(*args, issue=issue, **kwargs)
 
@@ -144,17 +144,17 @@ def retrospective_api_is_correct(original_function):
 def group_exists(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        group_id: uuid = kwargs['group_id']
-        group_id_str: str = str(group_id)
+        request: Request = next(arg for arg in args if isinstance(arg, Request))
+        group_id = request.path_values['group_id']
+
         retro: RetrospectiveV2 = kwargs['retro']
 
         group: GroupAttribute = None
 
         if not isinstance(group_id, bool):
-            group = _find_group(group_id_str, retro)
+            group = _find_group(group_id, retro)
             if group is None:
-                return HttpResponse(group_not_found.format(group_id_str), status=404,
-                                    content_type=content_type_text_plain, charset=charset_utf8)
+                return Response(404, group_not_found.format(group_id), {'Content-Type': content_type_text_plain})
 
         return original_function(*args, group=group, **kwargs)
 

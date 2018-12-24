@@ -99,6 +99,13 @@ functions:
           path: /api/retro/{retro_id}/issue
           method: post
 
+  voteOrGroupIssue:
+    handler: backend.api.views.generic.issue.vote_or_group_issue
+    events:
+      - http:
+          path: /api/retro/{retro_id}/issue/{issue_id}
+          method: put
+
   deleteIssue:
     handler: backend.api.views.generic.issue.delete_issue
     events:

@@ -2,7 +2,7 @@ import json
 from typing import Union
 from . import views
 from .views import RetroView, RetroUserView, RetroIssueView
-from .generic.utils import VersionServiceView, Request
+from .generic.utils import VersionServiceView, Request, Response
 from ..serviceV2 import ServiceV2
 from ..modelsV2 import RetroStepV2, RetrospectiveV2, IssueAttributeV2, GroupAttribute
 from ...api.validation import retrospective_exists, user_is_valid, retro_on_step, issue_exists,\
@@ -35,27 +35,29 @@ class RetroIssueViewV2(Version2ServiceView, RetroIssueView):
     @retrospective_api_is_correct
     @user_is_valid
     @issue_exists
-    def put(self, request: Request, retro: RetrospectiveV2 = None, issue: IssueAttributeV2 = None):
+    def put(self, request: Request, retro: RetrospectiveV2 = None, issue: IssueAttributeV2 = None) -> Response:
 
         request_body: dict = json.loads(request.body)
         vote_for: bool = request_body.get('vote')
         group_id: Union[str, bool] = request_body.get('group')
 
         if vote_for is not None:
-            return super(RetroIssueViewV2, self).put(self, request, retro_id=retro.id, issue_id=issue.id)
+            return super(RetroIssueViewV2, self).put(self, request)
         elif group_id is not None:
-            return self._group_put(self, issue, retro=retro, group_id=group_id)
+            request.path_values['group_id'] = group_id
+            return self._group_put(self, request, issue, retro=retro)
 
     @retro_on_step(RetroStepV2.GROUPING, no_group_issue_retro_wrong_step)
     @group_exists
-    def _group_put(self, issue: IssueAttributeV2, retro: RetrospectiveV2 = None, group: GroupAttribute = None):
+    def _group_put(self, request: Request, issue: IssueAttributeV2, retro: RetrospectiveV2 = None,
+                   group: GroupAttribute = None) -> Response:
 
         if group is not None:
             self.service().group_issue(issue, group, retro)
         else:
             self.service().ungroup_issue(issue, retro)
 
-        return HttpResponse('', status=200, content_type=views.content_type_text_plain, charset=views.charset_utf8)
+        return Response(200, '', {'Content-Type': views.content_type_text_plain})
 
 
 class RetroGroupViewV2(Version2ServiceView):
