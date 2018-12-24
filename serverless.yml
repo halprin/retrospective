@@ -92,6 +92,13 @@ functions:
           path: /api/retro/{retro_id}/user
           method: put
 
+  addIssue:
+    handler: backend.api.views.generic.issue.add_issue
+    events:
+      - http:
+          path: /api/retro/{retro_id}/issue
+          method: post
+
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic

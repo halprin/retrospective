@@ -99,7 +99,7 @@ class RetroIssueView(Version1ServiceView):
     @retrospective_api_is_correct
     @user_is_valid
     @retro_on_step(RetroStep.ADDING_ISSUES, no_create_issue_retro_wrong_step)
-    def post(self, request: Request, retro: Retrospective=None):
+    def post(self, request: Request, retro: Retrospective = None) -> Response:
         user_token: str = token.get_token_from_request(request)
 
         request_body: dict = json.loads(request.body)
@@ -112,7 +112,7 @@ class RetroIssueView(Version1ServiceView):
             'id': new_issue_id
         }
 
-        return JsonResponse(response_body, status=201, charset=charset_utf8)
+        return Response(201, json.dumps(response_body), {'Content-Type': 'application/json'})
 
     @retrospective_exists
     @retrospective_api_is_correct

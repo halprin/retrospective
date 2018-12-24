@@ -83,8 +83,8 @@ def retro_on_step(retro_step: Union[RetroStep, RetroStepV2, List[RetroStep], Lis
                 match = retro.current_step == retro_step.value
 
             if not match:
-                return HttpResponse(error_message.format(retro.current_step), status=422,
-                                    content_type=content_type_text_plain, charset=charset_utf8)
+                return Response(422, error_message.format(retro.current_step),
+                                {'Content-Type': content_type_text_plain})
 
             return original_function(*args, **kwargs)
 
