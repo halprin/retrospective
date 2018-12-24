@@ -64,6 +64,13 @@ functions:
           path: /api/retro
           method: post
 
+  moveRetro:
+    handler: backend.api.views.generic.retro.move
+    events:
+      - http:
+          path: /api/retro/{retro_id}
+          method: put
+
   getRetro:
     handler: backend.api.views.generic.retro.get
     events:

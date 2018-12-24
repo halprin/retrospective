@@ -42,11 +42,11 @@ def retrospective_exists(original_function):
 def user_is_admin(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        request: HttpRequest = args[1]
+        request: Request = args[1]
         retro: Retrospective = kwargs['retro']
 
         if not token.token_is_admin(token.get_token_from_request(request), retro):
-            return HttpResponse(user_not_admin, status=401, content_type=content_type_text_plain, charset=charset_utf8)
+            return Response(401, user_not_admin, {'Content-Type': content_type_text_plain})
 
         return original_function(*args, **kwargs)
 

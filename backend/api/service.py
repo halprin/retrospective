@@ -2,7 +2,6 @@ from typing import List
 from backend.api.models import Retrospective, ParticipantAttribute, IssueAttribute, RetroStep
 import uuid
 from backend.api import token
-import pickle
 
 
 class Service:
@@ -204,7 +203,5 @@ class Service:
 
     @staticmethod
     def _send_retro_update(retro: Retrospective):
-        async_to_sync(get_channel_layer().group_send)(retro.id, {
-            'type': 'disburse.update',
-            'retro': pickle.dumps(retro)
-        })
+        # TODO: updated to support the new way to send WebSocket updates to all the subscribers
+        pass

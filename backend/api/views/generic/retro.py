@@ -10,6 +10,13 @@ def create(event, context):
     return Lambda.get_response(response)
 
 
+def move(event, context):
+    request = Lambda.get_request(event)
+    response = GenericRetroView.put(request)
+
+    return Lambda.get_response(response)
+
+
 def get(event, context):
     request = Lambda.get_request(event)
     response = GenericRetroView.get(request)

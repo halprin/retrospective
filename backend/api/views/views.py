@@ -38,7 +38,7 @@ class RetroView(Version1ServiceView):
     @retrospective_exists
     @retrospective_api_is_correct
     @user_is_admin
-    def put(self, request: Request, retro: Retrospective = None):
+    def put(self, request: Request, retro: Retrospective = None) -> Response:
 
         request_body = json.loads(request.body)
         direction: str = request_body['direction']
@@ -47,13 +47,13 @@ class RetroView(Version1ServiceView):
         try:
             new_step = self.service().move_retro(retro, direction)
         except ValueError as exception:
-            return HttpResponse(str(exception), status=422, content_type=content_type_text_plain, charset=charset_utf8)
+            return Response(422, str(exception), {'Content-Type': content_type_text_plain})
 
         response_body: dict = {
             'newStep': new_step
         }
 
-        return JsonResponse(response_body, status=200, charset=charset_utf8)
+        return Response(200, json.dumps(response_body), {'Content-Type': 'application/json'})
 
     @retrospective_exists
     @retrospective_api_is_correct
