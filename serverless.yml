@@ -127,6 +127,13 @@ functions:
           path: /api/retro/{retro_id}/group/{group_id}
           method: put
 
+  deleteGroup:
+    handler: backend.api.views.generic.group.delete
+    events:
+      - http:
+          path: /api/retro/{retro_id}/group/{group_id}
+          method: delete
+
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic

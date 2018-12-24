@@ -105,4 +105,4 @@ class RetroGroupViewV2(Version2ServiceView):
     def delete(self, request: Request, retro: RetrospectiveV2 = None, group: GroupAttribute = None):
         self.service().delete_group(group, retro)
 
-        return HttpResponse('', status=204, content_type=views.content_type_text_plain, charset=views.charset_utf8)
+        return Response(204, '', {'Content-Type': views.content_type_text_plain})
