@@ -76,7 +76,7 @@ class RetroGroupViewV2(Version2ServiceView):
             'id': new_group_id
         }
 
-        return JsonResponse(response_body, status=201, charset=views.charset_utf8)
+        return Response(201, json.dumps(response_body), {'Content-Type': 'application/json'})
 
     @retrospective_exists
     @retrospective_api_is_correct

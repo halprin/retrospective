@@ -5,26 +5,26 @@ from .utils import Lambda, Request, Response
 
 def add(event, context):
     request = Lambda.get_request(event)
-    response = GenericRetroIssueView.post(request)
+    response = GenericRetroGroupView.post(request)
 
     return Lambda.get_response(response)
 
 
-def vote_or_group(event, context):
+def vote(event, context):
     request = Lambda.get_request(event)
-    response = GenericRetroIssueView.put(request)
+    response = GenericRetroGroupView.put(request)
 
     return Lambda.get_response(response)
 
 
 def delete(event, context):
     request = Lambda.get_request(event)
-    response = GenericRetroIssueView.delete(request)
+    response = GenericRetroGroupView.delete(request)
 
     return Lambda.get_response(response)
 
 
-class GenericRetroIssueView:
+class GenericRetroGroupView:
     @classmethod
     def post(cls, request: Request) -> Response:
         service_version = utils.get_service_version(request)

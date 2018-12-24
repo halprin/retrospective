@@ -93,25 +93,32 @@ functions:
           method: put
 
   addIssue:
-    handler: backend.api.views.generic.issue.add_issue
+    handler: backend.api.views.generic.issue.add
     events:
       - http:
           path: /api/retro/{retro_id}/issue
           method: post
 
   voteOrGroupIssue:
-    handler: backend.api.views.generic.issue.vote_or_group_issue
+    handler: backend.api.views.generic.issue.vote_or_group
     events:
       - http:
           path: /api/retro/{retro_id}/issue/{issue_id}
           method: put
 
   deleteIssue:
-    handler: backend.api.views.generic.issue.delete_issue
+    handler: backend.api.views.generic.issue.delete
     events:
       - http:
           path: /api/retro/{retro_id}/issue/{issue_id}
           method: delete
+
+  addGroup:
+    handler: backend.api.views.generic.group.add
+    events:
+      - http:
+          path: /api/retro/{retro_id}/group
+          method: post
 
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
