@@ -120,6 +120,13 @@ functions:
           path: /api/retro/{retro_id}/group
           method: post
 
+  voteForGroup:
+    handler: backend.api.views.generic.group.vote
+    events:
+      - http:
+          path: /api/retro/{retro_id}/group/{group_id}
+          method: put
+
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic

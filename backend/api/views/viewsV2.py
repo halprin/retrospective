@@ -95,7 +95,7 @@ class RetroGroupViewV2(Version2ServiceView):
         else:
             self.service().unvote_for_group(group, user_token, retro)
 
-        return HttpResponse('', status=200, content_type=views.content_type_text_plain, charset=views.charset_utf8)
+        return Response(200, '', {'Content-Type': views.content_type_text_plain})
 
     @retrospective_exists
     @retrospective_api_is_correct
