@@ -99,6 +99,13 @@ functions:
           path: /api/retro/{retro_id}/issue
           method: post
 
+  deleteIssue:
+    handler: backend.api.views.generic.issue.delete_issue
+    events:
+      - http:
+          path: /api/retro/{retro_id}/issue/{issue_id}
+          method: delete
+
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic

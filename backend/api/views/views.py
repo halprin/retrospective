@@ -141,4 +141,4 @@ class RetroIssueView(Version1ServiceView):
     def delete(self, request: Request, retro: Retrospective = None, issue: IssueAttribute = None):
         self.service().delete_issue(issue, retro)
 
-        return HttpResponse('', status=204, content_type=content_type_text_plain, charset=charset_utf8)
+        return Response(204, '', {'Content-Type': content_type_text_plain})

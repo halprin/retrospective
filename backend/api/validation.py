@@ -95,14 +95,14 @@ def retro_on_step(retro_step: Union[RetroStep, RetroStepV2, List[RetroStep], Lis
 def issue_exists(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        issue_id: uuid = kwargs['issue_id']
-        issue_id_str: str = str(issue_id)
+        request: Request = next(arg for arg in args if isinstance(arg, Request))
+        issue_id_str = request.path_values['issue_id']
+
         retro: Retrospective = kwargs['retro']
 
         issue: IssueAttribute = _find_issue(issue_id_str, retro)
         if issue is None:
-            return HttpResponse(issue_not_found.format(issue_id_str), status=404, content_type=content_type_text_plain,
-                                charset=charset_utf8)
+            return Response(404, issue_not_found.format(issue_id_str), {'Content-Type': content_type_text_plain})
 
         return original_function(*args, issue=issue, **kwargs)
 
@@ -112,12 +112,11 @@ def issue_exists(original_function):
 def issue_owned_by_user(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        request: HttpRequest = args[1]
+        request: Request = args[1]
         issue: IssueAttribute = kwargs['issue']
 
         if not token.issue_owned_by_participant(issue, token.get_token_from_request(request)):
-            return HttpResponse(user_is_not_issue_owner.format(issue.id), status=401,
-                                content_type=content_type_text_plain, charset=charset_utf8)
+            return Response(401, user_is_not_issue_owner.format(issue.id), {'Content-Type': content_type_text_plain})
 
         return original_function(*args, **kwargs)
 
