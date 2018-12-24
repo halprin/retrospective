@@ -142,8 +142,3 @@ class RetroIssueView(Version1ServiceView):
         self.service().delete_issue(issue, retro)
 
         return HttpResponse('', status=204, content_type=content_type_text_plain, charset=charset_utf8)
-
-
-# class HealthView(View):
-#     def get(self, request, *args, **kwargs) -> HttpResponse:
-#         return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
