@@ -85,6 +85,13 @@ functions:
           path: /api/retro/{retro_id}/user
           method: post
 
+  markAsReady:
+    handler: backend.api.views.generic.user.mark_as_ready
+    events:
+      - http:
+          path: /api/retro/{retro_id}/user
+          method: put
+
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic

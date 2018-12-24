@@ -83,7 +83,7 @@ class RetroUserView(Version1ServiceView):
     @retrospective_exists
     @retrospective_api_is_correct
     @user_is_valid
-    def put(self, request: Request, retro: Retrospective=None):
+    def put(self, request: Request, retro: Retrospective = None) -> Response:
         user_token: str = token.get_token_from_request(request)
 
         request_body: dict = json.loads(request.body)
@@ -91,7 +91,7 @@ class RetroUserView(Version1ServiceView):
 
         self.service().mark_user_as_ready(user_token, is_ready, retro)
 
-        return HttpResponse('', status=200, content_type=content_type_text_plain, charset=charset_utf8)
+        return Response(200, '', {'Content-Type': content_type_text_plain})
 
 
 class RetroIssueView(Version1ServiceView):
