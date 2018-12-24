@@ -129,7 +129,7 @@ class Service:
         return sanitized_retro
 
     @staticmethod
-    def _create_participant(name: str, is_admin: bool=False) -> ParticipantAttribute:
+    def _create_participant(name: str, is_admin: bool = False) -> ParticipantAttribute:
         return ParticipantAttribute(name=name, ready=False, admin=is_admin, token=token.generate_token())
 
     @classmethod

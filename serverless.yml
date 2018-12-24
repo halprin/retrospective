@@ -78,6 +78,13 @@ functions:
           path: /api/retro/{retro_id}
           method: get
 
+  addParticipant:
+    handler: backend.api.views.generic.user.add_participant
+    events:
+      - http:
+          path: /api/retro/{retro_id}/user
+          method: post
+
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
 #      - sns: greeter-topic

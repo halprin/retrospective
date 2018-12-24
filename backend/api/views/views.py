@@ -68,17 +68,17 @@ class RetroView(Version1ServiceView):
 class RetroUserView(Version1ServiceView):
     @retrospective_exists
     @retrospective_api_is_correct
-    def post(self, request: Request, retro: Retrospective=None):
+    def post(self, request: Request, retro: Retrospective = None) -> Response:
         request_body: dict = json.loads(request.body)
         participant_name: str = request_body['name']
 
-        participant_token: str = Service.add_participant(participant_name, retro)
+        participant_token: str = self.service().add_participant(participant_name, retro)
 
         response_body: dict = {
             'token': participant_token
         }
 
-        return JsonResponse(response_body, status=201, charset=charset_utf8)
+        return Response(201, json.dumps(response_body), {'Content-Type': 'application/json'})
 
     @retrospective_exists
     @retrospective_api_is_correct
