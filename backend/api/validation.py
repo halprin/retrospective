@@ -1,4 +1,3 @@
-import uuid
 from functools import wraps
 from typing import Iterator
 from backend.api import token
@@ -178,7 +177,7 @@ def _find_issue(issue_id: str, retro: Retrospective) -> Optional[IssueAttribute]
 
 
 def _get_api_version(request: Request) -> str:
-    return request.headers.get('Api-Version', '1')
+    return request.headers.get('Api-Version', request.headers.get('api-version', '1'))
 
 
 def _get_service_version(request: Request) -> str:

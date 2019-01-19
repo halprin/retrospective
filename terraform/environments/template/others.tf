@@ -55,6 +55,7 @@ data "null_data_source" "prefix" {
 data "null_data_source" "hostname" {
   inputs {
     backend  = "retrospective-api${data.null_data_source.prefix.outputs.prefix}.${var.base_host_name}"
+    backend_websocket = "retrospective-ws${data.null_data_source.prefix.outputs.prefix}.${var.base_host_name}"
     frontend = "retrospective${data.null_data_source.prefix.outputs.prefix}.${var.base_host_name}"
   }
 }

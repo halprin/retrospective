@@ -1,8 +1,9 @@
 import inspect
 from . import utils
-from .utils import Lambda, Request, Response
+from .utils import Lambda, Request, Response, exception_to_error_response
 
 
+@exception_to_error_response
 def create(event, context):
     request = Lambda.get_request(event)
     response = GenericRetroView.post(request)
@@ -10,6 +11,7 @@ def create(event, context):
     return Lambda.get_response(response)
 
 
+@exception_to_error_response
 def move(event, context):
     request = Lambda.get_request(event)
     response = GenericRetroView.put(request)
@@ -17,6 +19,7 @@ def move(event, context):
     return Lambda.get_response(response)
 
 
+@exception_to_error_response
 def get(event, context):
     request = Lambda.get_request(event)
     response = GenericRetroView.get(request)

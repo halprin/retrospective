@@ -1,8 +1,9 @@
 import inspect
 from . import utils
-from .utils import Lambda, Request, Response
+from .utils import Lambda, Request, Response, exception_to_error_response
 
 
+@exception_to_error_response
 def add(event, context):
     request = Lambda.get_request(event)
     response = GenericRetroGroupView.post(request)
@@ -10,6 +11,7 @@ def add(event, context):
     return Lambda.get_response(response)
 
 
+@exception_to_error_response
 def vote(event, context):
     request = Lambda.get_request(event)
     response = GenericRetroGroupView.put(request)
@@ -17,6 +19,7 @@ def vote(event, context):
     return Lambda.get_response(response)
 
 
+@exception_to_error_response
 def delete(event, context):
     request = Lambda.get_request(event)
     response = GenericRetroGroupView.delete(request)

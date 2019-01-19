@@ -10,7 +10,7 @@ export class RetrospectiveService {
 
   private host = environment.backendEndpoint;
   protected httpUrl = 'https://' + this.host + '/api/retro';
-  private wsUrl = 'wss://' + this.host + '/api/ws';
+  private wsUrl = 'wss://' + 'retrospective-ws-dev.kendallp.net' + '/retro';
 
   private liveUpdateSocket: WebSocket;
 
@@ -61,7 +61,7 @@ export class RetrospectiveService {
 
   startLiveUpdateRetrospective(): Observable<MessageEvent> {
     if(!this.liveUpdateSocket || this.liveUpdateSocket.readyState !== WebSocket.OPEN) {
-      this.liveUpdateSocket = new WebSocket(this.wsUrl + '/' + this.uuid, [this.token, this.version]);
+      this.liveUpdateSocket = new WebSocket(this.wsUrl + '?uuid=' + this.uuid + '&token=' + this.token + '&version=' + this.version);
     }
 
     let liveUpdaterObservable = Observable.create(

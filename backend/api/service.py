@@ -2,6 +2,10 @@ from typing import List
 from backend.api.models import Retrospective, ParticipantAttribute, IssueAttribute, RetroStep
 import uuid
 from backend.api import token
+import boto3
+import json
+import traceback
+import os
 
 
 class Service:
@@ -201,7 +205,26 @@ class Service:
 
         cls._send_retro_update(retro)
 
-    @staticmethod
-    def _send_retro_update(retro: Retrospective):
-        # TODO: updated to support the new way to send WebSocket updates to all the subscribers
-        pass
+    @classmethod
+    def _send_retro_update(cls, retro: Retrospective):
+        websocket_endpoint = os.environ['WEBSOCKET_ENDPOINT']
+        client = boto3.Session().client('apigatewaymanagementapi',
+                                        endpoint_url=websocket_endpoint)
+        for participant in retro.participants:
+            cls._send_retro_update_to_participant(retro, participant, client)
+
+    @classmethod
+    def _send_retro_update_to_participant(cls, retro: Retrospective, participant: ParticipantAttribute,
+                                          apigatewaymanagementapi_client):
+        connection_id = token.get_connection_id_from_model(participant)
+        if connection_id == '':
+            return
+        user_token = token.get_token_from_model(participant)
+        sanitized_retro = cls.sanitize_retro_for_user_and_step(retro, user_token)
+        sanitized_retro_json = json.dumps(sanitized_retro)
+        try:
+            apigatewaymanagementapi_client.post_to_connection(Data=sanitized_retro_json.encode('utf-8'),
+                                                              ConnectionId=connection_id)
+        except Exception:
+            traceback.print_exc()
+            # TODO: update retro to remove this connection_id

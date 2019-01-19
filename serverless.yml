@@ -7,12 +7,16 @@ provider:
   region: us-east-1
   stage: ${env:ENVIRONMENT}
   memorySize: 128
+  timeout: 10
   deploymentBucket:
     name: serverless-deploy-485419608727
   iamManagedPolicies:
     - ${env:DATABASE_POLICY}
+    - ${env:WEBSOCKET_POLICY}
   environment:
     ENVIRONMENT: ${env:ENVIRONMENT}
+    ALLOWED_HOST: ${env:ALLOWED_HOST}
+    WEBSOCKET_ENDPOINT: ${env:WEBSOCKET_ENDPOINT}
 
 
 package:
@@ -29,6 +33,10 @@ functions:
       - http:
           path: /api/retro
           method: post
+          cors:
+            origin: ${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
 
   moveRetro:
     handler: backend.api.views.generic.retro.move
@@ -36,6 +44,10 @@ functions:
       - http:
           path: /api/retro/{retro_id}
           method: put
+          cors:
+            origin: ${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
 
   getRetro:
     handler: backend.api.views.generic.retro.get
@@ -43,6 +55,10 @@ functions:
       - http:
           path: /api/retro/{retro_id}
           method: get
+          cors:
+            origin: ${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
 
   addParticipant:
     handler: backend.api.views.generic.user.add_participant
@@ -50,6 +66,10 @@ functions:
       - http:
           path: /api/retro/{retro_id}/user
           method: post
+          cors:
+            origin: ${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
 
   markAsReady:
     handler: backend.api.views.generic.user.mark_as_ready
@@ -57,6 +77,10 @@ functions:
       - http:
           path: /api/retro/{retro_id}/user
           method: put
+          cors:
+            origin: ${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
 
   addIssue:
     handler: backend.api.views.generic.issue.add
@@ -64,6 +88,10 @@ functions:
       - http:
           path: /api/retro/{retro_id}/issue
           method: post
+          cors:
+            origin: ${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
 
   voteOrGroupIssue:
     handler: backend.api.views.generic.issue.vote_or_group
@@ -71,6 +99,10 @@ functions:
       - http:
           path: /api/retro/{retro_id}/issue/{issue_id}
           method: put
+          cors:
+            origin: ${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
 
   deleteIssue:
     handler: backend.api.views.generic.issue.delete
@@ -78,6 +110,10 @@ functions:
       - http:
           path: /api/retro/{retro_id}/issue/{issue_id}
           method: delete
+          cors:
+            origin: ${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
 
   addGroup:
     handler: backend.api.views.generic.group.add
@@ -85,6 +121,10 @@ functions:
       - http:
           path: /api/retro/{retro_id}/group
           method: post
+          cors:
+            origin: ${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
 
   voteForGroup:
     handler: backend.api.views.generic.group.vote
@@ -92,6 +132,10 @@ functions:
       - http:
           path: /api/retro/{retro_id}/group/{group_id}
           method: put
+          cors:
+            origin: ${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
 
   deleteGroup:
     handler: backend.api.views.generic.group.delete
@@ -99,10 +143,21 @@ functions:
       - http:
           path: /api/retro/{retro_id}/group/{group_id}
           method: delete
+          cors:
+            origin: ${env:ALLOWED_HOST}
+            headers:
+              - Api-Versions
+
+  websocketConnect:
+    handler: backend.api.views.generic.websockets.websocket_connect
+    events:
+      - websocket:
+          routeKey: $connect
 
 
 plugins:
   - serverless-python-requirements
+  - serverless-websockets-plugin
 
 
 resources:
@@ -111,3 +166,9 @@ resources:
       Description: The ID of the API Gateway
       Value:
         Ref : "ApiGatewayRestApi"
+
+
+custom:
+  pythonRequirements:
+    noDeploy:
+      - pytest

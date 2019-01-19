@@ -5,6 +5,13 @@ resource "aws_iam_policy" "read_writes_dynamodb" {
   policy = "${data.aws_iam_policy_document.read_write_dynamodb.json}"
 }
 
+resource "aws_iam_policy" "manage_websocket_connections" {
+  name        = "ManageWebSocketConnectionsRetrospective-${var.environment}"
+  description = "Manage the ${var.environment} Retrospective WebSocket connections"
+
+  policy = "${data.aws_iam_policy_document.manage_websocket_connections.json}"
+}
+
 data "aws_iam_policy_document" "read_write_dynamodb" {
   statement {
     sid    = "AllowReadingAndWriting"
@@ -34,3 +41,17 @@ data "aws_iam_policy_document" "read_write_dynamodb" {
     resources = ["${var.dynamodb_arn}"]
   }
 }
+
+data "aws_iam_policy_document" "manage_websocket_connections" {
+  statement {
+    sid    = "AllowManageConnections"
+    effect = "Allow"
+
+    actions = [
+      "execute-api:ManageConnections",
+    ]
+
+    resources = ["arn:aws:execute-api:us-east-1:*"]
+  }
+}
+

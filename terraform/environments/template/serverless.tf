@@ -6,7 +6,10 @@ resource "null_resource" "serverless" {
 
     environment {
       DATABASE_POLICY = "${module.permissions.database_policy}"
+      WEBSOCKET_POLICY = "${module.permissions.websocket_policy}"
       ENVIRONMENT = "${var.environment}"
+      ALLOWED_HOST = "${data.null_data_source.hostname.outputs.frontend}"
+      WEBSOCKET_ENDPOINT = "https://${data.null_data_source.hostname.outputs.backend_websocket}/retro"
     }
   }
 
