@@ -34,9 +34,10 @@ functions:
           path: /api/retro
           method: post
           cors:
-            origin: ${env:ALLOWED_HOST}
+            origin: https://${env:ALLOWED_HOST}
             headers:
               - Api-Version
+              - Content-Type
 
   moveRetro:
     handler: backend.api.views.generic.retro.move
@@ -45,9 +46,11 @@ functions:
           path: /api/retro/{retro_id}
           method: put
           cors:
-            origin: ${env:ALLOWED_HOST}
+            origin: https://${env:ALLOWED_HOST}
             headers:
               - Api-Version
+              - Content-Type
+              - Authorization
 
   getRetro:
     handler: backend.api.views.generic.retro.get
@@ -56,9 +59,11 @@ functions:
           path: /api/retro/{retro_id}
           method: get
           cors:
-            origin: ${env:ALLOWED_HOST}
+            origin: https://${env:ALLOWED_HOST}
             headers:
               - Api-Version
+              - Content-Type
+              - Authorization
 
   addParticipant:
     handler: backend.api.views.generic.user.add_participant
@@ -67,9 +72,10 @@ functions:
           path: /api/retro/{retro_id}/user
           method: post
           cors:
-            origin: ${env:ALLOWED_HOST}
+            origin: https://${env:ALLOWED_HOST}
             headers:
               - Api-Version
+              - Content-Type
 
   markAsReady:
     handler: backend.api.views.generic.user.mark_as_ready
@@ -78,9 +84,11 @@ functions:
           path: /api/retro/{retro_id}/user
           method: put
           cors:
-            origin: ${env:ALLOWED_HOST}
+            origin: https://${env:ALLOWED_HOST}
             headers:
               - Api-Version
+              - Content-Type
+              - Authorization
 
   addIssue:
     handler: backend.api.views.generic.issue.add
@@ -89,9 +97,11 @@ functions:
           path: /api/retro/{retro_id}/issue
           method: post
           cors:
-            origin: ${env:ALLOWED_HOST}
+            origin: https://${env:ALLOWED_HOST}
             headers:
               - Api-Version
+              - Content-Type
+              - Authorization
 
   voteOrGroupIssue:
     handler: backend.api.views.generic.issue.vote_or_group
@@ -100,9 +110,11 @@ functions:
           path: /api/retro/{retro_id}/issue/{issue_id}
           method: put
           cors:
-            origin: ${env:ALLOWED_HOST}
+            origin: https://${env:ALLOWED_HOST}
             headers:
               - Api-Version
+              - Content-Type
+              - Authorization
 
   deleteIssue:
     handler: backend.api.views.generic.issue.delete
@@ -111,9 +123,11 @@ functions:
           path: /api/retro/{retro_id}/issue/{issue_id}
           method: delete
           cors:
-            origin: ${env:ALLOWED_HOST}
+            origin: https://${env:ALLOWED_HOST}
             headers:
               - Api-Version
+              - Content-Type
+              - Authorization
 
   addGroup:
     handler: backend.api.views.generic.group.add
@@ -122,9 +136,11 @@ functions:
           path: /api/retro/{retro_id}/group
           method: post
           cors:
-            origin: ${env:ALLOWED_HOST}
+            origin: https://${env:ALLOWED_HOST}
             headers:
               - Api-Version
+              - Content-Type
+              - Authorization
 
   voteForGroup:
     handler: backend.api.views.generic.group.vote
@@ -133,9 +149,11 @@ functions:
           path: /api/retro/{retro_id}/group/{group_id}
           method: put
           cors:
-            origin: ${env:ALLOWED_HOST}
+            origin: https://${env:ALLOWED_HOST}
             headers:
               - Api-Version
+              - Content-Type
+              - Authorization
 
   deleteGroup:
     handler: backend.api.views.generic.group.delete
@@ -144,9 +162,11 @@ functions:
           path: /api/retro/{retro_id}/group/{group_id}
           method: delete
           cors:
-            origin: ${env:ALLOWED_HOST}
+            origin: https://${env:ALLOWED_HOST}
             headers:
-              - Api-Versions
+              - Api-Version
+              - Content-Type
+              - Authorization
 
   websocketConnect:
     handler: backend.api.views.generic.websockets.websocket_connect

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from typing import Dict
 from functools import wraps
 import traceback
+import os
 
 
 @dataclass
@@ -42,10 +43,11 @@ class Lambda:
 
     @classmethod
     def get_response(cls, response: Response) -> dict:
+        print('https://{}'.format(os.environ['ALLOWED_HOST']))
         return {
             'body': response.body,
             'statusCode': response.statusCode,
-            'headers': response.headers
+            'headers': {**response.headers, 'Access-Control-Allow-Origin': 'https://{}'.format(os.environ['ALLOWED_HOST'])}
         }
 
 
