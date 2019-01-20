@@ -149,10 +149,8 @@ class Service:
 
     @classmethod
     def mark_user_as_ready(cls, user_token: str, is_ready: bool, retro: Retrospective):
-        for participant in retro.participants:
-            if participant.token == user_token:
-                participant.ready = is_ready
-                break
+        participant = token.get_participant(user_token, retro)
+        participant.ready = is_ready
 
         retro.save()
 
