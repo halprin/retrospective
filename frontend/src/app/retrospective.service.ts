@@ -9,8 +9,9 @@ import { Observer } from "rxjs/Observer";
 export class RetrospectiveService {
 
   private host = environment.backendEndpoint;
+  private wsHost = environment.backendWsEndpoint;
   protected httpUrl = 'https://' + this.host + '/api/retro';
-  private wsUrl = 'wss://' + 'retrospective-ws-dev.kendallp.net' + '/retro';
+  private wsUrl = 'wss://' + this.wsHost + '/retro';
 
   private liveUpdateSocket: WebSocket;
 

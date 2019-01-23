@@ -10,6 +10,7 @@ function run_terraform() {
     terraform init
     terraform apply -auto-approve -var "base_host_name=${BASE_HOSTNAME}"
     export BACKEND_ENDPOINT=$(terraform output backend_endpoint)
+    export BACKEND_WS_ENDPOINT=$(terraform output backend_ws_endpoint)
     export FRONTEND_ENDPOINT=$(terraform output frontend_endpoint)
     popd
 }
@@ -18,7 +19,7 @@ function deploy_frontend() {
     echo "Deploying frontend"
 
     pushd ./frontend/
-    ./build.sh "${FRONTEND_ENDPOINT}" "${BACKEND_ENDPOINT}"
+    ./build.sh "${FRONTEND_ENDPOINT}" "${BACKEND_ENDPOINT}" "${BACKEND_WS_ENDPOINT}"
     aws s3 sync ./dist/ s3://${FRONTEND_ENDPOINT}/ --delete
     popd
 }

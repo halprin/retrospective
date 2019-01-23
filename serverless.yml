@@ -6,8 +6,8 @@ provider:
   runtime: python3.7
   region: us-east-1
   stage: ${env:ENVIRONMENT}
-  memorySize: 128
-  timeout: 10
+  memorySize: 256
+  timeout: 15
   deploymentBucket:
     name: serverless-deploy-485419608727
   iamManagedPolicies:

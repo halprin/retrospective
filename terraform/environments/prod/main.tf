@@ -12,8 +12,8 @@ terraform {
 }
 
 module "environment" {
-  source                        = "../template"
-  environment                   = "prod"
-  base_host_name                = "${var.base_host_name}"
-  dynamodb_read_write_capacity  = "5"
+  source                       = "../template"
+  environment                  = "prod"
+  base_host_name               = "${var.base_host_name}"
+  dynamodb_read_write_capacity = "5"
 }

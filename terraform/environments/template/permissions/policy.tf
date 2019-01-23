@@ -54,4 +54,3 @@ data "aws_iam_policy_document" "manage_websocket_connections" {
     resources = ["arn:aws:execute-api:us-east-1:*"]
   }
 }
-
