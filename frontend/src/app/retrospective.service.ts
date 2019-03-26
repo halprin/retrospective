@@ -61,17 +61,22 @@ export class RetrospectiveService {
   }
 
   startLiveUpdateRetrospective(): Observable<MessageEvent> {
+    let fullUrl = this.wsUrl + '?uuid=' + this.uuid + '&token=' + this.token + '&version=' + this.version;
     if(!this.liveUpdateSocket || this.liveUpdateSocket.readyState !== WebSocket.OPEN) {
-      this.liveUpdateSocket = new WebSocket(this.wsUrl + '?uuid=' + this.uuid + '&token=' + this.token + '&version=' + this.version);
+      this.liveUpdateSocket = new WebSocket(fullUrl);
     }
 
     let liveUpdaterObservable = Observable.create(
       (observer: Observer<MessageEvent>) => {
         this.liveUpdateSocket.onmessage = message => {
-          this.zone.run(() => observer.next(message))
+          this.zone.run(() => observer.next(message));
         };
-        this.liveUpdateSocket.onerror = observer.error.bind(observer);
-        this.liveUpdateSocket.onclose = observer.complete.bind(observer);
+        this.liveUpdateSocket.onerror = error => {
+          this.zone.run(() => observer.error(error));
+        };
+        this.liveUpdateSocket.onclose = () => {
+          this.zone.run(() => observer.complete());
+        };
         return this.liveUpdateSocket.close.bind(this.liveUpdateSocket);
       }
     );

@@ -20,7 +20,17 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.updateRetro();
-    this.liveUpdater = this.retroService.startLiveUpdateRetrospective().subscribe(messageEvent => this.retro = JSON.parse(messageEvent.data));
+    this.setupLiveUpdater();
+  }
+
+  setupLiveUpdater() {
+    this.liveUpdater = this.retroService.startLiveUpdateRetrospective().subscribe(messageEvent => this.retro = JSON.parse(messageEvent.data), error => {
+      console.error('Error on live updater');
+      this.setupLiveUpdater();
+    }, () => {
+      console.info('Complete live updater');
+      this.setupLiveUpdater();
+    });
   }
 
   ngOnDestroy() {
