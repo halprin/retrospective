@@ -16,6 +16,16 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   frontendEndpoint = environment.frontendEndpoint;
   private liveUpdater: Subscription;
 
+  readySpinner = false;
+  backSpinner = false;
+  forwardSpinner = false;
+  addIssueSpinner = false;
+  deleteIssueSpinner = false;
+  addGroupSpinner = false;
+  deleteGroupSpinner = false;
+  assignGroupSpinner = false;
+  voteSpinner = false;
+
   constructor(private retroService: RetrospectiveServiceV2) { }
 
   ngOnInit() {
@@ -42,10 +52,11 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   alternateReadiness(): void {
+    this.readySpinner = true;
     if (this.retro.yourself.ready == true) {
-      this.retroService.markUserAsNotReady().subscribe();
+      this.retroService.markUserAsNotReady().subscribe(() => this.readySpinner = false, () => this.readySpinner = false, () => this.readySpinner = false);
     } else {
-      this.retroService.markUserAsReady().subscribe();
+      this.retroService.markUserAsReady().subscribe(() => this.readySpinner = false, () => this.readySpinner = false, () => this.readySpinner = false);
     }
   }
 
@@ -114,11 +125,13 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   moveRetroBackward(): void {
-    this.retroService.moveRetrospectiveBackward().subscribe();
+    this.backSpinner = true;
+    this.retroService.moveRetrospectiveBackward().subscribe(() => this.backSpinner = false, () => this.backSpinner = false, () => this.backSpinner = false);
   }
 
   moveRetroForward(): void {
-    this.retroService.moveRetrospectiveForward().subscribe();
+    this.forwardSpinner = true;
+    this.retroService.moveRetrospectiveForward().subscribe(() => this.forwardSpinner = false, () => this.forwardSpinner = false, () => this.forwardSpinner = false);
   }
 
   voteOrUnvoteForIssue(issue: any, checkbox: HTMLInputElement): void {
