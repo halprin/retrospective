@@ -11,6 +11,7 @@ import { RetrospectiveServiceV2 } from '../retrospectiveV2.service'
 export class StartRetroComponent implements OnInit {
 
   errorText = '';
+  startButtonText = 'Start';
 
   constructor(private router: Router, private retroService: RetrospectiveServiceV2) { }
 
@@ -18,13 +19,24 @@ export class StartRetroComponent implements OnInit {
   }
 
   startRetro(retroName: string, userName: string): void {
+    this.startLoadingIndicator();
     this.retroService.startRetrospective(retroName, userName)
       .subscribe(uuid => {
+        this.stopLoadingIndicator();
         this.router.navigateByUrl('/view');
       },
       (error: HttpErrorResponse) => {
+        this.stopLoadingIndicator();
         this.displayError('Something bad happened.  Please contact us with the following information: [Status - ' + error.status + ', Message - ' + error.message + ']');
       });
+  }
+
+  startLoadingIndicator(): void {
+    this.startButtonText = ' Starting...';
+  }
+
+  stopLoadingIndicator(): void {
+    this.startButtonText = 'Start';
   }
 
   displayError(errorMessage: string): void {
