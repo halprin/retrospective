@@ -19,8 +19,9 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   readySpinner = false;
   backSpinner = false;
   forwardSpinner = false;
-  addIssueSpinner = false;
-  deleteIssueSpinner = false;
+  addGoodIssueSpinner = false;
+  addBadIssueSpinner = false;
+  deleteIssueSpinners = {};
   addGroupSpinner = false;
   deleteGroupSpinner = false;
   assignGroupSpinner = false;
@@ -61,15 +62,18 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   addWentWellIssue(title: string): void {
-    this.retroService.addIssue(title, 'Went Well').subscribe();
+    this.addGoodIssueSpinner = true;
+    this.retroService.addIssue(title, 'Went Well').subscribe(() => this.addGoodIssueSpinner = false, () => this.addGoodIssueSpinner = false, () => this.addGoodIssueSpinner = false);
   }
 
   addNeedsImprovementIssue(title: string): void {
-    this.retroService.addIssue(title, 'Needs Improvement').subscribe();
+    this.addBadIssueSpinner = true;
+    this.retroService.addIssue(title, 'Needs Improvement').subscribe(() => this.addBadIssueSpinner = false, () => this.addBadIssueSpinner = false, () => this.addBadIssueSpinner = false);
   }
 
   deleteIssue(issue_id: string): void {
-    this.retroService.deleteIssue(issue_id).subscribe();
+    this.deleteIssueSpinners[issue_id] = true;
+    this.retroService.deleteIssue(issue_id).subscribe(() => this.deleteIssueSpinners[issue_id] = false, () => this.deleteIssueSpinners[issue_id] = false, () => this.deleteIssueSpinners[issue_id] = false);
   }
 
   getWentWellIssues(): any {
