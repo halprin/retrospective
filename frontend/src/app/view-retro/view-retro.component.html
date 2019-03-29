@@ -275,7 +275,7 @@
                 <div class="col pr-0 break-word">{{group.title}}</div>
                 <div class="col-auto">
                   <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="{{group.id}}" (click)="voteOrUnvoteForGroup(group, $event.target);" [checked]="group.votes == 1" [disabled]="votes == 0 && group.votes != 1"/>
+                    <input type="checkbox" class="custom-control-input" id="{{group.id}}" (click)="voteOrUnvoteForGroup(group, $event.target);" [checked]="group.votes == 1" [disabled]="voteSpinners[group.id] || votes == 0 && group.votes != 1" [indeterminate]="voteSpinners[group.id]"/>
                     <label class="custom-control-label" for="{{group.id}}">&#x200A;</label>
                   </div>
                 </div>
@@ -295,7 +295,7 @@
                 <div class="col pr-0 break-word">{{issue.title}}</div>
                 <div class="col-auto">
                   <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="{{issue.id}}" (click)="voteOrUnvoteForIssue(issue, $event.target);" [checked]="issue.votes == 1" [disabled]="votes == 0 && issue.votes != 1"/>
+                    <input type="checkbox" class="custom-control-input" id="{{issue.id}}" (click)="voteOrUnvoteForIssue(issue, $event.target);" [checked]="issue.votes == 1" [disabled]="voteSpinners[issue.id] || votes == 0 && issue.votes != 1" [indeterminate]="voteSpinners[issue.id]"/>
                     <label class="custom-control-label" for="{{issue.id}}">&#x200A;</label>
                   </div>
                 </div>

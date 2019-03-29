@@ -26,7 +26,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   addBadGroupSpinner = false;
   deleteGroupSpinners = {};
   assignGroupSpinners = {};
-  voteSpinner = false;
+  voteSpinners = {};
 
   constructor(private retroService: RetrospectiveServiceV2) { }
 
@@ -219,33 +219,41 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
 
   private actuallyVoteForIssue(issue: any): void {
     let issue_id = issue.id;
+    this.voteSpinners[issue_id] = true;
     this.simulateVoteForIssueOrGroup(issue);
-    this.retroService.voteForIssue(issue_id).subscribe(response => {}, error => {
+    this.retroService.voteForIssue(issue_id).subscribe(response => this.voteSpinners[issue_id] = false, error => {
       this.simulateUnvoteForIssueOrGroup(issue);
+      this.voteSpinners[issue_id] = false;
     });
   }
 
   private actuallyUnvoteForIssue(issue: any): void {
     let issue_id = issue.id;
+    this.voteSpinners[issue_id] = true;
     this.simulateUnvoteForIssueOrGroup(issue);
-    this.retroService.unvoteForIssue(issue_id).subscribe(response => {}, error => {
+    this.retroService.unvoteForIssue(issue_id).subscribe(response => this.voteSpinners[issue_id] = false, error => {
       this.simulateVoteForIssueOrGroup(issue);
+      this.voteSpinners[issue_id] = false;
     });
   }
 
   private actuallyVoteForGroup(group: any): void {
     let group_id = group.id;
+    this.voteSpinners[group_id] = true;
     this.simulateVoteForIssueOrGroup(group);
-    this.retroService.voteForGroup(group_id).subscribe(response => {}, error => {
+    this.retroService.voteForGroup(group_id).subscribe(response => this.voteSpinners[group_id] = false, error => {
       this.simulateUnvoteForIssueOrGroup(group);
+      this.voteSpinners[group_id] = false;
     });
   }
 
   private actuallyUnvoteForGroup(group: any): void {
     let group_id = group.id;
+    this.voteSpinners[group_id] = true;
     this.simulateUnvoteForIssueOrGroup(group);
-    this.retroService.unvoteForGroup(group_id).subscribe(response => {}, error => {
+    this.retroService.unvoteForGroup(group_id).subscribe(response => this.voteSpinners[group_id] = false, error => {
       this.simulateVoteForIssueOrGroup(group);
+      this.voteSpinners[group_id] = false;
     });
   }
 
