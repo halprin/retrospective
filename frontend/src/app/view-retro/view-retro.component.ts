@@ -22,9 +22,10 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   addGoodIssueSpinner = false;
   addBadIssueSpinner = false;
   deleteIssueSpinners = {};
-  addGroupSpinner = false;
-  deleteGroupSpinner = false;
-  assignGroupSpinner = false;
+  addGoodGroupSpinner = false;
+  addBadGroupSpinner = false;
+  deleteGroupSpinners = {};
+  assignGroupSpinners = {};
   voteSpinner = false;
 
   constructor(private retroService: RetrospectiveServiceV2) { }
@@ -155,15 +156,18 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   addWentWellGroup(title: string): void {
-    this.retroService.addGroup(title, 'Went Well').subscribe();
+    this.addGoodGroupSpinner = true;
+    this.retroService.addGroup(title, 'Went Well').subscribe(() => this.addGoodGroupSpinner = false, () => this.addGoodGroupSpinner = false, () => this.addGoodGroupSpinner = false);
   }
 
   addNeedsImprovementGroup(title: string): void {
-    this.retroService.addGroup(title, 'Needs Improvement').subscribe();
+    this.addBadGroupSpinner = true;
+    this.retroService.addGroup(title, 'Needs Improvement').subscribe(() => this.addBadGroupSpinner = false, () => this.addBadGroupSpinner = false, () => this.addBadGroupSpinner = false);
   }
 
   deleteGroup(group_id: string): void {
-    this.retroService.deleteGroup(group_id).subscribe();
+    this.deleteGroupSpinners[group_id] = true;
+    this.retroService.deleteGroup(group_id).subscribe(() => this.deleteGroupSpinners[group_id] = false, () => this.deleteGroupSpinners[group_id] = false, () => this.deleteGroupSpinners[group_id] = false);
   }
 
   getWentWellGroups(): any {
@@ -189,10 +193,11 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   groupOrUngroupIssue(issue_id: string, group_id: string): void {
+    this.assignGroupSpinners[issue_id] = true;
     if(group_id === 'ungroup') {
-      this.retroService.ungroupIssue(issue_id).subscribe();
+      this.retroService.ungroupIssue(issue_id).subscribe(() => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false);
     } else {
-      this.retroService.groupIssue(issue_id, group_id).subscribe();
+      this.retroService.groupIssue(issue_id, group_id).subscribe(() => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false);
     }
   }
 

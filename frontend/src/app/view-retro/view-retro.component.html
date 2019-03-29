@@ -156,7 +156,10 @@
         <div class="card-body">
           <form class="input-group" (submit)="addWentWellGroup(new_group_went_well.value); new_group_went_well.value = ''; false;">
             <input type="text" class="form-control" id="new_group_went_well" #new_group_went_well required />
-            <button type="submit" class="btn btn-primary ml-2">Add Group</button>
+            <button type="submit" class="btn btn-primary ml-2" [disabled]="addGoodGroupSpinner">
+              <span class="spinner-border spinner-border-sm" *ngIf="addGoodGroupSpinner" role="status" aria-hidden="true"></span>
+              {{addGoodGroupSpinner? 'Adding Group...' :'Add Group'}}
+            </button>
           </form>
         </div>
         <ul class="list-group list-group-flush">
@@ -165,8 +168,9 @@
               <div class="row justify-content-between align-items-center">
                 <div class="col pr-0 break-word">{{group.title}}</div>
                 <div class="col-auto">
-                  <button type="button" class="btn btn-primary" (click)="deleteGroup(group.id);">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="rem-08 svg-white" width="8" height="8" viewBox="0 0 8 8">
+                  <button type="button" class="btn btn-primary" (click)="deleteGroup(group.id);" [disabled]="deleteGroupSpinners[group.id]">
+                    <span class="spinner-border spinner-border-sm" *ngIf="deleteGroupSpinners[group.id]" role="status" aria-hidden="true"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="rem-08 svg-white" *ngIf="!deleteGroupSpinners[group.id]" width="8" height="8" viewBox="0 0 8 8">
                       <path d="M3 0c-.55 0-1 .45-1 1h-1c-.55 0-1 .45-1 1h7c0-.55-.45-1-1-1h-1c0-.55-.45-1-1-1h-1zm-2 3v4.81c0 .11.08.19.19.19h4.63c.11 0 .19-.08.19-.19v-4.81h-1v3.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-3.5h-1v3.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-3.5h-1z" />
                     </svg>
                   </button>
@@ -178,8 +182,9 @@
             <div class="container p-0">
               <div class="row justify-content-between align-items-center">
                 <div class="col pr-0 break-word">{{issue.title}}</div>
-                <div class="col-auto">
-                  <select class="custom-select" (change)="groupOrUngroupIssue(issue.id, $event.target.value)">
+                <div class="col-auto form-inline">
+                  <span class="spinner-border" *ngIf="assignGroupSpinners[issue.id]" role="status" aria-hidden="true" style="margin-right: 0.5rem"></span>
+                  <select class="custom-select" (change)="groupOrUngroupIssue(issue.id, $event.target.value)" [disabled]="assignGroupSpinners[issue.id]">
                     <option value="ungroup" [selected]="isIssueUngrouped(issue.id)">No Group</option>
                     <option *ngFor="let group of getWentWellGroups()" [value]="group.id" [selected]="isIssueGroupedWithGroup(issue.id, group.id)">{{group.title}}</option>
                   </select>
@@ -196,7 +201,10 @@
         <div class="card-body">
           <form class="input-group" (submit)="addNeedsImprovementGroup(new_group_improved.value); new_group_improved.value = ''; false;">
             <input type="text" class="form-control" id="new_group_improved" #new_group_improved required />
-            <button type="submit" class="btn btn-primary ml-2">Add Group</button>
+            <button type="submit" class="btn btn-primary ml-2" [disabled]="addBadGroupSpinner">
+              <span class="spinner-border spinner-border-sm" *ngIf="addBadGroupSpinner" role="status" aria-hidden="true"></span>
+              {{addBadGroupSpinner ? 'Adding Group...' : 'Add Group'}}
+            </button>
           </form>
         </div>
         <ul class="list-group list-group-flush">
@@ -205,8 +213,9 @@
               <div class="row justify-content-between align-items-center">
                 <div class="col pr-0 break-word">{{group.title}}</div>
                 <div class="col-auto">
-                  <button type="button" class="btn btn-primary" (click)="deleteGroup(group.id);">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="rem-08 svg-white" width="8" height="8" viewBox="0 0 8 8">
+                  <button type="button" class="btn btn-primary" (click)="deleteGroup(group.id);" [disabled]="deleteGroupSpinners[group.id]">
+                    <span class="spinner-border spinner-border-sm" *ngIf="deleteGroupSpinners[group.id]" role="status" aria-hidden="true"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="rem-08 svg-white" *ngIf="!deleteGroupSpinners[group.id]" width="8" height="8" viewBox="0 0 8 8">
                       <path d="M3 0c-.55 0-1 .45-1 1h-1c-.55 0-1 .45-1 1h7c0-.55-.45-1-1-1h-1c0-.55-.45-1-1-1h-1zm-2 3v4.81c0 .11.08.19.19.19h4.63c.11 0 .19-.08.19-.19v-4.81h-1v3.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-3.5h-1v3.5c0 .28-.22.5-.5.5s-.5-.22-.5-.5v-3.5h-1z" />
                     </svg>
                   </button>
@@ -218,8 +227,9 @@
             <div class="container p-0">
               <div class="row justify-content-between align-items-center">
                 <div class="col pr-0 break-word">{{issue.title}}</div>
-                <div class="col-auto">
-                  <select class="custom-select" (change)="groupOrUngroupIssue(issue.id, $event.target.value)">
+                <div class="col-auto form-inline">
+                  <span class="spinner-border" *ngIf="assignGroupSpinners[issue.id]" role="status" aria-hidden="true" style="margin-right: 0.5rem"></span>
+                  <select class="custom-select" (change)="groupOrUngroupIssue(issue.id, $event.target.value)" [disabled]="assignGroupSpinners[issue.id]">
                     <option value="ungroup" [selected]="isIssueUngrouped(issue.id)">No Group</option>
                     <option *ngFor="let group of getNeedsImprovementGroups()" [value]="group.id" [selected]="isIssueGroupedWithGroup(issue.id, group.id)">{{group.title}}</option>
                   </select>
