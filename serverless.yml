@@ -172,12 +172,11 @@ functions:
     handler: backend.api.views.generic.websockets.websocket_connect
     events:
       - websocket:
-          routeKey: $connect
+          route: $connect
 
 
 plugins:
   - serverless-python-requirements
-  - serverless-websockets-plugin
 
 
 resources:
