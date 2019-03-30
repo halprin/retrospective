@@ -4,7 +4,6 @@ import uuid
 from backend.api import token
 import boto3
 import json
-import traceback
 import os
 
 
@@ -224,5 +223,5 @@ class Service:
             apigatewaymanagementapi_client.post_to_connection(Data=sanitized_retro_json.encode('utf-8'),
                                                               ConnectionId=connection_id)
         except Exception:
-            traceback.print_exc()
-            # TODO: update retro to remove this connection_id
+            participant.token = user_token
+            retro.save()
