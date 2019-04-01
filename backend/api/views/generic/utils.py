@@ -4,6 +4,7 @@ from typing import Dict
 from functools import wraps
 import traceback
 import os
+import logging
 
 
 @dataclass
@@ -43,7 +44,6 @@ class Lambda:
 
     @classmethod
     def get_response(cls, response: Response) -> dict:
-        print('https://{}'.format(os.environ['ALLOWED_HOST']))
         return {
             'body': response.body,
             'statusCode': response.statusCode,
@@ -84,7 +84,7 @@ def exception_to_error_response(original_function):
             return original_function(*args, **kwargs)
         except Exception:
             context = args[1]
-            print('Exception during execution of {}'.format(original_function))
+            logging.error('Exception during execution of {}'.format(original_function))
             traceback.print_exc()
             response = Response(500, 'An unexpected error occurred. Reference {}'.format(
                 context.aws_request_id), {'Content-Type': 'text/plain'})

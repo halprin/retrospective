@@ -5,12 +5,14 @@ from backend.api import token
 import boto3
 import json
 import os
+import logging
 
 
 class Service:
     @classmethod
     def create_retro(cls, retro_name: str, admin_name: str) -> Retrospective:
         new_retro: Retrospective = Retrospective(str(uuid.uuid4()))
+        logging.info('Creating retrospective {}'.format(new_retro.id))
 
         new_retro.name = retro_name
         new_retro.current_step = RetroStep.ADDING_ISSUES.value
@@ -24,6 +26,7 @@ class Service:
 
     @staticmethod
     def get_retro(retro_id: str) -> Retrospective:
+        logging.info('Getting retrospective {}'.format(retro_id))
         return Retrospective.get(retro_id)
 
     @staticmethod
@@ -37,6 +40,7 @@ class Service:
 
     @classmethod
     def move_retro(cls, retro: Retrospective, direction: str) -> str:
+        logging.info('Moving retrospective {}, {}'.format(retro.id, direction))
         current_step = cls._get_retro_step(retro.current_step)
 
         if direction == 'next':
@@ -120,6 +124,7 @@ class Service:
 
     @classmethod
     def sanitize_retro_for_user_and_step(cls, retro: Retrospective, user_token: str) -> dict:
+        logging.info('Sanitizing retrospective {} for user {}'.format(retro.id, user_token))
         sanitized_retro = {
             'id': retro.id,
             'name': retro.name,
@@ -137,6 +142,7 @@ class Service:
 
     @classmethod
     def add_participant(cls, name: str, retro: Retrospective) -> str:
+        logging.info('Adding new participant {} to retrospective {}'.format(name, retro.id))
         new_participant: ParticipantAttribute = cls._create_participant(name)
 
         retro.participants.append(new_participant)
@@ -148,6 +154,7 @@ class Service:
 
     @classmethod
     def mark_user_as_ready(cls, user_token: str, is_ready: bool, retro: Retrospective):
+        logging.info('Marking participant {} as ready'.format(user_token))
         participant = token.get_participant(user_token, retro)
         participant.ready = is_ready
 
@@ -162,6 +169,9 @@ class Service:
 
     @classmethod
     def add_new_issue(cls, title: str, section: str, user_token: str, retro: Retrospective) -> str:
+        logging.info(
+            'Adding new issue "{}" into section "{}" by user {} on retrospective {}'.format(title, section, user_token,
+                                                                                            retro.id))
         new_issue = cls._create_issue(title, section, creator_token=user_token)
 
         retro.issues.append(new_issue)
@@ -173,6 +183,7 @@ class Service:
 
     @classmethod
     def vote_for_issue(cls, issue: IssueAttribute, user_token: str, retro: Retrospective):
+        logging.info('Participant {} voting for issue {} on retrospective {}'.format(user_token, issue.id, retro.id))
         if issue.votes is None:
             issue.votes: set = set()
         issue.votes.add(user_token)
@@ -183,6 +194,7 @@ class Service:
 
     @classmethod
     def unvote_for_issue(cls, issue: IssueAttribute, user_token: str, retro: Retrospective):
+        logging.info('Participant {} unvoting for issue {} on retrospective {}'.format(user_token, issue.id, retro.id))
         if issue.votes is None:
             return
         issue.votes.discard(user_token)
@@ -196,6 +208,7 @@ class Service:
 
     @classmethod
     def delete_issue(cls, issue: IssueAttribute, retro: Retrospective):
+        logging.info('Deleting issue {} on retrospective {}'.format(issue.id, retro.id))
         retro.issues.remove(issue)
 
         retro.save()
@@ -223,5 +236,6 @@ class Service:
             apigatewaymanagementapi_client.post_to_connection(Data=sanitized_retro_json.encode('utf-8'),
                                                               ConnectionId=connection_id)
         except Exception:
+            logging.warning('Participant {} WebSocket is no longer connected; removing connection ID'.format(participant.name))
             participant.token = user_token
             retro.save()

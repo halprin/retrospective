@@ -2,12 +2,14 @@ import uuid
 from typing import Optional, List
 from backend.api.modelsV2 import RetrospectiveV2, RetroStepV2, IssueAttributeV2, GroupAttribute
 from backend.api.service import Service
+import logging
 
 
 class ServiceV2(Service):
     @classmethod
     def create_retro(cls, retro_name: str, admin_name: str) -> RetrospectiveV2:
         new_retro: RetrospectiveV2 = RetrospectiveV2(str(uuid.uuid4()))
+        logging.info('Creating retrospective {}'.format(new_retro.id))
 
         new_retro.name = retro_name
         new_retro.current_step = RetroStepV2.ADDING_ISSUES.value
@@ -22,6 +24,7 @@ class ServiceV2(Service):
 
     @staticmethod
     def get_retro(retro_id: str) -> RetrospectiveV2:
+        logging.info('Getting retrospective {}'.format(retro_id))
         return RetrospectiveV2.get(retro_id)
 
     @staticmethod
@@ -81,6 +84,7 @@ class ServiceV2(Service):
 
     @classmethod
     def sanitize_retro_for_user_and_step(cls, retro: RetrospectiveV2, user_token: str) -> dict:
+        logging.info('Sanitizing retrospective {} for user {}'.format(retro.id, user_token))
         sanitized_retro = {
             'id': retro.id,
             'name': retro.name,
@@ -110,6 +114,7 @@ class ServiceV2(Service):
 
     @classmethod
     def vote_for_issue(cls, issue: IssueAttributeV2, user_token: str, retro: RetrospectiveV2):
+        logging.info('Participant {} voting for issue {} on retrospective {}'.format(user_token, issue.id, retro.id))
         if issue.group is not None and issue.group != '':
             group: GroupAttribute = cls._get_group_by_id(issue.group, retro)
             cls.vote_for_group(group, user_token, retro)
@@ -119,6 +124,7 @@ class ServiceV2(Service):
 
     @classmethod
     def vote_for_group(cls, group: GroupAttribute, user_token: str, retro: RetrospectiveV2):
+        logging.info('Participant {} voting for group {} on retrospective {}'.format(user_token, group.id, retro.id))
         if group.votes is None:
             group.votes: set = set()
         group.votes.add(user_token)
@@ -129,6 +135,7 @@ class ServiceV2(Service):
 
     @classmethod
     def unvote_for_issue(cls, issue: IssueAttributeV2, user_token: str, retro: RetrospectiveV2):
+        logging.info('Participant {} unvoting for issue {} on retrospective {}'.format(user_token, issue.id, retro.id))
         if issue.group is not None and issue.group != '':
             group: GroupAttribute = cls._get_group_by_id(issue.group, retro)
             cls.unvote_for_group(group, user_token, retro)
@@ -138,6 +145,7 @@ class ServiceV2(Service):
 
     @classmethod
     def unvote_for_group(cls, group: GroupAttribute, user_token: str, retro: RetrospectiveV2):
+        logging.info('Participant {} unvoting for group {} on retrospective {}'.format(user_token, group.id, retro.id))
         if group.votes is None:
             return
         group.votes.discard(user_token)
@@ -151,6 +159,7 @@ class ServiceV2(Service):
 
     @classmethod
     def group_issue(cls, issue: IssueAttributeV2, group: GroupAttribute, retro: RetrospectiveV2):
+        logging.info('Grouping issue {} into group {} on retrospective {}'.format(issue.id, group.id, retro.id))
         issue.group = group.id
 
         retro.save()
@@ -159,6 +168,7 @@ class ServiceV2(Service):
 
     @classmethod
     def ungroup_issue(cls, issue: IssueAttributeV2, retro: RetrospectiveV2):
+        logging.info('Ungrouping issue {} on retrospective {}'.format(issue.id, retro.id))
         issue.group = None
 
         retro.save()
@@ -167,6 +177,7 @@ class ServiceV2(Service):
 
     @classmethod
     def add_new_group(cls, title: str, section: str, retro: RetrospectiveV2):
+        logging.info('Creating new group "{}" for section "{}" on retrospective {}'.format(title, section, retro.id))
         new_group: GroupAttribute = GroupAttribute(id=str(uuid.uuid4()), title=title, section=section, votes=None)
 
         retro.groups.append(new_group)
@@ -178,6 +189,7 @@ class ServiceV2(Service):
 
     @classmethod
     def delete_group(cls, group: GroupAttribute, retro: RetrospectiveV2):
+        logging.info('Deleting group "{}" on retrospective {}'.format(group.id, retro.id))
         for issue in retro.issues:
             if issue.group == group.id:
                 cls.ungroup_issue(issue, retro)
