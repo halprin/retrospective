@@ -15,10 +15,10 @@ def original_function(*args, **kwargs):
 @patch('backend.api.validation._get_service', autospec=True)
 def test_retrospective_exists_negative(mock_service_function):
     mock_self_class = MagicMock()
-    mock_request = request.create_mock_request()
+    retro_id = 'non-existent_retro_id'
+    mock_request = request.create_mock_request(retro_id=retro_id)
     mock_service_function.return_value.get_retro.side_effect = Retrospective.DoesNotExist
 
-    retro_id = 'non-existent_retro_id'
     object_under_test = validation.retrospective_exists(original_function)
     response = object_under_test(mock_self_class, mock_request, retro_id=retro_id)
 
@@ -29,10 +29,10 @@ def test_retrospective_exists_negative(mock_service_function):
 def test_retrospective_exists_positive(mock_service_function):
     mock_retro = retro.create_mock_retro()
     mock_self_class = MagicMock()
-    mock_request = request.create_mock_request()
+    passed_in_retro_id = 'some_retro_id'
+    mock_request = request.create_mock_request(retro_id=passed_in_retro_id)
     mock_service_function.return_value.get_retro.return_value = mock_retro
 
-    passed_in_retro_id = 'some_retro_id'
     object_under_test = validation.retrospective_exists(original_function)
     passed_args = object_under_test(mock_self_class, mock_request, retro_id=passed_in_retro_id)
 
@@ -149,24 +149,25 @@ def test__find_issue_positive():
 
 def test_issue_exists_negative():
     issue_id = 'non-existent_issue_id'
+    mock_request = request.create_mock_request(issue_id=issue_id)
     object_under_test = validation.issue_exists(original_function)
 
-    response = object_under_test(retro=retro.create_mock_retro(issues=[retro.create_mock_issue(id='some_other_id')]),
-                                 issue_id=issue_id)
+    response = object_under_test(mock_request,
+                                 retro=retro.create_mock_retro(issues=[retro.create_mock_issue(id='some_other_id')]))
 
     validators.assert_issue_not_found(response, issue_id)
 
 
 def test_issue_exists_positive():
     issue_id = 'some_issue_id'
+    mock_request = request.create_mock_request(issue_id=issue_id)
     mock_issue = retro.create_mock_issue(id=issue_id)
     mock_retro = retro.create_mock_retro(issues=[mock_issue])
     object_under_test = validation.issue_exists(original_function)
 
-    passed_args = object_under_test(retro=mock_retro, issue_id=issue_id)
+    passed_args = object_under_test(mock_request, retro=mock_retro)
 
     assert mock_retro == passed_args['kwargs']['retro']
-    assert issue_id == passed_args['kwargs']['issue_id']
     assert mock_issue == passed_args['kwargs']['issue']
 
 

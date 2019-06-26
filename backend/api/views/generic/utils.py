@@ -16,7 +16,7 @@ class Request:
 
 @dataclass
 class Response:
-    statusCode: int
+    status_code: int
     body: str
     headers: Dict[str, str]
 
@@ -46,7 +46,7 @@ class Lambda:
     def get_response(cls, response: Response) -> dict:
         return {
             'body': response.body,
-            'statusCode': response.statusCode,
+            'statusCode': response.status_code,
             'headers': {**response.headers, 'Access-Control-Allow-Origin': 'https://{}'.format(os.environ['ALLOWED_HOST'])}
         }
 
