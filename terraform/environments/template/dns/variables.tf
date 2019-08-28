@@ -14,6 +14,18 @@ variable "backend_domain" {
   type = "string"
 }
 
+variable "backend_ws_target" {
+  type = "string"
+}
+
+variable "backend_ws_zone_id" {
+  type = "string"
+}
+
+variable "backend_ws_domain" {
+  type = "string"
+}
+
 variable "frontend_target" {
   type = "string"
 }

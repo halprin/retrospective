@@ -1,13 +1,12 @@
-import uuid
 from functools import wraps
 from typing import Iterator
-from django.http import HttpResponse, HttpRequest
 from backend.api import token
 from backend.api.models import Retrospective, RetroStep, IssueAttribute
 from .modelsV2 import RetroStepV2, RetrospectiveV2, GroupAttribute
 import importlib
 from typing import Optional, Union, List
 from pynamodb.models import Model
+from .views.generic.utils import Request, Response
 
 
 charset_utf8 = 'UTF-8'
@@ -24,18 +23,15 @@ incorrect_api_version = 'Using incorrect API version.  Utilizing API version {} 
 def retrospective_exists(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        retro_id: uuid = kwargs['retro_id']
-        retro_id_str: str = str(retro_id)
-
-        request: HttpRequest = next(arg for arg in args if isinstance(arg, HttpRequest))
+        request: Request = next(arg for arg in args if isinstance(arg, Request))
+        retro_id = request.path_values['retro_id']
         service = _get_service(request)
 
         retro: Retrospective = None
         try:
-            retro = service.get_retro(retro_id_str)
+            retro = service.get_retro(retro_id)
         except Model.DoesNotExist:
-            return HttpResponse(retro_not_found.format(retro_id_str), status=404, content_type=content_type_text_plain,
-                                charset=charset_utf8)
+            return Response(404, retro_not_found.format(retro_id), {'Content-Type': content_type_text_plain})
 
         return original_function(*args, retro=retro, **kwargs)
 
@@ -45,11 +41,11 @@ def retrospective_exists(original_function):
 def user_is_admin(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        request: HttpRequest = args[1]
+        request: Request = args[1]
         retro: Retrospective = kwargs['retro']
 
         if not token.token_is_admin(token.get_token_from_request(request), retro):
-            return HttpResponse(user_not_admin, status=401, content_type=content_type_text_plain, charset=charset_utf8)
+            return Response(401, user_not_admin, {'Content-Type': content_type_text_plain})
 
         return original_function(*args, **kwargs)
 
@@ -59,11 +55,11 @@ def user_is_admin(original_function):
 def user_is_valid(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        request: HttpRequest = next(arg for arg in args if isinstance(arg, HttpRequest))
+        request: Request = next(arg for arg in args if isinstance(arg, Request))
         retro: Retrospective = kwargs['retro']
 
         if not token.token_is_valid(token.get_token_from_request(request), retro):
-            return HttpResponse(user_not_valid, status=401, content_type=content_type_text_plain, charset=charset_utf8)
+            return Response(401, user_not_valid, {'Content-Type': content_type_text_plain})
 
         return original_function(*args, **kwargs)
 
@@ -86,8 +82,8 @@ def retro_on_step(retro_step: Union[RetroStep, RetroStepV2, List[RetroStep], Lis
                 match = retro.current_step == retro_step.value
 
             if not match:
-                return HttpResponse(error_message.format(retro.current_step), status=422,
-                                    content_type=content_type_text_plain, charset=charset_utf8)
+                return Response(422, error_message.format(retro.current_step),
+                                {'Content-Type': content_type_text_plain})
 
             return original_function(*args, **kwargs)
 
@@ -98,14 +94,14 @@ def retro_on_step(retro_step: Union[RetroStep, RetroStepV2, List[RetroStep], Lis
 def issue_exists(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        issue_id: uuid = kwargs['issue_id']
-        issue_id_str: str = str(issue_id)
+        request: Request = next(arg for arg in args if isinstance(arg, Request))
+        issue_id = request.path_values['issue_id']
+
         retro: Retrospective = kwargs['retro']
 
-        issue: IssueAttribute = _find_issue(issue_id_str, retro)
+        issue: IssueAttribute = _find_issue(issue_id, retro)
         if issue is None:
-            return HttpResponse(issue_not_found.format(issue_id_str), status=404, content_type=content_type_text_plain,
-                                charset=charset_utf8)
+            return Response(404, issue_not_found.format(issue_id), {'Content-Type': content_type_text_plain})
 
         return original_function(*args, issue=issue, **kwargs)
 
@@ -115,12 +111,11 @@ def issue_exists(original_function):
 def issue_owned_by_user(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        request: HttpRequest = args[1]
+        request: Request = args[1]
         issue: IssueAttribute = kwargs['issue']
 
         if not token.issue_owned_by_participant(issue, token.get_token_from_request(request)):
-            return HttpResponse(user_is_not_issue_owner.format(issue.id), status=401,
-                                content_type=content_type_text_plain, charset=charset_utf8)
+            return Response(401, user_is_not_issue_owner.format(issue.id), {'Content-Type': content_type_text_plain})
 
         return original_function(*args, **kwargs)
 
@@ -130,15 +125,15 @@ def issue_owned_by_user(original_function):
 def retrospective_api_is_correct(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        request: HttpRequest = next(arg for arg in args if isinstance(arg, HttpRequest))
+        request: Request = next(arg for arg in args if isinstance(arg, Request))
         retro: Retrospective = kwargs['retro']
 
         api_version = _get_api_version(request)
         retro_version = _get_retro_version(retro)
 
         if api_version != retro_version:
-            return HttpResponse(incorrect_api_version.format(api_version, retro_version), status=409,
-                                content_type=content_type_text_plain, charset=charset_utf8)
+            return Response(409, incorrect_api_version.format(api_version, retro_version),
+                            {'Content-Type': content_type_text_plain})
 
         return original_function(*args, **kwargs)
 
@@ -148,17 +143,17 @@ def retrospective_api_is_correct(original_function):
 def group_exists(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
-        group_id: uuid = kwargs['group_id']
-        group_id_str: str = str(group_id)
+        request: Request = next(arg for arg in args if isinstance(arg, Request))
+        group_id = request.path_values['group_id']
+
         retro: RetrospectiveV2 = kwargs['retro']
 
         group: GroupAttribute = None
 
         if not isinstance(group_id, bool):
-            group = _find_group(group_id_str, retro)
+            group = _find_group(group_id, retro)
             if group is None:
-                return HttpResponse(group_not_found.format(group_id_str), status=404,
-                                    content_type=content_type_text_plain, charset=charset_utf8)
+                return Response(404, group_not_found.format(group_id), {'Content-Type': content_type_text_plain})
 
         return original_function(*args, group=group, **kwargs)
 
@@ -181,11 +176,11 @@ def _find_issue(issue_id: str, retro: Retrospective) -> Optional[IssueAttribute]
         return None
 
 
-def _get_api_version(request: HttpRequest) -> str:
-    return request.META.get('HTTP_API_VERSION', '1')
+def _get_api_version(request: Request) -> str:
+    return request.headers.get('Api-Version', request.headers.get('api-version', '1'))
 
 
-def _get_service_version(request: HttpRequest) -> str:
+def _get_service_version(request: Request) -> str:
     api_version = _get_api_version(request)
 
     service_version = 'V' + api_version if api_version != '1' else ''
@@ -200,7 +195,7 @@ def _find_service_class_to_use(service_version: str):
     return class_to_use
 
 
-def _get_service(request: HttpRequest):
+def _get_service(request: Request):
     service_version = _get_service_version(request)
 
     return _find_service_class_to_use(service_version)

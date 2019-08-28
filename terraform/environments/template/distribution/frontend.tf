@@ -20,7 +20,8 @@ resource "aws_cloudfront_distribution" "frontend" {
     target_origin_id       = "${var.environment}-frontend-retrospective"
     viewer_protocol_policy = "redirect-to-https"
 
-    default_ttl = 86400
+    default_ttl = "${var.environment == "dev" ? 120 : 86400}"
+    max_ttl     = "${var.environment == "dev" ? 3600 : 31536000}"
     compress    = false
 
     forwarded_values {

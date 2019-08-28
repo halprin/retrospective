@@ -1,0 +1,193 @@
+service: retrospective
+
+
+provider:
+  name: aws
+  runtime: python3.7
+  region: us-east-1
+  stage: ${env:ENVIRONMENT}
+  memorySize: 256
+  timeout: 15
+  deploymentBucket:
+    name: serverless-deploy-485419608727
+  iamManagedPolicies:
+    - ${env:DATABASE_POLICY}
+    - ${env:WEBSOCKET_POLICY}
+  environment:
+    ENVIRONMENT: ${env:ENVIRONMENT}
+    ALLOWED_HOST: ${env:ALLOWED_HOST}
+    WEBSOCKET_ENDPOINT: ${env:WEBSOCKET_ENDPOINT}
+
+
+package:
+  exclude:
+    - ./**
+  include:
+    - backend/**
+
+
+functions:
+  createRetro:
+    handler: backend.api.views.generic.retro.create
+    events:
+      - http:
+          path: /api/retro
+          method: post
+          cors:
+            origin: https://${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
+              - Content-Type
+
+  moveRetro:
+    handler: backend.api.views.generic.retro.move
+    events:
+      - http:
+          path: /api/retro/{retro_id}
+          method: put
+          cors:
+            origin: https://${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
+              - Content-Type
+              - Authorization
+
+  getRetro:
+    handler: backend.api.views.generic.retro.get
+    events:
+      - http:
+          path: /api/retro/{retro_id}
+          method: get
+          cors:
+            origin: https://${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
+              - Content-Type
+              - Authorization
+
+  addParticipant:
+    handler: backend.api.views.generic.user.add_participant
+    events:
+      - http:
+          path: /api/retro/{retro_id}/user
+          method: post
+          cors:
+            origin: https://${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
+              - Content-Type
+
+  markAsReady:
+    handler: backend.api.views.generic.user.mark_as_ready
+    events:
+      - http:
+          path: /api/retro/{retro_id}/user
+          method: put
+          cors:
+            origin: https://${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
+              - Content-Type
+              - Authorization
+
+  addIssue:
+    handler: backend.api.views.generic.issue.add
+    events:
+      - http:
+          path: /api/retro/{retro_id}/issue
+          method: post
+          cors:
+            origin: https://${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
+              - Content-Type
+              - Authorization
+
+  voteOrGroupIssue:
+    handler: backend.api.views.generic.issue.vote_or_group
+    events:
+      - http:
+          path: /api/retro/{retro_id}/issue/{issue_id}
+          method: put
+          cors:
+            origin: https://${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
+              - Content-Type
+              - Authorization
+
+  deleteIssue:
+    handler: backend.api.views.generic.issue.delete
+    events:
+      - http:
+          path: /api/retro/{retro_id}/issue/{issue_id}
+          method: delete
+          cors:
+            origin: https://${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
+              - Content-Type
+              - Authorization
+
+  addGroup:
+    handler: backend.api.views.generic.group.add
+    events:
+      - http:
+          path: /api/retro/{retro_id}/group
+          method: post
+          cors:
+            origin: https://${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
+              - Content-Type
+              - Authorization
+
+  voteForGroup:
+    handler: backend.api.views.generic.group.vote
+    events:
+      - http:
+          path: /api/retro/{retro_id}/group/{group_id}
+          method: put
+          cors:
+            origin: https://${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
+              - Content-Type
+              - Authorization
+
+  deleteGroup:
+    handler: backend.api.views.generic.group.delete
+    events:
+      - http:
+          path: /api/retro/{retro_id}/group/{group_id}
+          method: delete
+          cors:
+            origin: https://${env:ALLOWED_HOST}
+            headers:
+              - Api-Version
+              - Content-Type
+              - Authorization
+
+  websocketConnect:
+    handler: backend.api.views.generic.websockets.websocket_connect
+    events:
+      - websocket:
+          route: $connect
+
+
+plugins:
+  - serverless-python-requirements
+
+
+resources:
+  Outputs:
+    ApiGatewayId:
+      Description: The ID of the API Gateway
+      Value:
+        Ref : "ApiGatewayRestApi"
+
+
+custom:
+  pythonRequirements:
+    noDeploy:
+      - pytest

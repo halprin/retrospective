@@ -1,3 +1,7 @@
-output "instance_profile" {
-  value = "${aws_iam_instance_profile.instance_profile.name}"
+output "database_policy" {
+  value = "${aws_iam_policy.read_writes_dynamodb.arn}"
+}
+
+output "websocket_policy" {
+  value = "${aws_iam_policy.manage_websocket_connections.arn}"
 }

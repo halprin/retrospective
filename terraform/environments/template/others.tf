@@ -9,9 +9,8 @@ module "database" {
 module "permissions" {
   source = "permissions"
 
-  environment      = "${var.environment}"
-  dynamodb_arn     = "${module.database.arn}"
-  hosted_zone_name = "${var.base_host_name}"
+  environment  = "${var.environment}"
+  dynamodb_arn = "${module.database.arn}"
 }
 
 module "frontend" {
@@ -38,46 +37,18 @@ module "dns" {
   environment      = "${var.environment}"
   hosted_zone_name = "${var.base_host_name}"
 
-  backend_target  = "${aws_elastic_beanstalk_environment.env.cname}"
-  backend_zone_id = "${data.aws_elastic_beanstalk_hosted_zone.current.id}"
+  backend_target  = "${aws_api_gateway_domain_name.custom_domain.cloudfront_domain_name}"
+  backend_zone_id = "${aws_api_gateway_domain_name.custom_domain.cloudfront_zone_id}"
   backend_domain  = "${data.null_data_source.hostname.outputs.backend}"
+
+  backend_ws_target  = "${data.external.custom_ws_domain.result["AwsDomainName"]}"
+  backend_ws_zone_id = "${data.external.custom_ws_domain.result["AwsHozedZone"]}"
+  backend_ws_domain  = "${data.null_data_source.hostname.outputs.backend_websocket}"
 
   frontend_target  = "${module.distribution.frontend_domain}"
   frontend_zone_id = "${module.distribution.frontend_zone_id}"
   frontend_domain  = "${data.null_data_source.hostname.outputs.frontend}"
 }
-
-resource "aws_security_group" "https" {
-  name        = "https-${var.environment}"
-  description = "Allow HTTPS communication"
-
-  tags {
-    Name        = "https-${var.environment}"
-    environment = "${var.environment}"
-  }
-}
-
-resource "aws_security_group_rule" "allow_https_in" {
-  type        = "ingress"
-  from_port   = 443
-  to_port     = 443
-  protocol    = "tcp"
-  cidr_blocks = ["0.0.0.0/0"]
-
-  security_group_id = "${aws_security_group.https.id}"
-}
-
-resource "aws_security_group_rule" "allow_all_to_anywhere" {
-  type        = "egress"
-  from_port   = 0
-  to_port     = 0
-  protocol    = "-1"
-  cidr_blocks = ["0.0.0.0/0"]
-
-  security_group_id = "${aws_security_group.https.id}"
-}
-
-data "aws_elastic_beanstalk_hosted_zone" "current" {}
 
 data "null_data_source" "prefix" {
   inputs {
@@ -87,7 +58,8 @@ data "null_data_source" "prefix" {
 
 data "null_data_source" "hostname" {
   inputs {
-    backend  = "retrospective-api${data.null_data_source.prefix.outputs.prefix}.${var.base_host_name}"
-    frontend = "retrospective${data.null_data_source.prefix.outputs.prefix}.${var.base_host_name}"
+    backend           = "retrospective-api${data.null_data_source.prefix.outputs.prefix}.${var.base_host_name}"
+    backend_websocket = "retrospective-ws${data.null_data_source.prefix.outputs.prefix}.${var.base_host_name}"
+    frontend          = "retrospective${data.null_data_source.prefix.outputs.prefix}.${var.base_host_name}"
   }
 }

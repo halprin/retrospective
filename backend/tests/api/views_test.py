@@ -1,5 +1,5 @@
 import json
-from backend.api.views.views import RetroView, RetroUserView, RetroIssueView, HealthView
+from backend.api.views.views import RetroView, RetroUserView, RetroIssueView
 from backend.api.views import views
 from unittest.mock import patch
 from backend.tests.util import retro, request, validators
@@ -29,9 +29,8 @@ class TestRetroView:
         response = object_under_test.post(a_request)
 
         assert response.status_code == 201
-        assert response[validators.content_type] == content_type_application_json
-        assert response.charset == views.charset_utf8
-        assert json.loads(response.content) == {'retroId': new_retro_id, 'token': new_admin_id}
+        assert response.headers[validators.content_type] == content_type_application_json
+        assert json.loads(response.body) == {'retroId': new_retro_id, 'token': new_admin_id}
 
     def test_put_retro_doesnt_exist(self, mock_service_function_validation, mock_service_view, mock_token):
         object_under_test = RetroView()
@@ -51,7 +50,7 @@ class TestRetroView:
         mock_token.token_is_admin.return_value = False
 
         object_under_test = RetroView()
-        response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever')
+        response = object_under_test.put(request.create_mock_request(request_body, retro_id='whatever'))
 
         validators.assert_user_not_admin(response)
 
@@ -65,12 +64,11 @@ class TestRetroView:
         mock_service_view.move_retro.side_effect = ValueError(value_error_text)
 
         object_under_test = RetroView()
-        response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever')
+        response = object_under_test.put(request.create_mock_request(request_body,retro_id='whatever'))
 
         assert response.status_code == 422
-        assert response[validators.content_type] == views.content_type_text_plain
-        assert response.charset == views.charset_utf8
-        assert response.content.decode() == value_error_text
+        assert response.headers[validators.content_type] == views.content_type_text_plain
+        assert response.body == value_error_text
 
     def test_put_move_success(self, mock_service_function_validation, mock_service_view, mock_token):
         request_body = {
@@ -82,12 +80,11 @@ class TestRetroView:
         mock_service_view.move_retro.return_value = new_stage
 
         object_under_test = RetroView()
-        response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever')
+        response = object_under_test.put(request.create_mock_request(request_body, retro_id='whatever'))
 
         assert response.status_code == 200
-        assert response[validators.content_type] == content_type_application_json
-        assert response.charset == views.charset_utf8
-        assert json.loads(response.content) == {'newStep': new_stage}
+        assert response.headers[validators.content_type] == content_type_application_json
+        assert json.loads(response.body) == {'newStep': new_stage}
 
     def test_get_retro_doesnt_exist(self, mock_service_function_validation, mock_service_view, mock_token):
         object_under_test = RetroView()
@@ -111,12 +108,11 @@ class TestRetroView:
         mock_service_view.sanitize_retro_for_user_and_step.return_value = mock_response
 
         object_under_test = RetroView()
-        response = object_under_test.get(request.create_mock_request(), retro_id='whatever')
+        response = object_under_test.get(request.create_mock_request(retro_id='whatever'))
 
         assert response.status_code == 200
-        assert response[validators.content_type] == content_type_application_json
-        assert response.charset == views.charset_utf8
-        assert json.loads(response.content) == mock_response
+        assert response.headers[validators.content_type] == content_type_application_json
+        assert json.loads(response.body) == mock_response
 
 
 @patch('backend.api.validation.token', autospec=True)
@@ -143,12 +139,11 @@ class TestRetroUserView:
 
         object_under_test = RetroUserView()
         retro_id = 'whatever_retro_id'
-        response = object_under_test.post(request.create_mock_request(request_body), retro_id=retro_id)
+        response = object_under_test.post(request.create_mock_request(request_body, retro_id=retro_id))
 
         assert response.status_code == 201
-        assert response[validators.content_type] == content_type_application_json
-        assert response.charset == views.charset_utf8
-        assert json.loads(response.content) == {'token': new_user_token}
+        assert response.headers[validators.content_type] == content_type_application_json
+        assert json.loads(response.body) == {'token': new_user_token}
 
     def test_put_retro_not_found(self, mock_service_function_validation, mock_service_view, mock_token):
         object_under_test = RetroUserView()
@@ -173,12 +168,11 @@ class TestRetroUserView:
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroUserView()
-        response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever')
+        response = object_under_test.put(request.create_mock_request(request_body, retro_id='whatever'))
 
         assert response.status_code == 200
-        assert response[validators.content_type] == views.content_type_text_plain
-        assert response.charset == views.charset_utf8
-        assert response.content.decode() == ''
+        assert response.headers[validators.content_type] == views.content_type_text_plain
+        assert response.body == ''
 
 
 @patch('backend.api.validation.token', autospec=True)
@@ -219,12 +213,11 @@ class TestRetroIssueView:
         mock_service_view.add_new_issue.return_value = mock_issue_id
 
         object_under_test = RetroIssueView()
-        response = object_under_test.post(request.create_mock_request(request_body), retro_id='whatever')
+        response = object_under_test.post(request.create_mock_request(request_body, retro_id='whatever'))
 
         assert response.status_code == 201
-        assert response[validators.content_type] == content_type_application_json
-        assert response.charset == views.charset_utf8
-        assert json.loads(response.content) == {'id': mock_issue_id}
+        assert response.headers[validators.content_type] == content_type_application_json
+        assert json.loads(response.body) == {'id': mock_issue_id}
 
     def test_put_retro_not_found(self, mock_service_function_validation, mock_service_view, mock_token):
         object_under_test = RetroIssueView()
@@ -257,7 +250,7 @@ class TestRetroIssueView:
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueView()
-        response = object_under_test.put(request.create_mock_request(), retro_id='whatever', issue_id=issue_id)
+        response = object_under_test.put(request.create_mock_request(retro_id='whatever', issue_id=issue_id))
 
         validators.assert_issue_not_found(response, issue_id)
 
@@ -271,14 +264,13 @@ class TestRetroIssueView:
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueView()
-        response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever',
-                                         issue_id=mock_issue_id)
+        response = object_under_test.put(
+            request.create_mock_request(request_body, retro_id='whatever', issue_id=mock_issue_id))
 
         assert mock_service_view.vote_for_issue.called is True
         assert 200 == response.status_code
-        assert views.content_type_text_plain == response[validators.content_type]
-        assert views.charset_utf8 == response.charset
-        assert '' == response.content.decode()
+        assert views.content_type_text_plain == response.headers[validators.content_type]
+        assert '' == response.body
 
     def test_put_issue_unvote_success(self, mock_service_function_validation, mock_service_view, mock_token):
         request_body = {
@@ -291,13 +283,13 @@ class TestRetroIssueView:
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueView()
-        response = object_under_test.put(request.create_mock_request(request_body), retro_id='whatever', issue_id=mock_issue_id)
+        response = object_under_test.put(
+            request.create_mock_request(request_body, retro_id='whatever', issue_id=mock_issue_id))
 
         assert mock_service_view.unvote_for_issue.called is True
         assert 200 == response.status_code
-        assert views.content_type_text_plain == response[validators.content_type]
-        assert views.charset_utf8 == response.charset
-        assert '' == response.content.decode()
+        assert views.content_type_text_plain == response.headers[validators.content_type]
+        assert '' == response.body
 
     def test_delete_retro_not_found(self, mock_service_function_validation, mock_service_view, mock_token):
         object_under_test = RetroIssueView()
@@ -329,7 +321,7 @@ class TestRetroIssueView:
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueView()
-        response = object_under_test.delete(request.create_mock_request(), retro_id='whatever', issue_id=issue_id)
+        response = object_under_test.delete(request.create_mock_request(retro_id='whatever', issue_id=issue_id))
 
         validators.assert_issue_not_found(response, issue_id)
 
@@ -341,7 +333,7 @@ class TestRetroIssueView:
         mock_token.issue_owned_by_participant.return_value = False
 
         object_under_test = RetroIssueView()
-        response = object_under_test.delete(request.create_mock_request(), retro_id='whatever', issue_id=issue_id)
+        response = object_under_test.delete(request.create_mock_request(retro_id='whatever', issue_id=issue_id))
 
         validators.assert_user_not_owner_of_issue(response, issue_id)
 
@@ -353,18 +345,8 @@ class TestRetroIssueView:
         mock_token.issue_owned_by_participant.return_value = True
 
         object_under_test = RetroIssueView()
-        response = object_under_test.delete(request.create_mock_request(), retro_id='whatever', issue_id=issue_id)
+        response = object_under_test.delete(request.create_mock_request(retro_id='whatever', issue_id=issue_id))
 
         assert 204 == response.status_code
-        assert views.content_type_text_plain == response[validators.content_type]
-        assert views.charset_utf8 == response.charset
-        assert '' == response.content.decode()
-
-
-class TestHealthView:
-    def test_get(self):
-        object_under_test = HealthView()
-
-        response = object_under_test.get(request.create_mock_request())
-
-        assert response.status_code == 200
+        assert views.content_type_text_plain == response.headers[validators.content_type]
+        assert '' == response.body

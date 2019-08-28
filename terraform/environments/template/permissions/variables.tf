@@ -5,7 +5,3 @@ variable "environment" {
 variable "dynamodb_arn" {
   type = "string"
 }
-
-variable "hosted_zone_name" {
-  type = "string"
-}
