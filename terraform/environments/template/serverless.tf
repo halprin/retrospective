@@ -26,7 +26,7 @@ data "external" "api_gateway_id" {
 }
 
 data "external" "ws_api_gateway_id" {
-  program    = ["aws", "apigatewayv2", "--region", "${data.aws_region.current.name}", "--no-paginate", "get-apis", "--query", "Items[?Name==`retrospective-${var.environment}-websockets-api`].{WsApiGatewayId:ApiId}[0]"]
+  program    = ["aws", "apigatewayv2", "--region", "${data.aws_region.current.name}", "--no-paginate", "get-apis", "--query", "Items[?Name==`${var.environment}-retrospective-websockets`].{WsApiGatewayId:ApiId}[0]"]
   depends_on = ["null_resource.serverless"]
 }
 
