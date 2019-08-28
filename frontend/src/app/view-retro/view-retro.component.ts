@@ -16,11 +16,33 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   frontendEndpoint = environment.frontendEndpoint;
   private liveUpdater: Subscription;
 
+  readySpinner = false;
+  backSpinner = false;
+  forwardSpinner = false;
+  addGoodIssueSpinner = false;
+  addBadIssueSpinner = false;
+  deleteIssueSpinners = {};
+  addGoodGroupSpinner = false;
+  addBadGroupSpinner = false;
+  deleteGroupSpinners = {};
+  assignGroupSpinners = {};
+  voteSpinners = {};
+
   constructor(private retroService: RetrospectiveServiceV2) { }
 
   ngOnInit() {
     this.updateRetro();
-    this.liveUpdater = this.retroService.startLiveUpdateRetrospective().subscribe(messageEvent => this.retro = JSON.parse(messageEvent.data));
+    this.setupLiveUpdater();
+  }
+
+  setupLiveUpdater() {
+    this.liveUpdater = this.retroService.startLiveUpdateRetrospective().subscribe(messageEvent => this.retro = JSON.parse(messageEvent.data), error => {
+      console.error('Error on live updater');
+      this.setupLiveUpdater();
+    }, () => {
+      console.info('Complete live updater');
+      this.setupLiveUpdater();
+    });
   }
 
   ngOnDestroy() {
@@ -32,23 +54,27 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   alternateReadiness(): void {
+    this.readySpinner = true;
     if (this.retro.yourself.ready == true) {
-      this.retroService.markUserAsNotReady().subscribe();
+      this.retroService.markUserAsNotReady().subscribe(() => this.readySpinner = false, () => this.readySpinner = false, () => this.readySpinner = false);
     } else {
-      this.retroService.markUserAsReady().subscribe();
+      this.retroService.markUserAsReady().subscribe(() => this.readySpinner = false, () => this.readySpinner = false, () => this.readySpinner = false);
     }
   }
 
   addWentWellIssue(title: string): void {
-    this.retroService.addIssue(title, 'Went Well').subscribe();
+    this.addGoodIssueSpinner = true;
+    this.retroService.addIssue(title, 'Went Well').subscribe(() => this.addGoodIssueSpinner = false, () => this.addGoodIssueSpinner = false, () => this.addGoodIssueSpinner = false);
   }
 
   addNeedsImprovementIssue(title: string): void {
-    this.retroService.addIssue(title, 'Needs Improvement').subscribe();
+    this.addBadIssueSpinner = true;
+    this.retroService.addIssue(title, 'Needs Improvement').subscribe(() => this.addBadIssueSpinner = false, () => this.addBadIssueSpinner = false, () => this.addBadIssueSpinner = false);
   }
 
   deleteIssue(issue_id: string): void {
-    this.retroService.deleteIssue(issue_id).subscribe();
+    this.deleteIssueSpinners[issue_id] = true;
+    this.retroService.deleteIssue(issue_id).subscribe(() => this.deleteIssueSpinners[issue_id] = false, () => this.deleteIssueSpinners[issue_id] = false, () => this.deleteIssueSpinners[issue_id] = false);
   }
 
   getWentWellIssues(): any {
@@ -104,11 +130,13 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   moveRetroBackward(): void {
-    this.retroService.moveRetrospectiveBackward().subscribe();
+    this.backSpinner = true;
+    this.retroService.moveRetrospectiveBackward().subscribe(() => this.backSpinner = false, () => this.backSpinner = false, () => this.backSpinner = false);
   }
 
   moveRetroForward(): void {
-    this.retroService.moveRetrospectiveForward().subscribe();
+    this.forwardSpinner = true;
+    this.retroService.moveRetrospectiveForward().subscribe(() => this.forwardSpinner = false, () => this.forwardSpinner = false, () => this.forwardSpinner = false);
   }
 
   voteOrUnvoteForIssue(issue: any, checkbox: HTMLInputElement): void {
@@ -128,15 +156,18 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   addWentWellGroup(title: string): void {
-    this.retroService.addGroup(title, 'Went Well').subscribe();
+    this.addGoodGroupSpinner = true;
+    this.retroService.addGroup(title, 'Went Well').subscribe(() => this.addGoodGroupSpinner = false, () => this.addGoodGroupSpinner = false, () => this.addGoodGroupSpinner = false);
   }
 
   addNeedsImprovementGroup(title: string): void {
-    this.retroService.addGroup(title, 'Needs Improvement').subscribe();
+    this.addBadGroupSpinner = true;
+    this.retroService.addGroup(title, 'Needs Improvement').subscribe(() => this.addBadGroupSpinner = false, () => this.addBadGroupSpinner = false, () => this.addBadGroupSpinner = false);
   }
 
   deleteGroup(group_id: string): void {
-    this.retroService.deleteGroup(group_id).subscribe();
+    this.deleteGroupSpinners[group_id] = true;
+    this.retroService.deleteGroup(group_id).subscribe(() => this.deleteGroupSpinners[group_id] = false, () => this.deleteGroupSpinners[group_id] = false, () => this.deleteGroupSpinners[group_id] = false);
   }
 
   getWentWellGroups(): any {
@@ -162,10 +193,11 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   groupOrUngroupIssue(issue_id: string, group_id: string): void {
+    this.assignGroupSpinners[issue_id] = true;
     if(group_id === 'ungroup') {
-      this.retroService.ungroupIssue(issue_id).subscribe();
+      this.retroService.ungroupIssue(issue_id).subscribe(() => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false);
     } else {
-      this.retroService.groupIssue(issue_id, group_id).subscribe();
+      this.retroService.groupIssue(issue_id, group_id).subscribe(() => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false);
     }
   }
 
@@ -187,33 +219,41 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
 
   private actuallyVoteForIssue(issue: any): void {
     let issue_id = issue.id;
+    this.voteSpinners[issue_id] = true;
     this.simulateVoteForIssueOrGroup(issue);
-    this.retroService.voteForIssue(issue_id).subscribe(response => {}, error => {
+    this.retroService.voteForIssue(issue_id).subscribe(response => this.voteSpinners[issue_id] = false, error => {
       this.simulateUnvoteForIssueOrGroup(issue);
+      this.voteSpinners[issue_id] = false;
     });
   }
 
   private actuallyUnvoteForIssue(issue: any): void {
     let issue_id = issue.id;
+    this.voteSpinners[issue_id] = true;
     this.simulateUnvoteForIssueOrGroup(issue);
-    this.retroService.unvoteForIssue(issue_id).subscribe(response => {}, error => {
+    this.retroService.unvoteForIssue(issue_id).subscribe(response => this.voteSpinners[issue_id] = false, error => {
       this.simulateVoteForIssueOrGroup(issue);
+      this.voteSpinners[issue_id] = false;
     });
   }
 
   private actuallyVoteForGroup(group: any): void {
     let group_id = group.id;
+    this.voteSpinners[group_id] = true;
     this.simulateVoteForIssueOrGroup(group);
-    this.retroService.voteForGroup(group_id).subscribe(response => {}, error => {
+    this.retroService.voteForGroup(group_id).subscribe(response => this.voteSpinners[group_id] = false, error => {
       this.simulateUnvoteForIssueOrGroup(group);
+      this.voteSpinners[group_id] = false;
     });
   }
 
   private actuallyUnvoteForGroup(group: any): void {
     let group_id = group.id;
+    this.voteSpinners[group_id] = true;
     this.simulateUnvoteForIssueOrGroup(group);
-    this.retroService.unvoteForGroup(group_id).subscribe(response => {}, error => {
+    this.retroService.unvoteForGroup(group_id).subscribe(response => this.voteSpinners[group_id] = false, error => {
       this.simulateVoteForIssueOrGroup(group);
+      this.voteSpinners[group_id] = false;
     });
   }
 

@@ -479,17 +479,16 @@ def test_delete_issue(mock_send_retro_update):
     mock_send_retro_update.assert_called_once()
 
 
-@patch('backend.api.service.async_to_sync', autospec=True)
-@patch('backend.api.service.pickle', autospec=True)
-@patch('backend.api.service.get_channel_layer', autospec=True)
-def test__send_retro_update(mock_get_channel_layer_function, mock_pickle_module, mock_async_to_sync_function):
-    mock_retro = retro.create_mock_retro()
-    mock_channel_layer = MagicMock()
-    mock_group_send = PropertyMock()
-    type(mock_channel_layer).group_send = mock_group_send
-    mock_get_channel_layer_function.return_value = mock_channel_layer
+@patch('backend.api.service.boto3', autospec=True)
+@patch('backend.api.service.os', autospec=True)
+def test__send_retro_update(mock_os_module, mock_boto3_module):
+    mock_retro = retro.create_mock_retro(
+        participants=[retro.create_mock_participant(token='f1fa1211-2203-44b6-8d85-db4ef317dff1:connectionId1'),
+                      retro.create_mock_participant(token='f1fa1211-2203-44b6-8d85-db4ef317dff2')])
+    mock_client = MagicMock()
+    mock_os_module.environ = {'WEBSOCKET_ENDPOINT': 'moof'}
+    mock_boto3_module.Session().client.return_value = mock_client
 
     Service._send_retro_update(mock_retro)
 
-    mock_get_channel_layer_function.assert_called_once()
-    mock_group_send.assert_called_once()
+    mock_client.post_to_connection.assert_called_once()

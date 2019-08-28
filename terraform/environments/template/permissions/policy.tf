@@ -5,6 +5,13 @@ resource "aws_iam_policy" "read_writes_dynamodb" {
   policy = "${data.aws_iam_policy_document.read_write_dynamodb.json}"
 }
 
+resource "aws_iam_policy" "manage_websocket_connections" {
+  name        = "ManageWebSocketConnectionsRetrospective-${var.environment}"
+  description = "Manage the ${var.environment} Retrospective WebSocket connections"
+
+  policy = "${data.aws_iam_policy_document.manage_websocket_connections.json}"
+}
+
 data "aws_iam_policy_document" "read_write_dynamodb" {
   statement {
     sid    = "AllowReadingAndWriting"
@@ -35,62 +42,15 @@ data "aws_iam_policy_document" "read_write_dynamodb" {
   }
 }
 
-resource "aws_iam_policy" "letsencrypt_authorize" {
-  name        = "LetsEncryptAuthorization-${var.environment}"
-  description = "Allows Let's Encrypt to authorize the web server in the ${var.environment}"
-
-  policy = "${data.aws_iam_policy_document.letsencrypt_authorize.json}"
-}
-
-data "aws_route53_zone" "hosted_zone" {
-  name = "${var.hosted_zone_name}."
-}
-
-data "aws_iam_policy_document" "letsencrypt_authorize" {
+data "aws_iam_policy_document" "manage_websocket_connections" {
   statement {
-    sid    = "AllowModifyHostedZone"
+    sid    = "AllowManageConnections"
     effect = "Allow"
 
     actions = [
-      "route53:GetChange",
-      "route53:ChangeResourceRecordSets",
+      "execute-api:ManageConnections",
     ]
 
-    resources = [
-      "arn:aws:route53:::change/*",
-      "arn:aws:route53:::hostedzone/${data.aws_route53_zone.hosted_zone.zone_id}",
-    ]
-  }
-
-  statement {
-    sid    = "AllowListZones"
-    effect = "Allow"
-
-    actions = [
-      "route53:ListHostedZones",
-    ]
-
-    resources = ["*"]
-  }
-}
-
-resource "aws_iam_policy" "change_t_unlimited" {
-  name        = "ChangeTUnlimited-${var.environment}"
-  description = "Allows the changing of the T2 or T3 Unlimited setting"
-
-  policy = "${data.aws_iam_policy_document.change_t_unlimited.json}"
-}
-
-data "aws_iam_policy_document" "change_t_unlimited" {
-  statement {
-    sid    = "InstanceCreditPolicy"
-    effect = "Allow"
-
-    actions = [
-      "ec2:ModifyInstanceCreditSpecification",
-      "ec2:DescribeInstanceCreditSpecifications",
-    ]
-
-    resources = ["*"]
+    resources = ["arn:aws:execute-api:us-east-1:*"]
   }
 }

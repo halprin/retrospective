@@ -24,8 +24,7 @@ class TestRetroIssueViewV2:
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueViewV2()
-        object_under_test.put(request.create_mock_request(request_body), retro_id='whatever',
-                                         issue_id=mock_issue_id)
+        object_under_test.put(request.create_mock_request(request_body, retro_id='whatever', issue_id=mock_issue_id))
 
         assert mock_super_put.called is True
 
@@ -40,7 +39,7 @@ class TestRetroIssueViewV2:
         mock_token.token_is_valid.return_value = True
 
         object_under_test = RetroIssueViewV2()
-        object_under_test.put(request.create_mock_request(request_body), retro_id='whatever', issue_id=mock_issue_id)
+        object_under_test.put(request.create_mock_request(request_body, retro_id='whatever', issue_id=mock_issue_id))
 
         assert mock_group_put_function.called is True
 
@@ -66,7 +65,8 @@ class TestRetroIssueViewV2:
                                                groups=[mock_group])
 
         object_under_test = RetroIssueViewV2()
-        response = object_under_test._group_put(mock_issue, retro=mock_retro, group_id=non_existing_group_id)
+        response = object_under_test._group_put(request.create_mock_request(group_id=non_existing_group_id),
+                                                retro=mock_retro)
 
         validators.assert_group_not_found(response, non_existing_group_id)
 
@@ -80,13 +80,13 @@ class TestRetroIssueViewV2:
                                                groups=[mock_group])
 
         object_under_test = RetroIssueViewV2()
-        response = object_under_test._group_put(mock_issue, retro=mock_retro, group_id=non_existing_group_id)
+        response = object_under_test._group_put(request.create_mock_request(group_id=non_existing_group_id), mock_issue,
+                                                retro=mock_retro)
 
         assert mock_service_view.ungroup_issue.called is True
         assert 200 == response.status_code
-        assert views.content_type_text_plain == response[validators.content_type]
-        assert views.charset_utf8 == response.charset
-        assert '' == response.content.decode()
+        assert views.content_type_text_plain == response.headers[validators.content_type]
+        assert '' == response.body
 
     @patch('backend.api.views.viewsV2.ServiceV2', autospec=True)
     def test__group_put_group_real_group_id(self, mock_service_module, mock_service_function_validation, mock_token):
@@ -97,13 +97,13 @@ class TestRetroIssueViewV2:
                                                groups=[mock_group])
 
         object_under_test = RetroIssueViewV2()
-        response = object_under_test._group_put(mock_issue, retro=mock_retro, group_id=group_id)
+        response = object_under_test._group_put(request.create_mock_request(group_id=group_id), mock_issue,
+                                                retro=mock_retro)
 
         assert mock_service_module.group_issue.called is True
         assert 200 == response.status_code
-        assert views.content_type_text_plain == response[validators.content_type]
-        assert views.charset_utf8 == response.charset
-        assert '' == response.content.decode()
+        assert views.content_type_text_plain == response.headers[validators.content_type]
+        assert '' == response.body
 
 
 @patch('backend.api.validation.token', autospec=True)
@@ -142,17 +142,17 @@ class TestRetroGroupViewV2:
             'title': 'new title',
             'section': 'Needs Improvement'
         }
-        mock_request = request.create_mock_request(api_version=mock_retro.version, request_body=request_body)
+        mock_request = request.create_mock_request(api_version=mock_retro.version, request_body=request_body,
+                                                   retro_id='whatever', group_id=existing_group_id)
         mock_service_view.add_new_group.return_value = existing_group_id
 
         object_under_test = RetroGroupViewV2()
-        response = object_under_test.post(mock_request, retro_id='whatever', group_id=existing_group_id)
+        response = object_under_test.post(mock_request)
 
         assert mock_service_view.add_new_group.called is True
         assert response.status_code == 201
-        assert response[validators.content_type] == content_type_application_json
-        assert response.charset == views.charset_utf8
-        assert json.loads(response.content) == {'id': existing_group_id}
+        assert response.headers[validators.content_type] == content_type_application_json
+        assert json.loads(response.body) == {'id': existing_group_id}
 
     def test_put_retro_does_not_exist(self, mock_service_function_validation, mock_token):
         object_under_test = RetroGroupViewV2()
@@ -193,15 +193,15 @@ class TestRetroGroupViewV2:
         request_body = {
             'vote': True
         }
-        mock_request = request.create_mock_request(api_version=mock_retro.version, request_body=request_body)
+        mock_request = request.create_mock_request(api_version=mock_retro.version, request_body=request_body,
+                                                   retro_id='whatever', group_id=existing_group_id)
 
         object_under_test = RetroGroupViewV2()
-        response = object_under_test.put(mock_request, retro_id='whatever', group_id=existing_group_id)
+        response = object_under_test.put(mock_request)
 
         assert mock_service_view.vote_for_group.called is True
         assert response.status_code == 200
-        assert response[validators.content_type] == views.content_type_text_plain
-        assert response.charset == views.charset_utf8
+        assert response.headers[validators.content_type] == views.content_type_text_plain
 
     @patch('backend.api.views.viewsV2.ServiceV2', autospec=True)
     def test_put_success_unvote(self, mock_service_view, mock_service_function_validation, mock_token):
@@ -213,15 +213,15 @@ class TestRetroGroupViewV2:
         request_body = {
             'vote': False
         }
-        mock_request = request.create_mock_request(api_version=mock_retro.version, request_body=request_body)
+        mock_request = request.create_mock_request(api_version=mock_retro.version, request_body=request_body,
+                                                   retro_id='whatever', group_id=existing_group_id)
 
         object_under_test = RetroGroupViewV2()
-        response = object_under_test.put(mock_request, retro_id='whatever', group_id=existing_group_id)
+        response = object_under_test.put(mock_request)
 
         assert mock_service_view.unvote_for_group.called is True
         assert response.status_code == 200
-        assert response[validators.content_type] == views.content_type_text_plain
-        assert response.charset == views.charset_utf8
+        assert response.headers[validators.content_type] == views.content_type_text_plain
 
     def test_delete_retro_does_not_exist(self, mock_service_function_validation, mock_token):
         object_under_test = RetroGroupViewV2()
@@ -259,12 +259,11 @@ class TestRetroGroupViewV2:
                                                groups=[retro.create_mock_group(id=existing_group_id)])
         mock_service_function_validation.return_value.get_retro.return_value = mock_retro
         mock_token.token_is_valid.return_value = True
-        mock_request = request.create_mock_request(api_version=mock_retro.version)
+        mock_request = request.create_mock_request(api_version=mock_retro.version, retro_id='whatever', group_id=existing_group_id)
 
         object_under_test = RetroGroupViewV2()
-        response = object_under_test.delete(mock_request, retro_id='whatever', group_id=existing_group_id)
+        response = object_under_test.delete(mock_request)
 
         assert mock_service_view.delete_group.called is True
         assert response.status_code == 204
-        assert response[validators.content_type] == views.content_type_text_plain
-        assert response.charset == views.charset_utf8
+        assert response.headers[validators.content_type] == views.content_type_text_plain

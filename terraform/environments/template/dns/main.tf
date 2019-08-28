@@ -10,6 +10,22 @@ resource "aws_route53_record" "backend" {
   alias {
     name                   = "${var.backend_target}"
     zone_id                = "${var.backend_zone_id}"
+    evaluate_target_health = false
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+resource "aws_route53_record" "backend_websocket" {
+  zone_id = "${data.aws_route53_zone.hosted_zone.zone_id}"
+  name    = "${var.backend_ws_domain}"
+  type    = "A"
+
+  alias {
+    name                   = "${var.backend_ws_target}"
+    zone_id                = "${var.backend_ws_zone_id}"
     evaluate_target_health = true
   }
 
