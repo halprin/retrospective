@@ -1,9 +1,9 @@
 from unittest.mock import patch
-from ...api.views import views
-from ...api.views import viewsV2
-from ...api.views.viewsV2 import RetroIssueViewV2, RetroGroupViewV2
-from ..util import retro, request, validators
-from ...api.modelsV2 import RetroStepV2
+from backend.api.views import views
+from backend.api.views import viewsV2
+from backend.api.views.viewsV2 import RetroIssueViewV2, RetroGroupViewV2
+from backend.tests.util import retro, request, validators
+from backend.api.modelsV2 import RetroStepV2
 import json
 
 

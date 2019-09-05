@@ -1,8 +1,9 @@
 import inspect
 from . import utils
-from .utils import Lambda, Request, Response, exception_to_error_response
+from .utils import Lambda, Request, Response, exception_to_error_response, log_response
 
 
+@log_response
 @exception_to_error_response
 def create(event, context):
     request = Lambda.get_request(event)
@@ -11,6 +12,7 @@ def create(event, context):
     return Lambda.get_response(response)
 
 
+@log_response
 @exception_to_error_response
 def move(event, context):
     request = Lambda.get_request(event)
@@ -19,6 +21,7 @@ def move(event, context):
     return Lambda.get_response(response)
 
 
+@log_response
 @exception_to_error_response
 def get(event, context):
     request = Lambda.get_request(event)

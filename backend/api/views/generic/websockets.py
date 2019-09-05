@@ -1,17 +1,24 @@
 from . import utils
-from .utils import Lambda, Response, exception_to_error_response
+from .utils import Lambda, Response, exception_to_error_response, log_response
 from ... import token
 from pynamodb.models import Model
 
 
+@log_response
 @exception_to_error_response
 def websocket_connect(event, context):
     query_parameters = event['queryStringParameters']
-    retro_id = query_parameters['uuid']
-    user_token = query_parameters['token']
-    api_version = query_parameters['version']
+    retro_id = query_parameters.get('uuid')
+    user_token = query_parameters.get('token')
+    api_version = query_parameters.get('version')
 
     connection_id = event['requestContext']['connectionId']
+
+    if api_version is None or len(api_version) == 0:
+        return Lambda.get_response(Response(400, 'Supply an API version', {}))
+
+    if retro_id is None or len(retro_id) == 0:
+        return Lambda.get_response(Response(400, 'Supply a UUID for the retro ID', {}))
 
     try:
         retro = utils.get_service(api_version).get_retro(retro_id)
