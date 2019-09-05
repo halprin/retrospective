@@ -1,9 +1,10 @@
 import inspect
 from . import utils
-from .utils import Lambda, Request, Response, exception_to_error_response
+from .utils import Lambda, Request, Response, exception_to_error_response, log_response
 import logging
 
 
+@log_response
 @exception_to_error_response
 def add_participant(event, context):
     request = Lambda.get_request(event)
@@ -12,6 +13,7 @@ def add_participant(event, context):
     return Lambda.get_response(response)
 
 
+@log_response
 @exception_to_error_response
 def mark_as_ready(event, context):
     logging.warning('Marking a user as ready')

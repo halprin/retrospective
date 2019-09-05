@@ -93,6 +93,16 @@ def exception_to_error_response(original_function):
     return wrapper
 
 
+def log_response(original_function):
+    @wraps(original_function)
+    def wrapper(*args, **kwargs):
+        response = original_function(*args, **kwargs)
+        logging.info('Responding to {} with status {}'.format(original_function, response['statusCode']))
+        return response
+
+    return wrapper
+
+
 class VersionServiceView:
     @staticmethod
     def service():

@@ -14,15 +14,15 @@ def test_no_api_version():
 
     response = websockets.websocket_connect(event, {})
 
-    assert 400 == response['statusCode']
-    assert 'Supply an API version' == response['body']
+    assert response['statusCode'] == 400
+    assert response['body'] == 'Supply an API version'
 
     event['queryStringParameters']['version'] = ''
 
     response = websockets.websocket_connect(event, {})
 
-    assert 400 == response['statusCode']
-    assert 'Supply an API version' == response['body']
+    assert response['statusCode'] == 400
+    assert response['body'] == 'Supply an API version'
 
 
 def test_no_retro_id():
@@ -38,12 +38,12 @@ def test_no_retro_id():
 
     response = websockets.websocket_connect(event, {})
 
-    assert 400 == response['statusCode']
-    assert 'Supply a UUID for the retro ID' == response['body']
+    assert response['statusCode'] == 400
+    assert response['body'] == 'Supply a UUID for the retro ID'
 
     event['queryStringParameters']['uuid'] = ''
 
     response = websockets.websocket_connect(event, {})
 
-    assert 400 == response['statusCode']
-    assert 'Supply a UUID for the retro ID' == response['body']
+    assert response['statusCode'] == 400
+    assert response['body'] == 'Supply a UUID for the retro ID'

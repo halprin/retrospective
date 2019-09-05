@@ -1,9 +1,10 @@
 from . import utils
-from .utils import Lambda, Response, exception_to_error_response
+from .utils import Lambda, Response, exception_to_error_response, log_response
 from ... import token
 from pynamodb.models import Model
 
 
+@log_response
 @exception_to_error_response
 def websocket_connect(event, context):
     query_parameters = event['queryStringParameters']
