@@ -36,11 +36,12 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   setupLiveUpdater() {
+    console.log('Setting-up the live updater');
     this.liveUpdater = this.retroService.startLiveUpdateRetrospective().subscribe(messageEvent => this.retro = JSON.parse(messageEvent.data), error => {
       console.error('Error on live updater');
-      this.setupLiveUpdater();
+      setTimeout(() => { this.setupLiveUpdater(); }, 60000);
     }, () => {
-      console.info('Complete live updater');
+      console.log('Complete live updater');
       this.setupLiveUpdater();
     });
   }
