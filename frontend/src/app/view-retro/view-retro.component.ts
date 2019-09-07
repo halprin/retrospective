@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { RetrospectiveServiceV2 } from '../retrospectiveV2.service'
+import { RetrospectiveServiceV2 } from '../retrospectiveV2.service';
 import { environment } from '../../environments/environment';
-import 'rxjs/add/observable/interval';
-import {Subscription} from "rxjs/Subscription";
+
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-view-retro',
@@ -36,11 +36,12 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   setupLiveUpdater() {
+    console.log('Setting-up the live updater');
     this.liveUpdater = this.retroService.startLiveUpdateRetrospective().subscribe(messageEvent => this.retro = JSON.parse(messageEvent.data), error => {
       console.error('Error on live updater');
-      this.setupLiveUpdater();
+      setTimeout(() => { this.setupLiveUpdater(); }, 60000);
     }, () => {
-      console.info('Complete live updater');
+      console.log('Complete live updater');
       this.setupLiveUpdater();
     });
   }
@@ -55,7 +56,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
 
   alternateReadiness(): void {
     this.readySpinner = true;
-    if (this.retro.yourself.ready == true) {
+    if (this.retro.yourself.ready === true) {
       this.retroService.markUserAsNotReady().subscribe(() => this.readySpinner = false, () => this.readySpinner = false, () => this.readySpinner = false);
     } else {
       this.retroService.markUserAsReady().subscribe(() => this.readySpinner = false, () => this.readySpinner = false, () => this.readySpinner = false);
@@ -78,9 +79,9 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   getWentWellIssues(): any {
-    let goodIssues = [];
-    for(let issue of this.retro.issues) {
-      if(issue.section === 'Went Well') {
+    const goodIssues = [];
+    for (const issue of this.retro.issues) {
+      if (issue.section === 'Went Well') {
         goodIssues.push(issue);
       }
     }
@@ -89,9 +90,9 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   getWentWellIssuesForGroup(group: string): any {
-    let goodIssues = [];
-    for(let issue of this.retro.issues) {
-      if(issue.section === 'Went Well' && issue.group === group) {
+    const goodIssues = [];
+    for (const issue of this.retro.issues) {
+      if (issue.section === 'Went Well' && issue.group === group) {
         goodIssues.push(issue);
       }
     }
@@ -100,9 +101,9 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   getNeedsImprovementIssues(): any {
-    let badIssues = [];
-    for(let issue of this.retro.issues) {
-      if(issue.section === 'Needs Improvement') {
+    const badIssues = [];
+    for (const issue of this.retro.issues) {
+      if (issue.section === 'Needs Improvement') {
         badIssues.push(issue);
       }
     }
@@ -111,9 +112,9 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   getNeedsImprovementIssuesForGroup(group: string): any {
-    let badIssues = [];
-    for(let issue of this.retro.issues) {
-      if(issue.section === 'Needs Improvement' && issue.group === group) {
+    const badIssues = [];
+    for (const issue of this.retro.issues) {
+      if (issue.section === 'Needs Improvement' && issue.group === group) {
         badIssues.push(issue);
       }
     }
@@ -122,8 +123,8 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   issueTitle(issue: string): string {
-    if(issue == null) {
-      return '...'
+    if (issue === undefined) {
+      return '...';
     }
 
     return issue;
@@ -140,18 +141,18 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   voteOrUnvoteForIssue(issue: any, checkbox: HTMLInputElement): void {
-    if(checkbox.checked) {
-      this.actuallyVoteForIssue(issue)
+    if (checkbox.checked) {
+      this.actuallyVoteForIssue(issue);
     } else {
-      this.actuallyUnvoteForIssue(issue)
+      this.actuallyUnvoteForIssue(issue);
     }
   }
 
   voteOrUnvoteForGroup(group: any, checkbox: HTMLInputElement): void {
-    if(checkbox.checked) {
-      this.actuallyVoteForGroup(group)
+    if (checkbox.checked) {
+      this.actuallyVoteForGroup(group);
     } else {
-      this.actuallyUnvoteForGroup(group)
+      this.actuallyUnvoteForGroup(group);
     }
   }
 
@@ -171,9 +172,9 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   getWentWellGroups(): any {
-    let goodGroups = [];
-    for(let group of this.retro.groups) {
-      if(group.section === 'Went Well') {
+    const goodGroups = [];
+    for (const group of this.retro.groups) {
+      if (group.section === 'Went Well') {
         goodGroups.push(group);
       }
     }
@@ -182,9 +183,9 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   getNeedsImprovementGroups(): any {
-    let badGroups = [];
-    for(let group of this.retro.groups) {
-      if(group.section === 'Needs Improvement') {
+    const badGroups = [];
+    for (const group of this.retro.groups) {
+      if (group.section === 'Needs Improvement') {
         badGroups.push(group);
       }
     }
@@ -194,7 +195,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
 
   groupOrUngroupIssue(issue_id: string, group_id: string): void {
     this.assignGroupSpinners[issue_id] = true;
-    if(group_id === 'ungroup') {
+    if (group_id === 'ungroup') {
       this.retroService.ungroupIssue(issue_id).subscribe(() => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false);
     } else {
       this.retroService.groupIssue(issue_id, group_id).subscribe(() => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false);
@@ -202,23 +203,23 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   isIssueGroupedWithGroup(issue_id: string, group_id: string): boolean {
-    for(let issue of this.retro.issues) {
-      if(issue.id === issue_id) {
-        return (issue.group === group_id)
+    for (const issue of this.retro.issues) {
+      if (issue.id === issue_id) {
+        return (issue.group === group_id);
       }
     }
   }
 
   isIssueUngrouped(issue_id: string): boolean {
-    for(let issue of this.retro.issues) {
-      if(issue.id === issue_id) {
-        return (issue.group === null)
+    for (const issue of this.retro.issues) {
+      if (issue.id === issue_id) {
+        return (issue.group === null);
       }
     }
   }
 
   private actuallyVoteForIssue(issue: any): void {
-    let issue_id = issue.id;
+    const issue_id = issue.id;
     this.voteSpinners[issue_id] = true;
     this.simulateVoteForIssueOrGroup(issue);
     this.retroService.voteForIssue(issue_id).subscribe(response => this.voteSpinners[issue_id] = false, error => {
@@ -228,7 +229,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   private actuallyUnvoteForIssue(issue: any): void {
-    let issue_id = issue.id;
+    const issue_id = issue.id;
     this.voteSpinners[issue_id] = true;
     this.simulateUnvoteForIssueOrGroup(issue);
     this.retroService.unvoteForIssue(issue_id).subscribe(response => this.voteSpinners[issue_id] = false, error => {
@@ -238,7 +239,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   private actuallyVoteForGroup(group: any): void {
-    let group_id = group.id;
+    const group_id = group.id;
     this.voteSpinners[group_id] = true;
     this.simulateVoteForIssueOrGroup(group);
     this.retroService.voteForGroup(group_id).subscribe(response => this.voteSpinners[group_id] = false, error => {
@@ -248,7 +249,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   private actuallyUnvoteForGroup(group: any): void {
-    let group_id = group.id;
+    const group_id = group.id;
     this.voteSpinners[group_id] = true;
     this.simulateUnvoteForIssueOrGroup(group);
     this.retroService.unvoteForGroup(group_id).subscribe(response => this.voteSpinners[group_id] = false, error => {

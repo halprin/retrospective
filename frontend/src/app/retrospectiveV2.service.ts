@@ -1,7 +1,8 @@
 import {Injectable, NgZone} from '@angular/core';
-import { RetrospectiveService } from "./retrospective.service";
-import { HttpClient } from "@angular/common/http";
-import {Observable} from "rxjs";
+import { RetrospectiveService } from './retrospective.service';
+import { HttpClient } from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {map} from 'rxjs/operators';
 
 @Injectable()
 export class RetrospectiveServiceV2 extends RetrospectiveService {
@@ -42,7 +43,7 @@ export class RetrospectiveServiceV2 extends RetrospectiveService {
         'Api-Version': this.version
       }
     })
-    .map(json => json.id);
+    .pipe(map(json => json.id));
   }
 
   voteForGroup(group_id: string): Observable<any> {

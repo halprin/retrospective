@@ -1,10 +1,11 @@
+
+import {map, tap} from 'rxjs/operators';
 import { NgZone } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/map';
+import { Observable ,  Observer } from 'rxjs';
+
+
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
-import { Observer } from "rxjs/Observer";
 
 export class RetrospectiveService {
 
@@ -28,12 +29,12 @@ export class RetrospectiveService {
       headers: {
         'Api-Version': this.version
       }
-    })
-    .do(json => {
+    }).pipe(
+    tap(json => {
       this.uuid = json.retroId;
       this.token = json.token;
-    })
-    .map(json => json.retroId);
+    }),
+    map(json => json.retroId));
   }
 
   joinRetrospective(retroId: string, userName: string): Observable<any> {
@@ -44,11 +45,11 @@ export class RetrospectiveService {
       headers: {
         'Api-Version': this.version
       }
-    })
-    .do(json => {
+    }).pipe(
+    tap(json => {
       this.token = json.token;
-    })
-    .map(json => this.uuid);
+    }),
+    map(() => this.uuid));
   }
 
   getRetrospective(): Observable<any> {
@@ -61,12 +62,12 @@ export class RetrospectiveService {
   }
 
   startLiveUpdateRetrospective(): Observable<MessageEvent> {
-    let fullUrl = this.wsUrl + '?uuid=' + this.uuid + '&token=' + this.token + '&version=' + this.version;
-    if(!this.liveUpdateSocket || this.liveUpdateSocket.readyState !== WebSocket.OPEN) {
+    const fullUrl = this.wsUrl + '?uuid=' + this.uuid + '&token=' + this.token + '&version=' + this.version;
+    if (!this.liveUpdateSocket || this.liveUpdateSocket.readyState !== WebSocket.OPEN) {
       this.liveUpdateSocket = new WebSocket(fullUrl);
     }
 
-    let liveUpdaterObservable = Observable.create(
+    return new Observable(
       (observer: Observer<MessageEvent>) => {
         this.liveUpdateSocket.onmessage = message => {
           this.zone.run(() => observer.next(message));
@@ -80,8 +81,6 @@ export class RetrospectiveService {
         return this.liveUpdateSocket.close.bind(this.liveUpdateSocket);
       }
     );
-
-    return liveUpdaterObservable;
   }
 
   markUserAsReady(): Observable<any> {
@@ -115,8 +114,8 @@ export class RetrospectiveService {
         Authorization: 'Bearer ' + this.token,
         'Api-Version': this.version
       }
-    })
-    .map(json => json.id);
+    }).pipe(
+    map(json => json.id));
   }
 
   deleteIssue(issue_id: string): Observable<any> {
@@ -136,8 +135,8 @@ export class RetrospectiveService {
         Authorization: 'Bearer ' + this.token,
         'Api-Version': this.version
       }
-    })
-    .map(json => json.newStep);
+    }).pipe(
+    map(json => json.newStep));
   }
 
   moveRetrospectiveForward(): Observable<any> {
@@ -148,8 +147,8 @@ export class RetrospectiveService {
         Authorization: 'Bearer ' + this.token,
         'Api-Version': this.version
       }
-    })
-    .map(json => json.newStep);
+    }).pipe(
+    map(json => json.newStep));
   }
 
   voteForIssue(issue_id: string): Observable<any> {
