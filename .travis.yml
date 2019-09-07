@@ -4,13 +4,19 @@ python:
   - "3.7"
 script:
   - pytest ./backend/tests/
+  - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+  - node --version
+  - sudo apt-get install -y nodejs
+  - node --version
 before_deploy:
   - sudo apt-get -q update
   - sudo pip install awscli
   - wget https://releases.hashicorp.com/terraform/0.11.14/terraform_0.11.14_linux_amd64.zip
   - sudo unzip -d /usr/local/bin/ terraform_0.11.14_linux_amd64.zip
   - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+  - node --version
   - sudo apt-get install -y nodejs
+  - node --version
 deploy:
   provider: script
   script: ./deploy.sh prod
