@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RetrospectiveServiceV2 } from '../retrospectiveV2.service';
 import { environment } from '../../environments/environment';
-import 'rxjs/add/observable/interval';
-import {Subscription} from 'rxjs/Subscription';
+
+import {Subscription} from 'rxjs';
 
 @Component({
   selector: 'app-view-retro',
@@ -56,7 +56,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
 
   alternateReadiness(): void {
     this.readySpinner = true;
-    if (this.retro.yourself.ready == true) {
+    if (this.retro.yourself.ready === true) {
       this.retroService.markUserAsNotReady().subscribe(() => this.readySpinner = false, () => this.readySpinner = false, () => this.readySpinner = false);
     } else {
       this.retroService.markUserAsReady().subscribe(() => this.readySpinner = false, () => this.readySpinner = false, () => this.readySpinner = false);
@@ -123,7 +123,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   issueTitle(issue: string): string {
-    if (issue == null) {
+    if (issue === undefined) {
       return '...';
     }
 

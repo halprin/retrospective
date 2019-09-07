@@ -29,7 +29,7 @@ export class JoinRetroComponent implements OnInit {
       },
       (error: HttpErrorResponse) => {
         this.stopLoadingIndicator();
-        if(error.status == 404) {
+        if(error.status === 404) {
           this.displayError('The retrospective was not found.  Is the ID correct?');
          } else {
           this.displayError('Something bad happened.  Please contact us with the following information: [Status - ' + error.status + ', Message - ' + error.message + ']');
