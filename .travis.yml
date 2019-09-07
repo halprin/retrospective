@@ -2,13 +2,10 @@ dist: xenial
 language: python
 python:
   - "3.7"
-node_js:
-  - "10"
 script:
   - pytest ./backend/tests/
-  - curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
   - node --version
-  - sudo apt-get install -y nodejs
+  - nvm install 10
   - node --version
 before_deploy:
   - sudo apt-get -q update
