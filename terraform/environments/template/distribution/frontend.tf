@@ -21,7 +21,7 @@ resource "aws_cloudfront_distribution" "frontend" {
     viewer_protocol_policy = "redirect-to-https"
 
     default_ttl = "${var.environment == "dev" ? 120 : 86400}"
-    max_ttl     = "${var.environment == "dev" ? 3600 : 31536000}"
+    max_ttl     = "${var.environment == "dev" ? 3600 : 604800}"
     compress    = false
 
     forwarded_values {
