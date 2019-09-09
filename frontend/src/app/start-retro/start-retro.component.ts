@@ -23,7 +23,7 @@ export class StartRetroComponent implements OnInit {
     this.retroService.startRetrospective(retroName, userName)
       .subscribe(uuid => {
         this.stopLoadingIndicator();
-        this.router.navigateByUrl('/view');
+        this.router.navigateByUrl(`/view/${uuid}`);
       },
       (error: HttpErrorResponse) => {
         this.stopLoadingIndicator();

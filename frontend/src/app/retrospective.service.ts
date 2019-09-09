@@ -1,9 +1,6 @@
-
 import {map, tap} from 'rxjs/operators';
 import { NgZone } from '@angular/core';
 import { Observable ,  Observer } from 'rxjs';
-
-
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
 
@@ -33,6 +30,7 @@ export class RetrospectiveService {
     tap(json => {
       this.uuid = json.retroId;
       this.token = json.token;
+      localStorage.setItem(`/retro/${this.uuid}/token`, this.token);
     }),
     map(json => json.retroId));
   }
@@ -48,8 +46,19 @@ export class RetrospectiveService {
     }).pipe(
     tap(json => {
       this.token = json.token;
+      localStorage.setItem(`/retro/${this.uuid}/token`, this.token);
     }),
     map(() => this.uuid));
+  }
+
+  rejoinRetrospective(retroId: string, token: string): void {
+    this.uuid = retroId;
+    this.token = token;
+    localStorage.setItem(`/retro/${this.uuid}/token`, this.token);
+  }
+
+  isRetrospectiveInitiated(): boolean {
+    return this.uuid !== '' && this.token !== '';
   }
 
   getRetrospective(): Observable<any> {
