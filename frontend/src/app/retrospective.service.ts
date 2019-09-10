@@ -30,7 +30,7 @@ export class RetrospectiveService {
     tap(json => {
       this.uuid = json.retroId;
       this.token = json.token;
-      localStorage.setItem(`/retro/${this.uuid}/token`, this.token);
+      sessionStorage.setItem(`/retro/${this.uuid}/token`, this.token);
     }),
     map(json => json.retroId));
   }
@@ -46,7 +46,7 @@ export class RetrospectiveService {
     }).pipe(
     tap(json => {
       this.token = json.token;
-      localStorage.setItem(`/retro/${this.uuid}/token`, this.token);
+      sessionStorage.setItem(`/retro/${this.uuid}/token`, this.token);
     }),
     map(() => this.uuid));
   }
@@ -54,7 +54,7 @@ export class RetrospectiveService {
   rejoinRetrospective(retroId: string, token: string): void {
     this.uuid = retroId;
     this.token = token;
-    localStorage.setItem(`/retro/${this.uuid}/token`, this.token);
+    sessionStorage.setItem(`/retro/${this.uuid}/token`, this.token);
   }
 
   isRetrospectiveInitiated(): boolean {

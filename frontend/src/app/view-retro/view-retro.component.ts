@@ -34,7 +34,7 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
     if (!this.retroService.isRetrospectiveInitiated()) {
       // we got here through a refresh of the view page or basically not through the normal join
       const routeRetroId = this.route.snapshot.paramMap.get('id');
-      const token = localStorage.getItem(`/retro/${routeRetroId}/token`);
+      const token = sessionStorage.getItem(`/retro/${routeRetroId}/token`);
       this.retroService.rejoinRetrospective(routeRetroId, token);
     }
     this.updateRetro();
