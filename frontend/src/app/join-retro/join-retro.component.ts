@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { HttpErrorResponse} from '@angular/common/http'
-import { RetrospectiveServiceV2 } from '../retrospectiveV2.service'
+import { HttpErrorResponse} from '@angular/common/http';
+import { RetrospectiveServiceV2 } from '../retrospectiveV2.service';
 
 @Component({
   selector: 'app-join-retro',
@@ -25,11 +25,11 @@ export class JoinRetroComponent implements OnInit {
     this.retroService.joinRetrospective(retroId, userName)
       .subscribe(uuid => {
         this.stopLoadingIndicator();
-        this.router.navigateByUrl('/view');
+        this.router.navigateByUrl(`/view/${retroId}`);
       },
       (error: HttpErrorResponse) => {
         this.stopLoadingIndicator();
-        if(error.status === 404) {
+        if (error.status === 404) {
           this.displayError('The retrospective was not found.  Is the ID correct?');
          } else {
           this.displayError('Something bad happened.  Please contact us with the following information: [Status - ' + error.status + ', Message - ' + error.message + ']');

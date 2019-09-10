@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RetrospectiveServiceV2 } from '../retrospectiveV2.service';
 import { environment } from '../../environments/environment';
-
 import {Subscription} from 'rxjs';
+import {ActivatedRoute} from '@angular/router';
 
 @Component({
   selector: 'app-view-retro',
@@ -28,9 +28,15 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   assignGroupSpinners = {};
   voteSpinners = {};
 
-  constructor(private retroService: RetrospectiveServiceV2) { }
+  constructor(private route: ActivatedRoute, private retroService: RetrospectiveServiceV2) { }
 
   ngOnInit() {
+    if (!this.retroService.isRetrospectiveInitiated()) {
+      // we got here through a refresh of the view page or basically not through the normal join
+      const routeRetroId = this.route.snapshot.paramMap.get('id');
+      const token = sessionStorage.getItem(`/retro/${routeRetroId}/token`);
+      this.retroService.rejoinRetrospective(routeRetroId, token);
+    }
     this.updateRetro();
     this.setupLiveUpdater();
   }
