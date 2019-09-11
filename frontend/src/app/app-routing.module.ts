@@ -9,7 +9,6 @@ const routes: Routes = [
   { path: 'start', component: StartRetroComponent },
   { path: 'join', component: JoinRetroComponent },
   { path: 'join/:id', component: JoinRetroComponent },
-  // { path: 'view', component: ViewRetroComponent },
   { path: 'view/:id', component: ViewRetroComponent }
 ];
 
