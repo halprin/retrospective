@@ -97,7 +97,13 @@ def log_response(original_function):
     @wraps(original_function)
     def wrapper(*args, **kwargs):
         response = original_function(*args, **kwargs)
-        logging.info('Responding to {} with status {}'.format(original_function, response['statusCode']))
+        if 400 <= response['statusCode'] <= 599:
+            response_log = 'Responding to {} with status {} and body {}'.format(original_function,
+                                                                                response['statusCode'],
+                                                                                response['body'])
+        else:
+            response_log = 'Responding to {} with status {}'.format(original_function, response['statusCode'])
+        logging.info(response_log)
         return response
 
     return wrapper

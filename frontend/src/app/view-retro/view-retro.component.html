@@ -72,6 +72,18 @@
   </div>
 </div>
 
+<!--Error reporting-->
+<div class="container text-center" *ngIf="errorText != ''">
+  <div class="row justify-content-center">
+    <div class="col-5">
+      <div class="alert alert-dismissible alert-danger">
+        <button type="button" class="close" (click)="hideError();">&times;</button>
+        {{errorText}}
+      </div>
+    </div>
+  </div>
+</div>
+
 <!--Initial loading spinner-->
 <div class="container text-center" *ngIf="retro == null">
   <div class="spinner-border" style="width: 6rem; height: 6rem;" role="status">

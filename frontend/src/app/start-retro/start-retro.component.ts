@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpErrorResponse} from '@angular/common/http'
-import { RetrospectiveServiceV2 } from '../retrospectiveV2.service'
+import { HttpErrorResponse} from '@angular/common/http';
+import { RetrospectiveServiceV2 } from '../retrospectiveV2.service';
 
 @Component({
   selector: 'app-start-retro',
@@ -23,7 +23,7 @@ export class StartRetroComponent implements OnInit {
     this.retroService.startRetrospective(retroName, userName)
       .subscribe(uuid => {
         this.stopLoadingIndicator();
-        this.router.navigateByUrl('/view');
+        this.router.navigateByUrl(`/view/${uuid}`);
       },
       (error: HttpErrorResponse) => {
         this.stopLoadingIndicator();
