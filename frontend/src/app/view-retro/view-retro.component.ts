@@ -16,6 +16,8 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   frontendEndpoint = environment.frontendEndpoint;
   private liveUpdater: Subscription;
 
+  errorText = '';
+
   readySpinner = false;
   backSpinner = false;
   forwardSpinner = false;
@@ -44,7 +46,9 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   setupLiveUpdater() {
     console.log('Setting-up the live updater');
     this.liveUpdater = this.retroService.startLiveUpdateRetrospective().subscribe(messageEvent => this.retro = JSON.parse(messageEvent.data), error => {
-      console.error('Error on live updater');
+      const errorString = `Live updater failed to connect.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
       setTimeout(() => { this.setupLiveUpdater(); }, 60000);
     }, () => {
       console.log('Complete live updater');
@@ -57,31 +61,60 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   }
 
   updateRetro(): void {
-    this.retroService.getRetrospective().subscribe(json => this.retro = json);
+    this.retroService.getRetrospective().subscribe(json => this.retro = json, error => {
+      const errorString = `Failed to get latest update of retrospective.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
+    });
   }
 
   alternateReadiness(): void {
     this.readySpinner = true;
     if (this.retro.yourself.ready === true) {
-      this.retroService.markUserAsNotReady().subscribe(() => this.readySpinner = false, () => this.readySpinner = false, () => this.readySpinner = false);
+      this.retroService.markUserAsNotReady().subscribe(() => this.readySpinner = false, (error) => {
+        this.readySpinner = false;
+        const errorString = `Failed to mark you as NOT ready.  ${JSON.stringify(error)}`;
+        this.errorText = errorString;
+        console.error(errorString);
+      }, () => this.readySpinner = false);
     } else {
-      this.retroService.markUserAsReady().subscribe(() => this.readySpinner = false, () => this.readySpinner = false, () => this.readySpinner = false);
+      this.retroService.markUserAsReady().subscribe(() => this.readySpinner = false, (error) => {
+        this.readySpinner = false;
+        const errorString = `Failed to mark you as ready.  ${JSON.stringify(error)}`;
+        this.errorText = errorString;
+        console.error(errorString);
+      }, () => this.readySpinner = false);
     }
   }
 
   addWentWellIssue(title: string): void {
     this.addGoodIssueSpinner = true;
-    this.retroService.addIssue(title, 'Went Well').subscribe(() => this.addGoodIssueSpinner = false, () => this.addGoodIssueSpinner = false, () => this.addGoodIssueSpinner = false);
+    this.retroService.addIssue(title, 'Went Well').subscribe(() => this.addGoodIssueSpinner = false, (error) => {
+      this.addGoodIssueSpinner = false;
+      const errorString = `Failed to add a Went Well item.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
+    }, () => this.addGoodIssueSpinner = false);
   }
 
   addNeedsImprovementIssue(title: string): void {
     this.addBadIssueSpinner = true;
-    this.retroService.addIssue(title, 'Needs Improvement').subscribe(() => this.addBadIssueSpinner = false, () => this.addBadIssueSpinner = false, () => this.addBadIssueSpinner = false);
+    this.retroService.addIssue(title, 'Needs Improvement').subscribe(() => this.addBadIssueSpinner = false, (error) => {
+      this.addBadIssueSpinner = false;
+      const errorString = `Failed to add a Needs Improvement issue.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
+    }, () => this.addBadIssueSpinner = false);
   }
 
   deleteIssue(issue_id: string): void {
     this.deleteIssueSpinners[issue_id] = true;
-    this.retroService.deleteIssue(issue_id).subscribe(() => this.deleteIssueSpinners[issue_id] = false, () => this.deleteIssueSpinners[issue_id] = false, () => this.deleteIssueSpinners[issue_id] = false);
+    this.retroService.deleteIssue(issue_id).subscribe(() => this.deleteIssueSpinners[issue_id] = false, (error) => {
+      this.deleteIssueSpinners[issue_id] = false;
+      const errorString = `Failed to delete an issue.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
+    }, () => this.deleteIssueSpinners[issue_id] = false);
   }
 
   getWentWellIssues(): any {
@@ -138,12 +171,22 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
 
   moveRetroBackward(): void {
     this.backSpinner = true;
-    this.retroService.moveRetrospectiveBackward().subscribe(() => this.backSpinner = false, () => this.backSpinner = false, () => this.backSpinner = false);
+    this.retroService.moveRetrospectiveBackward().subscribe(() => this.backSpinner = false, (error) => {
+      this.backSpinner = false;
+      const errorString = `Failed move retro back a step.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
+    }, () => this.backSpinner = false);
   }
 
   moveRetroForward(): void {
     this.forwardSpinner = true;
-    this.retroService.moveRetrospectiveForward().subscribe(() => this.forwardSpinner = false, () => this.forwardSpinner = false, () => this.forwardSpinner = false);
+    this.retroService.moveRetrospectiveForward().subscribe(() => this.forwardSpinner = false, (error) => {
+      this.forwardSpinner = false;
+      const errorString = `Failed to move retro forward a step.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
+    }, () => this.forwardSpinner = false);
   }
 
   voteOrUnvoteForIssue(issue: any, checkbox: HTMLInputElement): void {
@@ -164,17 +207,32 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
 
   addWentWellGroup(title: string): void {
     this.addGoodGroupSpinner = true;
-    this.retroService.addGroup(title, 'Went Well').subscribe(() => this.addGoodGroupSpinner = false, () => this.addGoodGroupSpinner = false, () => this.addGoodGroupSpinner = false);
+    this.retroService.addGroup(title, 'Went Well').subscribe(() => this.addGoodGroupSpinner = false, (error) => {
+      this.addGoodGroupSpinner = false;
+      const errorString = `Failed to add a Went Well group.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
+    }, () => this.addGoodGroupSpinner = false);
   }
 
   addNeedsImprovementGroup(title: string): void {
     this.addBadGroupSpinner = true;
-    this.retroService.addGroup(title, 'Needs Improvement').subscribe(() => this.addBadGroupSpinner = false, () => this.addBadGroupSpinner = false, () => this.addBadGroupSpinner = false);
+    this.retroService.addGroup(title, 'Needs Improvement').subscribe(() => this.addBadGroupSpinner = false, (error) => {
+      this.addBadGroupSpinner = false;
+      const errorString = `Failed to add a Needs Improvement group.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
+    }, () => this.addBadGroupSpinner = false);
   }
 
   deleteGroup(group_id: string): void {
     this.deleteGroupSpinners[group_id] = true;
-    this.retroService.deleteGroup(group_id).subscribe(() => this.deleteGroupSpinners[group_id] = false, () => this.deleteGroupSpinners[group_id] = false, () => this.deleteGroupSpinners[group_id] = false);
+    this.retroService.deleteGroup(group_id).subscribe(() => this.deleteGroupSpinners[group_id] = false, (error) => {
+      this.deleteGroupSpinners[group_id] = false;
+      const errorString = `Failed to delete a group.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
+    }, () => this.deleteGroupSpinners[group_id] = false);
   }
 
   getWentWellGroups(): any {
@@ -202,9 +260,19 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
   groupOrUngroupIssue(issue_id: string, group_id: string): void {
     this.assignGroupSpinners[issue_id] = true;
     if (group_id === 'ungroup') {
-      this.retroService.ungroupIssue(issue_id).subscribe(() => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false);
+      this.retroService.ungroupIssue(issue_id).subscribe(() => this.assignGroupSpinners[issue_id] = false, (error) => {
+        this.assignGroupSpinners[issue_id] = false;
+        const errorString = `Failed to UNgroup an issue.  ${JSON.stringify(error)}`;
+        this.errorText = errorString;
+        console.error(errorString);
+      }, () => this.assignGroupSpinners[issue_id] = false);
     } else {
-      this.retroService.groupIssue(issue_id, group_id).subscribe(() => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false, () => this.assignGroupSpinners[issue_id] = false);
+      this.retroService.groupIssue(issue_id, group_id).subscribe(() => this.assignGroupSpinners[issue_id] = false, (error) => {
+        this.assignGroupSpinners[issue_id] = false;
+        const errorString = `Failed to group an issue.  ${JSON.stringify(error)}`;
+        this.errorText = errorString;
+        console.error(errorString);
+      }, () => this.assignGroupSpinners[issue_id] = false);
     }
   }
 
@@ -224,6 +292,10 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
     }
   }
 
+  hideError(): void {
+    this.errorText = '';
+  }
+
   private actuallyVoteForIssue(issue: any): void {
     const issue_id = issue.id;
     this.voteSpinners[issue_id] = true;
@@ -231,6 +303,9 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
     this.retroService.voteForIssue(issue_id).subscribe(response => this.voteSpinners[issue_id] = false, error => {
       this.simulateUnvoteForIssueOrGroup(issue);
       this.voteSpinners[issue_id] = false;
+      const errorString = `Failed to vote for an issue.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
     });
   }
 
@@ -241,6 +316,9 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
     this.retroService.unvoteForIssue(issue_id).subscribe(response => this.voteSpinners[issue_id] = false, error => {
       this.simulateVoteForIssueOrGroup(issue);
       this.voteSpinners[issue_id] = false;
+      const errorString = `Failed to UNvote for an issue.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
     });
   }
 
@@ -251,6 +329,9 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
     this.retroService.voteForGroup(group_id).subscribe(response => this.voteSpinners[group_id] = false, error => {
       this.simulateUnvoteForIssueOrGroup(group);
       this.voteSpinners[group_id] = false;
+      const errorString = `Failed to vote for a group.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
     });
   }
 
@@ -261,6 +342,9 @@ export class ViewRetroComponent implements OnInit, OnDestroy {
     this.retroService.unvoteForGroup(group_id).subscribe(response => this.voteSpinners[group_id] = false, error => {
       this.simulateVoteForIssueOrGroup(group);
       this.voteSpinners[group_id] = false;
+      const errorString = `Failed to UNvote for a group.  ${JSON.stringify(error)}`;
+      this.errorText = errorString;
+      console.error(errorString);
     });
   }
 
