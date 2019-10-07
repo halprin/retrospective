@@ -9,6 +9,7 @@ import { StartRetroComponent } from './start-retro/start-retro.component';
 import { JoinRetroComponent } from './join-retro/join-retro.component';
 import { ViewRetroComponent } from './view-retro/view-retro.component';
 import { RetrospectiveServiceV2 } from './retrospectiveV2.service';
+import { IssueComponent } from './issue/issue.component';
 
 
 @NgModule({
@@ -18,6 +19,7 @@ import { RetrospectiveServiceV2 } from './retrospectiveV2.service';
     StartRetroComponent,
     JoinRetroComponent,
     ViewRetroComponent,
+    IssueComponent,
   ],
   imports: [
     BrowserModule,
