@@ -8,9 +8,16 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 export class IssueComponent implements OnInit {
 
   @Input() title = '';
+
   @Input() showDeleteButton = false;
   @Input() showDeleteSpinner = false;
   @Output() deleteButtonClicked = new EventEmitter();
+
+  @Input() showGroupDropdown = false;
+  @Input() groups = [];
+  @Input() selectedGroupId = null;
+  @Input() showGroupSpinner = false;
+  @Output() groupedOrUngrouped = new EventEmitter<string>();
 
   constructor() { }
 
@@ -19,5 +26,9 @@ export class IssueComponent implements OnInit {
 
   delete() {
     this.deleteButtonClicked.emit();
+  }
+
+  groupOrUngroupIssue(group_id: string) {
+    this.groupedOrUngrouped.emit(group_id);
   }
 }

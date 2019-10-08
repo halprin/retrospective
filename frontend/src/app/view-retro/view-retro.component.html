@@ -164,20 +164,7 @@
               </div>
             </div>
           </li>
-          <li class="list-group-item" *ngFor="let issue of getWentWellIssues()">
-            <div class="container p-0">
-              <div class="row justify-content-between align-items-center">
-                <div class="col pr-0 break-word">{{issue.title}}</div>
-                <div class="col-auto form-inline">
-                  <span class="spinner-border" *ngIf="assignGroupSpinners[issue.id]" role="status" aria-hidden="true" style="margin-right: 0.5rem"></span>
-                  <select class="custom-select" (change)="groupOrUngroupIssue(issue.id, $event.target.value)" [disabled]="assignGroupSpinners[issue.id]">
-                    <option value="ungroup" [selected]="isIssueUngrouped(issue.id)">No Group</option>
-                    <option *ngFor="let group of getWentWellGroups()" [value]="group.id" [selected]="isIssueGroupedWithGroup(issue.id, group.id)">{{group.title}}</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </li>
+          <retro-issue *ngFor="let issue of getWentWellIssues()" [title]="issue.title" [showGroupDropdown]="true" [showGroupSpinner]="assignGroupSpinners[issue.id]" [groups]="getWentWellGroups()" [selectedGroupId]="issue.group" (groupedOrUngrouped)="groupOrUngroupIssue(issue.id, $event)"></retro-issue>
         </ul>
       </div>
     </div>
@@ -209,20 +196,7 @@
               </div>
             </div>
           </li>
-          <li class="list-group-item" *ngFor="let issue of getNeedsImprovementIssues()">
-            <div class="container p-0">
-              <div class="row justify-content-between align-items-center">
-                <div class="col pr-0 break-word">{{issue.title}}</div>
-                <div class="col-auto form-inline">
-                  <span class="spinner-border" *ngIf="assignGroupSpinners[issue.id]" role="status" aria-hidden="true" style="margin-right: 0.5rem"></span>
-                  <select class="custom-select" (change)="groupOrUngroupIssue(issue.id, $event.target.value)" [disabled]="assignGroupSpinners[issue.id]">
-                    <option value="ungroup" [selected]="isIssueUngrouped(issue.id)">No Group</option>
-                    <option *ngFor="let group of getNeedsImprovementGroups()" [value]="group.id" [selected]="isIssueGroupedWithGroup(issue.id, group.id)">{{group.title}}</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </li>
+          <retro-issue *ngFor="let issue of getNeedsImprovementIssues()" [title]="issue.title" [showGroupDropdown]="true" [showGroupSpinner]="assignGroupSpinners[issue.id]" [groups]="getWentWellGroups()" [selectedGroupId]="issue.group" (groupedOrUngrouped)="groupOrUngroupIssue(issue.id, $event)"></retro-issue>
         </ul>
       </div>
     </div>
