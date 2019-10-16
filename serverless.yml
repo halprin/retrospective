@@ -23,7 +23,8 @@ package:
   exclude:
     - ./**
   include:
-    - backend/**
+    - backend/api/**
+    - backend/__init__.py
 
 
 functions:
@@ -189,5 +190,9 @@ resources:
 
 custom:
   pythonRequirements:
+    fileName: requirements-deploy.txt
     noDeploy:
-      - pytest
+      - boto3
+      - botocore
+      - docutils
+      - jmespath
